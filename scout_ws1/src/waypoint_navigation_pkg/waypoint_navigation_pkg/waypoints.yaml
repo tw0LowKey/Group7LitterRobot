@@ -1,0 +1,53 @@
+waypoints:
+  # --- Start Point ---
+  - name: "Start Point (2,2)"
+    pose:
+      position: {x: 2.0, y: 2.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+
+  - name: "End of Leg 1"
+    pose:
+      position: {x: 7.0, y: 2.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+  # --- Leg 1: Drive 10m East ---
+  - name: "End of Leg 1"
+    pose:
+      position: {x: 12.0, y: 2.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+
+
+
+  # --- Turn 1: Shift 2m North ---
+  - name: "Shift North"
+    pose:
+      position: {x: 12.0, y: 4.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.707, w: 0.707}
+
+  - name: "End of Leg 2"
+    pose:
+      position: {x: 7.0, y: 4.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 1.0, w: 0.0}
+
+  # --- Leg 2: Drive 10m West ---
+  - name: "End of Leg 2"
+    pose:
+      position: {x: 2.0, y: 4.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 1.0, w: 0.0}
+
+  # --- Turn 2: Shift 2m North ---
+  - name: "Shift North"
+    pose:
+      position: {x: 2.0, y: 6.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.707, w: 0.707}
+  
+  - name: "End of Leg 3"
+    pose:
+      position: {x: 7.0, y: 6.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
+
+
+  # --- Leg 3: Drive 10m East ---
+  - name: "End of Leg 3"
+    pose:
+      position: {x: 12.0, y: 6.0, z: 0.0}
+      orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}
