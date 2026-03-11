@@ -116,11 +116,7 @@ class RobustGraspNode(Node):
         x, y, z = pts_local[:, 0], pts_local[:, 1], pts_local[:, 2]
         half_w  = GRIPPER_WIDTH_MAX / 2.0
         half_ft = GRIPPER_FINGER_THICK / 2.0
-        outer_x = half_w + GRIPPER_FINGER_THICK   # outer X edge of finger / palm
-
-        # ── Reachability checks ───────────────────────────────────────────────
-        # These are not collision tests — they verify the object is positioned
-        # such that the fingers can engage it at all.
+        outer_x = half_w + GRIPPER_FINGER_THICK
 
         # 1. At least one point must lie within the finger envelope (z axis).
         in_env = (z >= 0.0) & (z <= GRIPPER_FINGER_LENGTH)
@@ -136,14 +132,7 @@ class RobustGraspNode(Node):
         if pts_in_jaw_env.shape[0] == 0:
             return 'insufficient_penetration'
 
-        # ── Collision checks ─────────────────────────────────────────────────
-        # Each check corresponds directly to a physical gripper part and tests
-        # whether any object point lies inside that part's volume.
-
         # 3. Finger collision — solid volume of either finger block.
-        #    X: from inner face (±half_w) to outer face (±outer_x)
-        #    Y: finger depth (GRIPPER_WIDTH_Y)
-        #    Z: finger length
         left_finger  = (x >= half_w)   & (x <= outer_x)
         right_finger = (x <= -half_w)  & (x >= -outer_x)
         in_finger_y  = np.abs(y) <= GRIPPER_WIDTH_Y / 2.0
@@ -152,9 +141,6 @@ class RobustGraspNode(Node):
             return 'finger_collision'
 
         # 4. Palm collision — rectangular plate behind the finger roots.
-        #    X: full outer width (±outer_x)
-        #    Y: palm is wider than fingers — uses GRIPPER_PALM_WIDTH_Y
-        #    Z: from back of fingers (0) to back of palm (-PALM_THICK)
         in_palm_x = np.abs(x) <= outer_x
         in_palm_y = np.abs(y) <= GRIPPER_PALM_WIDTH_Y / 2.0
         in_palm_z = (z < 0.0) & (z >= -GRIPPER_PALM_THICK)
@@ -162,9 +148,6 @@ class RobustGraspNode(Node):
             return 'palm_collision'
 
         # 5. Shaft collision — cylindrical body behind the palm.
-        #    The shaft axis runs along local Z; its cross-section is circular
-        #    with radius GRIPPER_SHAFT_RADIUS in the X-Y plane.
-        #    Z: from back of palm (-PALM_THICK) to back of body (-BODY_DEPTH)
         in_shaft_z      = (z < -GRIPPER_PALM_THICK) & (z >= -GRIPPER_BODY_DEPTH)
         radial_dist     = np.sqrt(x**2 + y**2)
         in_shaft_radial = radial_dist <= GRIPPER_SHAFT_RADIUS
@@ -173,13 +156,6 @@ class RobustGraspNode(Node):
 
         # 6. Ground collision — bounding box corners of every gripper part
         #    transformed into world space and tested against the floor plane.
-        #
-        #    Three sets of corners are needed because each part has a different
-        #    Y extent:
-        #      - Finger tips: Y = GRIPPER_WIDTH_Y        (narrowest)
-        #      - Palm faces:  Y = GRIPPER_PALM_WIDTH_Y   (widest — previously missing)
-        #      - Shaft back:  Y = GRIPPER_PALM_WIDTH_Y   (bounded by palm width since
-        #                                                  the cylinder fits inside it)
         if self._ground_plane is not None:
             a, b, c, d = self._ground_plane
             corners_local = np.array([
@@ -225,17 +201,6 @@ class RobustGraspNode(Node):
         enclosed = pts_local[in_volume]
         n_enclosed = enclosed.shape[0]
 
-        # Contact score — points near each finger's inner face rather than
-        # the full jaw volume.  This discriminates against end-on approaches
-        # (e.g. a flat bottle base) where points cluster at x ≈ 0, far from
-        # either finger face, and rewards side grasps where the object surface
-        # curves toward ±half_w.
-        #
-        # A thin contact slab of GRASP_CONTACT_DEPTH is defined just inside
-        # each finger face.  The score is the fraction of enclosed points that
-        # fall in either slab, normalised to [0, 1].  Using a fraction rather
-        # than a raw count keeps the score comparable to the other 0-1 terms
-        # so the weights remain meaningful regardless of point cloud density.
         in_contact_y = np.abs(enclosed[:, 1]) <= GRIPPER_WIDTH_Y / 2.0
         in_contact_z = (enclosed[:, 2] >= 0.0) & (enclosed[:, 2] <= GRIPPER_FINGER_LENGTH)
         in_contact_yz = in_contact_y & in_contact_z
@@ -247,36 +212,22 @@ class RobustGraspNode(Node):
         n_right = float(np.sum(right_contact & in_contact_yz))
         n_contact = n_left + n_right
 
-        # Normalise by enclosed count so sparse and dense clouds are treated
-        # equally.  Falls back to 0 if nothing is enclosed.
         body_score = n_contact / (n_enclosed + 1e-6)
 
-        # Symmetry — balance of contact points between the two finger faces.
-        # Uses contact counts rather than enclosed counts so it is consistent
-        # with the new body score: a grasp with good contact on both sides
-        # scores higher than one where only one finger has contact.
         sym_score = 1.0 - abs(n_left - n_right) / (n_contact + 1e-6)
 
-        # Penetration
-        # The target penetration is capped at half the object's own extent along
-        # the approach axis so short objects are not penalised for failing to
-        # reach the default GRIPPER_TARGET_PENETRATION (= FINGER_LENGTH / 2).
         in_jaw = in_volume & (np.abs(y) <= GRIPPER_WIDTH_Y / 2.0)
         pts_in_jaw = pts_local[in_jaw]
         actual_pen = float(pts_in_jaw[:, 2].max()) if pts_in_jaw.shape[0] > 0 else 0.0
         object_extent = float(pts_local[:, 2].max() - pts_local[:, 2].min()) if pts_local.shape[0] > 0 else GRIPPER_FINGER_LENGTH
         adaptive_target = min(GRIPPER_TARGET_PENETRATION, object_extent / 2.0)
-        adaptive_target = max(adaptive_target, GRIPPER_MIN_PENETRATION)  # never below minimum
+        adaptive_target = max(adaptive_target, GRIPPER_MIN_PENETRATION)
         penetration_score = max(0.0, 1.0 - abs(actual_pen - adaptive_target) / adaptive_target)
 
-        # Friction / approach score.
-        # For tall objects a downward approach is preferred (approach_axis[2] high).
-        # For short objects near the ground the useful approaches are lateral
-        # (approach_axis[2] ~ 0).  We blend between the two based on clearance
-        # so lateral grasps are not penalised when they are the only viable option.
+
         approach_axis = grasp_rot[:, 2]
         clearance = self._ground_clearance(points)
-        threshold = GRIPPER_WIDTH_Y / 2.0   # same threshold as candidate generation
+        threshold = GRIPPER_WIDTH_Y / 2.0
         lateral_fraction = float(np.clip(1.0 - clearance / threshold, 0.0, 1.0))
         downward_score = max(0.0, float(approach_axis[2]))
         lateral_score  = max(0.0, 1.0 - abs(float(approach_axis[2])))
@@ -286,20 +237,6 @@ class RobustGraspNode(Node):
                 + W_PENETRATION * penetration_score + W_FRICTION * friction_score)
 
     def _ground_clearance(self, points: np.ndarray) -> float:
-        """
-        Return the signed distance of the lowest object point above the ground
-        plane — i.e. how much vertical room exists beneath the object.
-
-        This is used to decide how aggressively to bias sampling toward lateral
-        approach directions.  The relevant limit is GRIPPER_WIDTH_Y/2: if the
-        object sits closer to the ground than half the gripper depth (0.0275 m),
-        a lateral approach will have its lower finger edge intersect the ground.
-        GRIPPER_BODY_DEPTH is NOT the limiting dimension here — the body extends
-        horizontally away from the object for lateral grasps and never approaches
-        the ground.
-
-        Returns 1.0 if no ground plane is loaded.
-        """
         if self._ground_plane is None:
             return 1.0
         a, b, c, d = self._ground_plane
@@ -308,18 +245,6 @@ class RobustGraspNode(Node):
         return float(np.min(dists))
 
     def _sample_approach_directions(self, n_samples: int, lateral_fraction: float) -> np.ndarray:
-        """
-        Sample `n_samples` unit approach vectors.
-
-        `lateral_fraction` in [0, 1] controls how many come from the lateral
-        (ground-parallel) band vs the full upper hemisphere:
-          0.0  -> all from upper hemisphere  (tall objects, no ground risk)
-          1.0  -> all lateral                (very flat objects on the ground)
-
-        Lateral directions lie in the plane perpendicular to the ground
-        normal and are given a small random downward tilt (0-15 deg) so the
-        gripper approaches the side of the object rather than sliding beneath.
-        """
         if self._ground_plane is not None:
             a, b, c, _ = self._ground_plane
             up = np.array([a, b, c], dtype=float)
@@ -335,7 +260,7 @@ class RobustGraspNode(Node):
         while len(directions) < n_hemi:
             vec = np.random.randn(3)
             if np.dot(vec, up) < 0:
-                vec -= 2.0 * np.dot(vec, up) * up   # reflect into upper hemisphere
+                vec -= 2.0 * np.dot(vec, up) * up
             norm = np.linalg.norm(vec)
             if norm < 1e-6:
                 continue
@@ -344,7 +269,7 @@ class RobustGraspNode(Node):
         # Lateral directions (parallel to ground + small downward tilt)
         while len(directions) < n_samples:
             vec = np.random.randn(3)
-            vec -= np.dot(vec, up) * up              # project onto ground plane
+            vec -= np.dot(vec, up) * up
             norm = np.linalg.norm(vec)
             if norm < 1e-6:
                 continue
@@ -364,19 +289,6 @@ class RobustGraspNode(Node):
         centroid = points.mean(axis=0)
         standoff = GRIPPER_PALM_THICK / 2 + 0.005
 
-        # Ramp lateral sampling based on ground clearance vs finger half-width.
-        #
-        # For a top-down grasp the fingers point downward to pinch the object
-        # from the sides — the body extends upward toward the robot and never
-        # threatens the ground.  The problem for short objects is simply that
-        # they aren't tall enough to provide a good grip in the jaw.
-        #
-        # For a lateral grasp the approach axis is horizontal, so GRIPPER_WIDTH_Y
-        # spans vertically.  The lower edge of the finger block sits
-        # GRIPPER_WIDTH_Y/2 = 0.0275 m below the grasp origin.  Once the object's
-        # lowest point is closer to the ground than that, a lateral grasp also
-        # clips the floor — so we bias toward lateral approaches while the
-        # feasibility checker handles the remaining floor-clipping cases.
         clearance = self._ground_clearance(points)
         threshold = GRIPPER_WIDTH_Y / 2.0   # 0.0275 m
         lateral_fraction = float(np.clip(1.0 - clearance / threshold, 0.0, 1.0))
@@ -413,40 +325,6 @@ class RobustGraspNode(Node):
     # Gripper marker helpers
     # -------------------------
     def _build_gripper_markers(self, header, idx, pos, rot, quat):
-        """
-        Build the four CUBE markers that visualise a gripper pose.
-
-        Gripper local frame (columns of `rot`):
-          local X = rot[:,0]  — finger-spread axis
-          local Y = rot[:,1]  — lateral axis
-          local Z = rot[:,2]  — approach axis (fingers point in +Z)
-
-        Geometry (all in local frame, origin = grasp_pos):
-        ┌──────────────────────────────────────────────────────────┐
-        │  local Z                                                 │
-        │  ↑                                                       │
-        │  GRIPPER_FINGER_LENGTH (0.07)  ← finger tip             │
-        │  │                                                       │
-        │  │   [left finger]   [right finger]                     │
-        │  │   at +X_half       at -X_half                        │
-        │  │   centred in Y     centred in Y                      │
-        │  │                                                       │
-        │  0  ← grasp_pos (origin)                                │
-        │  │                                                       │
-        │  -GRIPPER_PALM_THICK (−0.024)  ← back of palm          │
-        │  │                                                       │
-        │  -GRIPPER_BODY_DEPTH (−0.145) ← back of shaft          │
-        └──────────────────────────────────────────────────────────┘
-
-        The palm spans the full gripper width in X and GRIPPER_PALM_WIDTH_Y
-        (0.09 m) in Y, sitting in Z ∈ [−GRIPPER_PALM_THICK, 0].
-
-        Each finger spans GRIPPER_FINGER_THICK in X (outward from ±X_half),
-        GRIPPER_WIDTH_Y in Y, and GRIPPER_FINGER_LENGTH in Z.
-
-        The shaft (body) is a CYLINDER of radius GRIPPER_SHAFT_RADIUS (0.03 m)
-        whose axis runs along local Z, spanning Z ∈ [−GRIPPER_BODY_DEPTH, −GRIPPER_PALM_THICK].
-        """
         markers = []
         half_w = GRIPPER_WIDTH_MAX / 2.0          # ±X extent of palm / body
         half_ft = GRIPPER_FINGER_THICK / 2.0      # half-thickness of one finger in X
@@ -464,13 +342,7 @@ class RobustGraspNode(Node):
         ))
 
         # ------------------------------------------------------------------
-        # Left finger  — sits OUTSIDE the 7 cm jaw opening on the +X side.
-        #
-        # The jaw gap is GRIPPER_WIDTH_MAX (0.07 m), so the inner face of
-        # each finger is at ±half_w.  The finger centre in X is therefore:
-        #   centre_x = half_w + half_ft   (inner edge at half_w, outer at half_w + FINGER_THICK)
-        # It covers Z ∈ [0, GRIPPER_FINGER_LENGTH]:
-        #   centre_z = GRIPPER_FINGER_LENGTH / 2
+        # Left finger
         # ------------------------------------------------------------------
         lf_local = np.array([half_w + half_ft, 0.0, GRIPPER_FINGER_LENGTH / 2.0])
         lf_world = _local_to_world_pos(lf_local, pos, rot)
@@ -496,9 +368,6 @@ class RobustGraspNode(Node):
         # ------------------------------------------------------------------
         # Shaft (body) — cylindrical, axis along local Z.
         #   centre at (0, 0, −PALM_THICK − SHAFT_DEPTH/2)
-        #   RViz CYLINDER scale: x = diameter, y = diameter, z = length
-        #   A CYLINDER in RViz is oriented along its local Z axis by default,
-        #   so the quaternion from the grasp pose aligns it correctly.
         # ------------------------------------------------------------------
         shaft_local = np.array([0.0, 0.0, -GRIPPER_PALM_THICK - GRIPPER_SHAFT_DEPTH / 2.0])
         shaft_world = _local_to_world_pos(shaft_local, pos, rot)
