@@ -1,4 +1,0 @@
-[console_scripts]
-multi_pick = pick_and_place_python.multi_pick:main
-pick_and_place_client = pick_and_place_python.pick_place_client:main
-

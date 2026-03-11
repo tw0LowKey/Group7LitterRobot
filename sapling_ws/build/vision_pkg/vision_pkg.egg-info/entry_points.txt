@@ -1,3 +1,0 @@
-[console_scripts]
-perception_transform_node = vision_pkg.perception_transform_node:main
-

@@ -1,8 +1,0 @@
-source;share/sapling/hook/cmake_prefix_path.ps1
-source;share/sapling/hook/cmake_prefix_path.dsv
-source;share/sapling/hook/cmake_prefix_path.sh
-source;share/sapling/local_setup.bash
-source;share/sapling/local_setup.dsv
-source;share/sapling/local_setup.ps1
-source;share/sapling/local_setup.sh
-source;share/sapling/local_setup.zsh

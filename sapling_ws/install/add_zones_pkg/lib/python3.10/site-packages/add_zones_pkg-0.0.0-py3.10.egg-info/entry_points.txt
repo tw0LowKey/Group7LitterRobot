@@ -1,4 +1,0 @@
-[console_scripts]
-add_zones_node = add_zones_pkg.add_zones_node:main
-send_goal_node = add_zones_pkg.send_goal_node:main
-

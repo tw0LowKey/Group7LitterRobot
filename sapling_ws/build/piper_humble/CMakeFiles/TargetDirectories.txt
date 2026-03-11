@@ -1,9 +1,0 @@
-/home/leo/Group7LitterRobot/sapling_ws/build/piper_humble/CMakeFiles/uninstall.dir
-/home/leo/Group7LitterRobot/sapling_ws/build/piper_humble/CMakeFiles/piper_humble_uninstall.dir
-/home/leo/Group7LitterRobot/sapling_ws/build/piper_humble/CMakeFiles/test.dir
-/home/leo/Group7LitterRobot/sapling_ws/build/piper_humble/CMakeFiles/edit_cache.dir
-/home/leo/Group7LitterRobot/sapling_ws/build/piper_humble/CMakeFiles/rebuild_cache.dir
-/home/leo/Group7LitterRobot/sapling_ws/build/piper_humble/CMakeFiles/list_install_components.dir
-/home/leo/Group7LitterRobot/sapling_ws/build/piper_humble/CMakeFiles/install.dir
-/home/leo/Group7LitterRobot/sapling_ws/build/piper_humble/CMakeFiles/install/local.dir
-/home/leo/Group7LitterRobot/sapling_ws/build/piper_humble/CMakeFiles/install/strip.dir

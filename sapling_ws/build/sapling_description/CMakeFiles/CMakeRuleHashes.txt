@@ -1,2 +1,0 @@
-# Hashes of file build rules.
-6bc35edcd75c906ae6e5c7aad49e5259 CMakeFiles/sapling_description_uninstall
