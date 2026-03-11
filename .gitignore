@@ -1,0 +1,26 @@
+# --- ROS 2 ---
+build/
+install/
+log/
+
+# --- Python ---
+__pycache__/
+
+# --- C++ / Build Systems ---
+# Ignore CMake generated files and binaries
+*.obj
+*.o
+*.a
+*.lib
+*.so
+*.dll
+*.exe
+
+# --- IDEs and Editors ---
+.vscode/
+
+# --- System/Environment ---
+.DS_Store
+.env
+.venv
+venv/
