@@ -1,0 +1,37 @@
+[1.960s] Invoking command in '/home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_moveit/vision_pkg': PYTHONPATH=/home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../../../build/vision_pkg build --build-base /home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/build install --record /home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/install.log --single-version-externally-managed install_data
+[2.487s] running egg_info
+[2.488s] creating ../../../../../build/vision_pkg/vision_pkg.egg-info
+[2.489s] writing ../../../../../build/vision_pkg/vision_pkg.egg-info/PKG-INFO
+[2.489s] writing dependency_links to ../../../../../build/vision_pkg/vision_pkg.egg-info/dependency_links.txt
+[2.490s] writing entry points to ../../../../../build/vision_pkg/vision_pkg.egg-info/entry_points.txt
+[2.490s] writing requirements to ../../../../../build/vision_pkg/vision_pkg.egg-info/requires.txt
+[2.490s] writing top-level names to ../../../../../build/vision_pkg/vision_pkg.egg-info/top_level.txt
+[2.491s] writing manifest file '../../../../../build/vision_pkg/vision_pkg.egg-info/SOURCES.txt'
+[2.494s] reading manifest file '../../../../../build/vision_pkg/vision_pkg.egg-info/SOURCES.txt'
+[2.495s] writing manifest file '../../../../../build/vision_pkg/vision_pkg.egg-info/SOURCES.txt'
+[2.495s] running build
+[2.495s] running build_py
+[2.495s] creating /home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/build
+[2.495s] creating /home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/build/lib
+[2.496s] creating /home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/build/lib/vision_pkg
+[2.496s] copying vision_pkg/__init__.py -> /home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/build/lib/vision_pkg
+[2.496s] copying vision_pkg/perception_transform_node.py -> /home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/build/lib/vision_pkg
+[2.496s] running install
+[2.496s] running install_lib
+[2.498s] creating /home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/lib/python3.10/site-packages/vision_pkg
+[2.498s] copying /home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/build/lib/vision_pkg/__init__.py -> /home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/lib/python3.10/site-packages/vision_pkg
+[2.498s] copying /home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/build/lib/vision_pkg/perception_transform_node.py -> /home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/lib/python3.10/site-packages/vision_pkg
+[2.499s] byte-compiling /home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/lib/python3.10/site-packages/vision_pkg/__init__.py to __init__.cpython-310.pyc
+[2.500s] byte-compiling /home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/lib/python3.10/site-packages/vision_pkg/perception_transform_node.py to perception_transform_node.cpython-310.pyc
+[2.501s] running install_data
+[2.501s] creating /home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/share/ament_index
+[2.501s] creating /home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/share/ament_index/resource_index
+[2.501s] creating /home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/share/ament_index/resource_index/packages
+[2.503s] copying resource/vision_pkg -> /home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/share/ament_index/resource_index/packages
+[2.504s] copying package.xml -> /home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/share/vision_pkg
+[2.504s] running install_egg_info
+[2.508s] Copying ../../../../../build/vision_pkg/vision_pkg.egg-info to /home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/lib/python3.10/site-packages/vision_pkg-0.0.0-py3.10.egg-info
+[2.510s] running install_scripts
+[2.567s] Installing perception_transform_node script to /home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/lib/vision_pkg
+[2.574s] writing list of installed files to '/home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/install.log'
+[2.690s] Invoked command in '/home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_moveit/vision_pkg' returned '0': PYTHONPATH=/home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/leo/Group7LitterRobot/sapling_ws/install/vision_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../../../build/vision_pkg build --build-base /home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/build install --record /home/leo/Group7LitterRobot/sapling_ws/build/vision_pkg/install.log --single-version-externally-managed install_data

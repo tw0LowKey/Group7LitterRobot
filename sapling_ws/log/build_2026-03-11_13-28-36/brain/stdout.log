@@ -1,0 +1,31 @@
+running egg_info
+creating ../../../build/brain/brain.egg-info
+writing ../../../build/brain/brain.egg-info/PKG-INFO
+writing dependency_links to ../../../build/brain/brain.egg-info/dependency_links.txt
+writing entry points to ../../../build/brain/brain.egg-info/entry_points.txt
+writing requirements to ../../../build/brain/brain.egg-info/requires.txt
+writing top-level names to ../../../build/brain/brain.egg-info/top_level.txt
+writing manifest file '../../../build/brain/brain.egg-info/SOURCES.txt'
+reading manifest file '../../../build/brain/brain.egg-info/SOURCES.txt'
+writing manifest file '../../../build/brain/brain.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/leo/Group7LitterRobot/sapling_ws/build/brain/build
+creating /home/leo/Group7LitterRobot/sapling_ws/build/brain/build/lib
+creating /home/leo/Group7LitterRobot/sapling_ws/build/brain/build/lib/brain
+copying brain/__init__.py -> /home/leo/Group7LitterRobot/sapling_ws/build/brain/build/lib/brain
+running install
+running install_lib
+creating /home/leo/Group7LitterRobot/sapling_ws/install/brain/lib/python3.10/site-packages/brain
+copying /home/leo/Group7LitterRobot/sapling_ws/build/brain/build/lib/brain/__init__.py -> /home/leo/Group7LitterRobot/sapling_ws/install/brain/lib/python3.10/site-packages/brain
+byte-compiling /home/leo/Group7LitterRobot/sapling_ws/install/brain/lib/python3.10/site-packages/brain/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/leo/Group7LitterRobot/sapling_ws/install/brain/share/ament_index
+creating /home/leo/Group7LitterRobot/sapling_ws/install/brain/share/ament_index/resource_index
+creating /home/leo/Group7LitterRobot/sapling_ws/install/brain/share/ament_index/resource_index/packages
+copying resource/brain -> /home/leo/Group7LitterRobot/sapling_ws/install/brain/share/ament_index/resource_index/packages
+copying package.xml -> /home/leo/Group7LitterRobot/sapling_ws/install/brain/share/brain
+running install_egg_info
+Copying ../../../build/brain/brain.egg-info to /home/leo/Group7LitterRobot/sapling_ws/install/brain/lib/python3.10/site-packages/brain-0.0.0-py3.10.egg-info
+running install_scripts
+writing list of installed files to '/home/leo/Group7LitterRobot/sapling_ws/build/brain/install.log'

@@ -1,0 +1,4 @@
+source;share/pick_and_place_pkg/local_setup.bash
+source;share/pick_and_place_pkg/local_setup.dsv
+source;share/pick_and_place_pkg/local_setup.sh
+source;share/pick_and_place_pkg/local_setup.zsh

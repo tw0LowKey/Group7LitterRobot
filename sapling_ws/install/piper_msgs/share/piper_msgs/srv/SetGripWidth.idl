@@ -1,0 +1,15 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from piper_msgs/srv/SetGripWidth.srv
+// generated code does not contain a copyright notice
+
+
+module piper_msgs {
+  module srv {
+    struct SetGripWidth_Request {
+      boolean state;
+    };
+    struct SetGripWidth_Response {
+      boolean success;
+    };
+  };
+};

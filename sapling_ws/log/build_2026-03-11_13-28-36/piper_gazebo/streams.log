@@ -1,0 +1,58 @@
+[1.753s] Invoking command in '/home/leo/Group7LitterRobot/sapling_ws/build/piper_gazebo': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision_pkg:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision:/home/leo/Group7LitterRobot-main/sapling_ws/install/pick_and_place_python:/home/leo/Group7LitterRobot-main/sapling_ws/install/piper:/home/leo/Group7LitterRobot-main/sapling_ws/install/navigation:/home/leo/Group7LitterRobot-main/sapling_ws/install/comms:/home/leo/Group7LitterRobot-main/sapling_ws/install/brain:/home/leo/Group7LitterRobot-main/sapling_ws/install/add_zones_pkg:/opt/ros/humble /usr/bin/cmake /home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_sim/piper_gazebo -DCMAKE_INSTALL_PREFIX=/home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo
+[1.858s] -- The C compiler identification is GNU 11.4.0
+[1.962s] -- The CXX compiler identification is GNU 11.4.0
+[1.973s] -- Detecting C compiler ABI info
+[2.100s] -- Detecting C compiler ABI info - done
+[2.115s] -- Check for working C compiler: /usr/bin/cc - skipped
+[2.115s] -- Detecting C compile features
+[2.115s] -- Detecting C compile features - done
+[2.121s] -- Detecting CXX compiler ABI info
+[2.267s] -- Detecting CXX compiler ABI info - done
+[2.280s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[2.282s] -- Detecting CXX compile features
+[2.282s] -- Detecting CXX compile features - done
+[2.286s] -- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+[2.599s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[2.866s] -- Found ament_lint_auto: 0.12.14 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[3.041s] -- Added test 'copyright' to check source files copyright and LICENSE
+[3.045s] -- Added test 'flake8' to check Python code syntax and style conventions
+[3.046s] -- Added test 'lint_cmake' to check CMake code style
+[3.047s] -- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+[3.052s] -- Added test 'xmllint' to check XML markup files
+[3.055s] -- Configuring done
+[3.063s] -- Generating done
+[3.063s] -- Build files have been written to: /home/leo/Group7LitterRobot/sapling_ws/build/piper_gazebo
+[3.084s] Invoked command in '/home/leo/Group7LitterRobot/sapling_ws/build/piper_gazebo' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision_pkg:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision:/home/leo/Group7LitterRobot-main/sapling_ws/install/pick_and_place_python:/home/leo/Group7LitterRobot-main/sapling_ws/install/piper:/home/leo/Group7LitterRobot-main/sapling_ws/install/navigation:/home/leo/Group7LitterRobot-main/sapling_ws/install/comms:/home/leo/Group7LitterRobot-main/sapling_ws/install/brain:/home/leo/Group7LitterRobot-main/sapling_ws/install/add_zones_pkg:/opt/ros/humble /usr/bin/cmake /home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_sim/piper_gazebo -DCMAKE_INSTALL_PREFIX=/home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo
+[3.085s] Invoking command in '/home/leo/Group7LitterRobot/sapling_ws/build/piper_gazebo': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision_pkg:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision:/home/leo/Group7LitterRobot-main/sapling_ws/install/pick_and_place_python:/home/leo/Group7LitterRobot-main/sapling_ws/install/piper:/home/leo/Group7LitterRobot-main/sapling_ws/install/navigation:/home/leo/Group7LitterRobot-main/sapling_ws/install/comms:/home/leo/Group7LitterRobot-main/sapling_ws/install/brain:/home/leo/Group7LitterRobot-main/sapling_ws/install/add_zones_pkg:/opt/ros/humble /usr/bin/cmake --build /home/leo/Group7LitterRobot/sapling_ws/build/piper_gazebo -- -j8 -l8
+[3.239s] Invoked command in '/home/leo/Group7LitterRobot/sapling_ws/build/piper_gazebo' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision_pkg:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision:/home/leo/Group7LitterRobot-main/sapling_ws/install/pick_and_place_python:/home/leo/Group7LitterRobot-main/sapling_ws/install/piper:/home/leo/Group7LitterRobot-main/sapling_ws/install/navigation:/home/leo/Group7LitterRobot-main/sapling_ws/install/comms:/home/leo/Group7LitterRobot-main/sapling_ws/install/brain:/home/leo/Group7LitterRobot-main/sapling_ws/install/add_zones_pkg:/opt/ros/humble /usr/bin/cmake --build /home/leo/Group7LitterRobot/sapling_ws/build/piper_gazebo -- -j8 -l8
+[3.240s] Invoking command in '/home/leo/Group7LitterRobot/sapling_ws/build/piper_gazebo': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision_pkg:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision:/home/leo/Group7LitterRobot-main/sapling_ws/install/pick_and_place_python:/home/leo/Group7LitterRobot-main/sapling_ws/install/piper:/home/leo/Group7LitterRobot-main/sapling_ws/install/navigation:/home/leo/Group7LitterRobot-main/sapling_ws/install/comms:/home/leo/Group7LitterRobot-main/sapling_ws/install/brain:/home/leo/Group7LitterRobot-main/sapling_ws/install/add_zones_pkg:/opt/ros/humble /usr/bin/cmake --install /home/leo/Group7LitterRobot/sapling_ws/build/piper_gazebo
+[3.256s] -- Install configuration: ""
+[3.256s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/launch
+[3.256s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/launch/piper_with_gripper
+[3.257s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/launch/piper_with_gripper/piper_gazebo.launch.py
+[3.257s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/launch/piper_no_gripper
+[3.257s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/launch/piper_no_gripper/piper_no_gripper_gazebo.launch.py
+[3.257s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/launch/piper_no_gripper/__pycache__
+[3.257s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/launch/piper_no_gripper/__pycache__/piper_no_gripper_gazebo.launch.cpython-310.pyc
+[3.257s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/config
+[3.257s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/config/ros2_controllers.yaml
+[3.257s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/config/ros2_no_gripper_controllers.yaml
+[3.257s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/scripts
+[3.258s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/scripts/joint8_ctrl.py
+[3.258s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/lib/piper_gazebo/joint8_ctrl.py
+[3.258s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/ament_index/resource_index/package_run_dependencies/piper_gazebo
+[3.258s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/ament_index/resource_index/parent_prefix_path/piper_gazebo
+[3.258s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/environment/ament_prefix_path.sh
+[3.258s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/environment/ament_prefix_path.dsv
+[3.258s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/environment/path.sh
+[3.259s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/environment/path.dsv
+[3.259s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/local_setup.bash
+[3.259s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/local_setup.sh
+[3.259s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/local_setup.zsh
+[3.259s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/local_setup.dsv
+[3.259s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/package.dsv
+[3.259s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/ament_index/resource_index/packages/piper_gazebo
+[3.259s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/cmake/piper_gazeboConfig.cmake
+[3.259s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/cmake/piper_gazeboConfig-version.cmake
+[3.260s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_gazebo/share/piper_gazebo/package.xml
+[3.784s] Invoked command in '/home/leo/Group7LitterRobot/sapling_ws/build/piper_gazebo' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision_pkg:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision:/home/leo/Group7LitterRobot-main/sapling_ws/install/pick_and_place_python:/home/leo/Group7LitterRobot-main/sapling_ws/install/piper:/home/leo/Group7LitterRobot-main/sapling_ws/install/navigation:/home/leo/Group7LitterRobot-main/sapling_ws/install/comms:/home/leo/Group7LitterRobot-main/sapling_ws/install/brain:/home/leo/Group7LitterRobot-main/sapling_ws/install/add_zones_pkg:/opt/ros/humble /usr/bin/cmake --install /home/leo/Group7LitterRobot/sapling_ws/build/piper_gazebo

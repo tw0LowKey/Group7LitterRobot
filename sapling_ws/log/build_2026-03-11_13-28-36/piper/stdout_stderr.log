@@ -1,0 +1,48 @@
+running egg_info
+creating ../../../../build/piper/piper.egg-info
+writing ../../../../build/piper/piper.egg-info/PKG-INFO
+writing dependency_links to ../../../../build/piper/piper.egg-info/dependency_links.txt
+writing entry points to ../../../../build/piper/piper.egg-info/entry_points.txt
+writing requirements to ../../../../build/piper/piper.egg-info/requires.txt
+writing top-level names to ../../../../build/piper/piper.egg-info/top_level.txt
+writing manifest file '../../../../build/piper/piper.egg-info/SOURCES.txt'
+reading manifest file '../../../../build/piper/piper.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file '../../../../build/piper/piper.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/leo/Group7LitterRobot/sapling_ws/build/piper/build
+creating /home/leo/Group7LitterRobot/sapling_ws/build/piper/build/lib
+creating /home/leo/Group7LitterRobot/sapling_ws/build/piper/build/lib/piper
+copying piper/piper_read_slave_joint.py -> /home/leo/Group7LitterRobot/sapling_ws/build/piper/build/lib/piper
+copying piper/__init__.py -> /home/leo/Group7LitterRobot/sapling_ws/build/piper/build/lib/piper
+copying piper/piper_ctrl_single_node_new.py -> /home/leo/Group7LitterRobot/sapling_ws/build/piper/build/lib/piper
+copying piper/piper_ctrl_single_node.py -> /home/leo/Group7LitterRobot/sapling_ws/build/piper/build/lib/piper
+running install
+running install_lib
+creating /home/leo/Group7LitterRobot/sapling_ws/install/piper/lib/python3.10/site-packages/piper
+copying /home/leo/Group7LitterRobot/sapling_ws/build/piper/build/lib/piper/piper_read_slave_joint.py -> /home/leo/Group7LitterRobot/sapling_ws/install/piper/lib/python3.10/site-packages/piper
+copying /home/leo/Group7LitterRobot/sapling_ws/build/piper/build/lib/piper/__init__.py -> /home/leo/Group7LitterRobot/sapling_ws/install/piper/lib/python3.10/site-packages/piper
+copying /home/leo/Group7LitterRobot/sapling_ws/build/piper/build/lib/piper/piper_ctrl_single_node_new.py -> /home/leo/Group7LitterRobot/sapling_ws/install/piper/lib/python3.10/site-packages/piper
+copying /home/leo/Group7LitterRobot/sapling_ws/build/piper/build/lib/piper/piper_ctrl_single_node.py -> /home/leo/Group7LitterRobot/sapling_ws/install/piper/lib/python3.10/site-packages/piper
+byte-compiling /home/leo/Group7LitterRobot/sapling_ws/install/piper/lib/python3.10/site-packages/piper/piper_read_slave_joint.py to piper_read_slave_joint.cpython-310.pyc
+byte-compiling /home/leo/Group7LitterRobot/sapling_ws/install/piper/lib/python3.10/site-packages/piper/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/leo/Group7LitterRobot/sapling_ws/install/piper/lib/python3.10/site-packages/piper/piper_ctrl_single_node_new.py to piper_ctrl_single_node_new.cpython-310.pyc
+byte-compiling /home/leo/Group7LitterRobot/sapling_ws/install/piper/lib/python3.10/site-packages/piper/piper_ctrl_single_node.py to piper_ctrl_single_node.cpython-310.pyc
+running install_data
+creating /home/leo/Group7LitterRobot/sapling_ws/install/piper/share/ament_index
+creating /home/leo/Group7LitterRobot/sapling_ws/install/piper/share/ament_index/resource_index
+creating /home/leo/Group7LitterRobot/sapling_ws/install/piper/share/ament_index/resource_index/packages
+copying resource/piper -> /home/leo/Group7LitterRobot/sapling_ws/install/piper/share/ament_index/resource_index/packages
+copying package.xml -> /home/leo/Group7LitterRobot/sapling_ws/install/piper/share/piper
+creating /home/leo/Group7LitterRobot/sapling_ws/install/piper/share/piper/launch
+copying launch/start_single_piper.launch.py -> /home/leo/Group7LitterRobot/sapling_ws/install/piper/share/piper/launch
+copying launch/start_single_piper_rviz.launch.py -> /home/leo/Group7LitterRobot/sapling_ws/install/piper/share/piper/launch
+copying launch/start_two_piper.launch.py -> /home/leo/Group7LitterRobot/sapling_ws/install/piper/share/piper/launch
+copying launch/start_old.py -> /home/leo/Group7LitterRobot/sapling_ws/install/piper/share/piper/launch
+running install_egg_info
+Copying ../../../../build/piper/piper.egg-info to /home/leo/Group7LitterRobot/sapling_ws/install/piper/lib/python3.10/site-packages/piper-0.0.0-py3.10.egg-info
+running install_scripts
+Installing piper_read_slave_joint script to /home/leo/Group7LitterRobot/sapling_ws/install/piper/lib/piper
+Installing piper_single_ctrl script to /home/leo/Group7LitterRobot/sapling_ws/install/piper/lib/piper
+writing list of installed files to '/home/leo/Group7LitterRobot/sapling_ws/build/piper/install.log'

@@ -1,0 +1,12 @@
+{
+  "package_name": "piper_msgs",
+  "non_idl_tuples": [
+    "/home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_msgs:msg/PiperStatusMsg.msg",
+    "/home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_msgs:msg/PosCmd.msg",
+    "/home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_msgs:srv/Enable.srv",
+    "/home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_msgs:srv/MoveToHome.srv",
+    "/home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_msgs:srv/MoveToPose.srv",
+    "/home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_msgs:srv/PickPlaceRequest.srv",
+    "/home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_msgs:srv/SetGripWidth.srv"
+  ]
+}

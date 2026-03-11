@@ -1,0 +1,48 @@
+[0.071s] Invoking command in '/home/leo/Group7LitterRobot/sapling_ws/build/piper_mujoco': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision_pkg:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision:/home/leo/Group7LitterRobot-main/sapling_ws/install/pick_and_place_python:/home/leo/Group7LitterRobot-main/sapling_ws/install/piper:/home/leo/Group7LitterRobot-main/sapling_ws/install/navigation:/home/leo/Group7LitterRobot-main/sapling_ws/install/comms:/home/leo/Group7LitterRobot-main/sapling_ws/install/brain:/home/leo/Group7LitterRobot-main/sapling_ws/install/add_zones_pkg:/opt/ros/humble /usr/bin/cmake /home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_sim/piper_mujoco -DCMAKE_INSTALL_PREFIX=/home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco
+[0.166s] -- The C compiler identification is GNU 11.4.0
+[0.273s] -- The CXX compiler identification is GNU 11.4.0
+[0.285s] -- Detecting C compiler ABI info
+[0.407s] -- Detecting C compiler ABI info - done
+[0.424s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.424s] -- Detecting C compile features
+[0.424s] -- Detecting C compile features - done
+[0.430s] -- Detecting CXX compiler ABI info
+[0.566s] -- Detecting CXX compiler ABI info - done
+[0.582s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.582s] -- Detecting CXX compile features
+[0.583s] -- Detecting CXX compile features - done
+[0.588s] -- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.854s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[1.023s] -- Found rclpy: 3.3.19 (/opt/ros/humble/share/rclpy/cmake)
+[1.026s] -- Found std_msgs: 4.9.0 (/opt/ros/humble/share/std_msgs/cmake)
+[1.096s] -- Found rosidl_generator_c: 3.1.8 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[1.105s] -- Found rosidl_adapter: 3.1.8 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[1.129s] -- Found rosidl_generator_cpp: 3.1.8 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[1.150s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.188s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.425s] -- Configuring done
+[1.438s] -- Generating done
+[1.452s] -- Build files have been written to: /home/leo/Group7LitterRobot/sapling_ws/build/piper_mujoco
+[1.517s] Invoked command in '/home/leo/Group7LitterRobot/sapling_ws/build/piper_mujoco' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision_pkg:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision:/home/leo/Group7LitterRobot-main/sapling_ws/install/pick_and_place_python:/home/leo/Group7LitterRobot-main/sapling_ws/install/piper:/home/leo/Group7LitterRobot-main/sapling_ws/install/navigation:/home/leo/Group7LitterRobot-main/sapling_ws/install/comms:/home/leo/Group7LitterRobot-main/sapling_ws/install/brain:/home/leo/Group7LitterRobot-main/sapling_ws/install/add_zones_pkg:/opt/ros/humble /usr/bin/cmake /home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_sim/piper_mujoco -DCMAKE_INSTALL_PREFIX=/home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco
+[1.518s] Invoking command in '/home/leo/Group7LitterRobot/sapling_ws/build/piper_mujoco': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision_pkg:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision:/home/leo/Group7LitterRobot-main/sapling_ws/install/pick_and_place_python:/home/leo/Group7LitterRobot-main/sapling_ws/install/piper:/home/leo/Group7LitterRobot-main/sapling_ws/install/navigation:/home/leo/Group7LitterRobot-main/sapling_ws/install/comms:/home/leo/Group7LitterRobot-main/sapling_ws/install/brain:/home/leo/Group7LitterRobot-main/sapling_ws/install/add_zones_pkg:/opt/ros/humble /usr/bin/cmake --build /home/leo/Group7LitterRobot/sapling_ws/build/piper_mujoco -- -j8 -l8
+[1.612s] Invoked command in '/home/leo/Group7LitterRobot/sapling_ws/build/piper_mujoco' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision_pkg:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision:/home/leo/Group7LitterRobot-main/sapling_ws/install/pick_and_place_python:/home/leo/Group7LitterRobot-main/sapling_ws/install/piper:/home/leo/Group7LitterRobot-main/sapling_ws/install/navigation:/home/leo/Group7LitterRobot-main/sapling_ws/install/comms:/home/leo/Group7LitterRobot-main/sapling_ws/install/brain:/home/leo/Group7LitterRobot-main/sapling_ws/install/add_zones_pkg:/opt/ros/humble /usr/bin/cmake --build /home/leo/Group7LitterRobot/sapling_ws/build/piper_mujoco -- -j8 -l8
+[1.617s] Invoking command in '/home/leo/Group7LitterRobot/sapling_ws/build/piper_mujoco': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision_pkg:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision:/home/leo/Group7LitterRobot-main/sapling_ws/install/pick_and_place_python:/home/leo/Group7LitterRobot-main/sapling_ws/install/piper:/home/leo/Group7LitterRobot-main/sapling_ws/install/navigation:/home/leo/Group7LitterRobot-main/sapling_ws/install/comms:/home/leo/Group7LitterRobot-main/sapling_ws/install/brain:/home/leo/Group7LitterRobot-main/sapling_ws/install/add_zones_pkg:/opt/ros/humble /usr/bin/cmake --install /home/leo/Group7LitterRobot/sapling_ws/build/piper_mujoco
+[1.640s] -- Install configuration: ""
+[1.645s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/lib/piper_mujoco/piper_mujoco_ctrl.py
+[1.645s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/lib/piper_mujoco/piper_no_gripper_mujoco_ctrl.py
+[1.645s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/ament_index/resource_index/package_run_dependencies/piper_mujoco
+[1.645s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/ament_index/resource_index/parent_prefix_path/piper_mujoco
+[1.646s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/piper_mujoco/environment/ament_prefix_path.sh
+[1.649s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/piper_mujoco/environment/ament_prefix_path.dsv
+[1.649s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/piper_mujoco/environment/path.sh
+[1.649s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/piper_mujoco/environment/path.dsv
+[1.650s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/piper_mujoco/local_setup.bash
+[1.650s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/piper_mujoco/local_setup.sh
+[1.653s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/piper_mujoco/local_setup.zsh
+[1.653s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/piper_mujoco/local_setup.dsv
+[1.654s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/piper_mujoco/package.dsv
+[1.654s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/ament_index/resource_index/packages/piper_mujoco
+[1.658s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/piper_mujoco/cmake/piper_mujocoConfig.cmake
+[1.658s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/piper_mujoco/cmake/piper_mujocoConfig-version.cmake
+[1.658s] -- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_mujoco/share/piper_mujoco/package.xml
+[1.669s] Invoked command in '/home/leo/Group7LitterRobot/sapling_ws/build/piper_mujoco' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision_pkg:/home/leo/Group7LitterRobot-main/sapling_ws/install/vision:/home/leo/Group7LitterRobot-main/sapling_ws/install/pick_and_place_python:/home/leo/Group7LitterRobot-main/sapling_ws/install/piper:/home/leo/Group7LitterRobot-main/sapling_ws/install/navigation:/home/leo/Group7LitterRobot-main/sapling_ws/install/comms:/home/leo/Group7LitterRobot-main/sapling_ws/install/brain:/home/leo/Group7LitterRobot-main/sapling_ws/install/add_zones_pkg:/opt/ros/humble /usr/bin/cmake --install /home/leo/Group7LitterRobot/sapling_ws/build/piper_mujoco

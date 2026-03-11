@@ -1,0 +1,16 @@
+// generated from rosidl_adapter/resource/srv.idl.em
+// with input from piper_msgs/srv/PickPlaceRequest.srv
+// generated code does not contain a copyright notice
+
+#include "geometry_msgs/msg/Pose.idl"
+
+module piper_msgs {
+  module srv {
+    struct PickPlaceRequest_Request {
+      geometry_msgs::msg::Pose pose;
+    };
+    struct PickPlaceRequest_Response {
+      boolean success;
+    };
+  };
+};

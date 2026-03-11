@@ -1,0 +1,426 @@
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+-- Found rclpy: 3.3.19 (/opt/ros/humble/share/rclpy/cmake)
+-- Found geometry_msgs: 4.9.0 (/opt/ros/humble/share/geometry_msgs/cmake)
+-- Found rosidl_generator_c: 3.1.8 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+-- Found rosidl_adapter: 3.1.8 (/opt/ros/humble/share/rosidl_adapter/cmake)
+-- Found rosidl_generator_cpp: 3.1.8 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rosidl_default_generators: 1.2.0 (/opt/ros/humble/share/rosidl_default_generators/cmake)
+-- Found ament_cmake_ros: 0.10.0 (/opt/ros/humble/share/ament_cmake_ros/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found PythonInterp: /usr/bin/python3 (found suitable version "3.10.12", minimum required is "3.6") 
+-- Found python_cmake_module: 0.10.0 (/opt/ros/humble/share/python_cmake_module/cmake)
+-- Found PythonLibs: /usr/lib/x86_64-linux-gnu/libpython3.10.so (found suitable version "3.10.12", minimum required is "3.5") 
+-- Using PYTHON_EXECUTABLE: /usr/bin/python3
+-- Using PYTHON_INCLUDE_DIRS: /usr/include/python3.10
+-- Using PYTHON_LIBRARIES: /usr/lib/x86_64-linux-gnu/libpython3.10.so
+-- Found PythonExtra: .so  
+-- Found ament_lint_auto: 0.12.14 (/opt/ros/humble/share/ament_lint_auto/cmake)
+-- Added test 'lint_cmake' to check CMake code style
+-- Added test 'xmllint' to check XML markup files
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/leo/Group7LitterRobot/sapling_ws/build/piper_msgs
+[  1%] [34m[1mGenerating C code for ROS interfaces[0m
+[  2%] [34m[1mGenerating C++ code for ROS interfaces[0m
+[  2%] Built target ament_cmake_python_copy_piper_msgs
+running egg_info
+creating piper_msgs.egg-info
+writing piper_msgs.egg-info/PKG-INFO
+writing dependency_links to piper_msgs.egg-info/dependency_links.txt
+writing top-level names to piper_msgs.egg-info/top_level.txt
+writing manifest file 'piper_msgs.egg-info/SOURCES.txt'
+reading manifest file 'piper_msgs.egg-info/SOURCES.txt'
+writing manifest file 'piper_msgs.egg-info/SOURCES.txt'
+[  2%] Built target ament_cmake_python_build_piper_msgs_egg
+[  3%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_c.dir/rosidl_generator_c/piper_msgs/msg/detail/piper_status_msg__functions.c.o[0m
+[  5%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_c.dir/rosidl_generator_c/piper_msgs/srv/detail/move_to_home__functions.c.o[0m
+[  6%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_c.dir/rosidl_generator_c/piper_msgs/srv/detail/move_to_pose__functions.c.o[0m
+[  7%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_c.dir/rosidl_generator_c/piper_msgs/msg/detail/pos_cmd__functions.c.o[0m
+[  8%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_c.dir/rosidl_generator_c/piper_msgs/srv/detail/enable__functions.c.o[0m
+[ 10%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_c.dir/rosidl_generator_c/piper_msgs/srv/detail/pick_place_request__functions.c.o[0m
+[ 11%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_c.dir/rosidl_generator_c/piper_msgs/srv/detail/set_grip_width__functions.c.o[0m
+[ 12%] [32m[1mLinking C shared library libpiper_msgs__rosidl_generator_c.so[0m
+[ 12%] Built target piper_msgs__rosidl_generator_c
+[ 13%] [34m[1mGenerating C introspection for ROS interfaces[0m
+[ 15%] [34m[1mGenerating C type support for eProsima Fast-RTPS[0m
+[ 15%] Built target piper_msgs__cpp
+[ 16%] [34m[1mGenerating C type support dispatch for ROS interfaces[0m
+[ 17%] [34m[1mGenerating C++ type support dispatch for ROS interfaces[0m
+[ 18%] [34m[1mGenerating C++ introspection for ROS interfaces[0m
+[ 20%] [34m[1mGenerating C++ type support for eProsima Fast-RTPS[0m
+[ 21%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/piper_msgs/msg/piper_status_msg__type_support.cpp.o[0m
+[ 22%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/piper_msgs/msg/pos_cmd__type_support.cpp.o[0m
+[ 24%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/piper_msgs/srv/enable__type_support.cpp.o[0m
+[ 25%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/piper_msgs/msg/piper_status_msg__type_support.cpp.o[0m
+[ 26%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/piper_msgs/msg/pos_cmd__type_support.cpp.o[0m
+[ 27%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/piper_msgs/srv/enable__type_support.cpp.o[0m
+[ 29%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/piper_msgs/srv/move_to_home__type_support.cpp.o[0m
+[ 30%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/piper_msgs/srv/move_to_home__type_support.cpp.o[0m
+[ 31%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/piper_msgs/srv/move_to_pose__type_support.cpp.o[0m
+[ 32%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/piper_msgs/msg/detail/piper_status_msg__type_support.cpp.o[0m
+[ 34%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/piper_msgs/msg/detail/pos_cmd__type_support.cpp.o[0m
+[ 35%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/piper_msgs/srv/pick_place_request__type_support.cpp.o[0m
+[ 36%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/piper_msgs/msg/detail/piper_status_msg__type_support.c.o[0m
+[ 37%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/piper_msgs/srv/detail/enable__type_support.cpp.o[0m
+[ 39%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/piper_msgs/msg/detail/piper_status_msg__type_support_c.cpp.o[0m
+[ 40%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_c.dir/rosidl_typesupport_c/piper_msgs/srv/set_grip_width__type_support.cpp.o[0m
+[ 41%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/piper_msgs/msg/detail/pos_cmd__type_support.c.o[0m
+[ 43%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/piper_msgs/msg/detail/dds_fastrtps/piper_status_msg__type_support.cpp.o[0m
+[ 44%] [32m[1mLinking CXX shared library libpiper_msgs__rosidl_typesupport_c.so[0m
+[ 45%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/piper_msgs/srv/detail/enable__type_support.c.o[0m
+[ 46%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/piper_msgs/srv/detail/move_to_home__type_support.c.o[0m
+[ 46%] Built target piper_msgs__rosidl_typesupport_c
+[ 48%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/piper_msgs/msg/detail/dds_fastrtps/pos_cmd__type_support.cpp.o[0m
+[ 49%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/piper_msgs/srv/detail/move_to_pose__type_support.c.o[0m
+[ 50%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/piper_msgs/srv/detail/pick_place_request__type_support.c.o[0m
+[ 51%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/piper_msgs/srv/detail/set_grip_width__type_support.c.o[0m
+[ 53%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/piper_msgs/srv/move_to_pose__type_support.cpp.o[0m
+[ 54%] [32m[1mLinking C shared library libpiper_msgs__rosidl_typesupport_introspection_c.so[0m
+[ 54%] Built target piper_msgs__rosidl_typesupport_introspection_c
+[ 55%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/piper_msgs/srv/pick_place_request__type_support.cpp.o[0m
+[ 56%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/piper_msgs/srv/set_grip_width__type_support.cpp.o[0m
+[ 58%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/piper_msgs/msg/detail/pos_cmd__type_support_c.cpp.o[0m
+[ 59%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/piper_msgs/srv/detail/move_to_home__type_support.cpp.o[0m
+[ 60%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/piper_msgs/srv/detail/enable__type_support_c.cpp.o[0m
+[ 62%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/piper_msgs/srv/detail/move_to_pose__type_support.cpp.o[0m
+[ 63%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/piper_msgs/srv/detail/dds_fastrtps/enable__type_support.cpp.o[0m
+[ 64%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/piper_msgs/srv/detail/pick_place_request__type_support.cpp.o[0m
+[ 65%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/piper_msgs/srv/detail/set_grip_width__type_support.cpp.o[0m
+[ 67%] [32m[1mLinking CXX shared library libpiper_msgs__rosidl_typesupport_cpp.so[0m
+[ 67%] Built target piper_msgs__rosidl_typesupport_cpp
+[ 68%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/piper_msgs/srv/detail/dds_fastrtps/move_to_home__type_support.cpp.o[0m
+[ 69%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/piper_msgs/srv/detail/dds_fastrtps/move_to_pose__type_support.cpp.o[0m
+[ 70%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/piper_msgs/srv/detail/move_to_home__type_support_c.cpp.o[0m
+[ 72%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/piper_msgs/srv/detail/dds_fastrtps/pick_place_request__type_support.cpp.o[0m
+[ 73%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/piper_msgs/srv/detail/move_to_pose__type_support_c.cpp.o[0m
+[ 74%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/piper_msgs/srv/detail/dds_fastrtps/set_grip_width__type_support.cpp.o[0m
+[ 75%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/piper_msgs/srv/detail/pick_place_request__type_support_c.cpp.o[0m
+[ 77%] [32m[1mLinking CXX shared library libpiper_msgs__rosidl_typesupport_introspection_cpp.so[0m
+[ 77%] Built target piper_msgs__rosidl_typesupport_introspection_cpp
+[ 78%] [32mBuilding CXX object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/piper_msgs/srv/detail/set_grip_width__type_support_c.cpp.o[0m
+[ 79%] [32m[1mLinking CXX shared library libpiper_msgs__rosidl_typesupport_fastrtps_cpp.so[0m
+[ 81%] [32m[1mLinking CXX shared library libpiper_msgs__rosidl_typesupport_fastrtps_c.so[0m
+[ 81%] Built target piper_msgs__rosidl_typesupport_fastrtps_cpp
+[ 81%] Built target piper_msgs__rosidl_typesupport_fastrtps_c
+[ 81%] Built target piper_msgs
+[ 82%] [34m[1mGenerating Python code for ROS interfaces[0m
+[ 82%] Built target piper_msgs__py
+[ 84%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_py.dir/rosidl_generator_py/piper_msgs/srv/_move_to_pose_s.c.o[0m
+[ 84%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_py.dir/rosidl_generator_py/piper_msgs/msg/_piper_status_msg_s.c.o[0m
+[ 86%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_py.dir/rosidl_generator_py/piper_msgs/srv/_enable_s.c.o[0m
+[ 87%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_py.dir/rosidl_generator_py/piper_msgs/srv/_move_to_home_s.c.o[0m
+[ 88%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_py.dir/rosidl_generator_py/piper_msgs/msg/_pos_cmd_s.c.o[0m
+[ 89%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_py.dir/rosidl_generator_py/piper_msgs/srv/_pick_place_request_s.c.o[0m
+[ 91%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_generator_py.dir/rosidl_generator_py/piper_msgs/srv/_set_grip_width_s.c.o[0m
+[ 92%] [32m[1mLinking C shared library rosidl_generator_py/piper_msgs/libpiper_msgs__rosidl_generator_py.so[0m
+[ 92%] Built target piper_msgs__rosidl_generator_py
+[ 96%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/piper_msgs/_piper_msgs_s.ep.rosidl_typesupport_c.c.o[0m
+[ 96%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/piper_msgs/_piper_msgs_s.ep.rosidl_typesupport_fastrtps_c.c.o[0m
+[ 96%] [32mBuilding C object CMakeFiles/piper_msgs__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/piper_msgs/_piper_msgs_s.ep.rosidl_typesupport_introspection_c.c.o[0m
+[ 97%] [32m[1mLinking C shared library rosidl_generator_py/piper_msgs/piper_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so[0m
+[ 98%] [32m[1mLinking C shared library rosidl_generator_py/piper_msgs/piper_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so[0m
+[100%] [32m[1mLinking C shared library rosidl_generator_py/piper_msgs/piper_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so[0m
+[100%] Built target piper_msgs__rosidl_typesupport_c__pyext
+[100%] Built target piper_msgs__rosidl_typesupport_fastrtps_c__pyext
+[100%] Built target piper_msgs__rosidl_typesupport_introspection_c__pyext
+-- Install configuration: ""
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/ament_index/resource_index/rosidl_interfaces/piper_msgs
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/pos_cmd.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/piper_status_msg.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__type_support.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__functions.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__functions.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__struct.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__type_support.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__struct.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__functions.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__functions.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/rosidl_generator_c__visibility_control.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/move_to_pose.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/move_to_home.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/set_grip_width.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__functions.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__functions.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__functions.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__struct.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__functions.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__struct.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__functions.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__functions.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__functions.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__type_support.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__type_support.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__functions.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__struct.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__type_support.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__struct.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__struct.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__type_support.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__functions.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__functions.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__type_support.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/pick_place_request.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/enable.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/environment/library_path.sh
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/environment/library_path.dsv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_generator_c.so
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_generator_c.so" to ""
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__rosidl_typesupport_fastrtps_c.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_typesupport_fastrtps_c.so
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_typesupport_fastrtps_c.so" to ""
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/rosidl_generator_cpp__visibility_control.hpp
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__builder.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__type_support.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__builder.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__struct.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__type_support.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__traits.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__traits.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__struct.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/piper_status_msg.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/pos_cmd.hpp
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/enable.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/pick_place_request.hpp
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__traits.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__struct.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__builder.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__type_support.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__builder.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__struct.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__struct.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__traits.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__struct.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__builder.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__traits.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__type_support.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__traits.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__struct.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__builder.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__builder.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__type_support.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__type_support.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__traits.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__type_support.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/move_to_home.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/move_to_pose.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/set_grip_width.hpp
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/dds_fastrtps
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__rosidl_typesupport_fastrtps_cpp.hpp
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/dds_fastrtps
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__rosidl_typesupport_fastrtps_cpp.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_typesupport_fastrtps_cpp.so
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_typesupport_fastrtps_cpp.so" to ""
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/rosidl_typesupport_introspection_c__visibility_control.h
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__type_support.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__type_support.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__rosidl_typesupport_introspection_c.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__rosidl_typesupport_introspection_c.h
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__rosidl_typesupport_introspection_c.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__type_support.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__rosidl_typesupport_introspection_c.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__type_support.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__type_support.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__rosidl_typesupport_introspection_c.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__rosidl_typesupport_introspection_c.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__type_support.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__type_support.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__rosidl_typesupport_introspection_c.h
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_typesupport_introspection_c.so
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_typesupport_introspection_c.so" to ""
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_typesupport_c.so
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_typesupport_c.so" to ""
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__type_support.cpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__type_support.cpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/piper_status_msg__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/msg/detail/pos_cmd__rosidl_typesupport_introspection_cpp.hpp
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv
+-- Up-to-date: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/enable__type_support.cpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/pick_place_request__type_support.cpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_pose__type_support.cpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__type_support.cpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/set_grip_width__type_support.cpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/include/piper_msgs/piper_msgs/srv/detail/move_to_home__rosidl_typesupport_introspection_cpp.hpp
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_typesupport_introspection_cpp.so
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_typesupport_introspection_cpp.so" to ""
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_typesupport_cpp.so
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_typesupport_cpp.so" to ""
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/environment/pythonpath.sh
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/environment/pythonpath.dsv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs-0.0.0-py3.10.egg-info
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs-0.0.0-py3.10.egg-info/dependency_links.txt
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs-0.0.0-py3.10.egg-info/PKG-INFO
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs-0.0.0-py3.10.egg-info/SOURCES.txt
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs-0.0.0-py3.10.egg-info/top_level.txt
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/piper_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/piper_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/piper_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/__init__.py
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/_piper_msgs_s.ep.rosidl_typesupport_c.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/_piper_msgs_s.ep.rosidl_typesupport_introspection_c.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/msg/_pos_cmd.py
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/msg/_pos_cmd_s.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/msg/__init__.py
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/msg/_piper_status_msg_s.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/msg/_piper_status_msg.py
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/_piper_msgs_s.ep.rosidl_typesupport_fastrtps_c.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/libpiper_msgs__rosidl_generator_py.so
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_enable_s.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_set_grip_width.py
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_move_to_pose_s.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/__init__.py
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_pick_place_request.py
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_move_to_pose.py
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_move_to_home_s.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_enable.py
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_set_grip_width_s.c
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_move_to_home.py
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_pick_place_request_s.c
+Listing '/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs'...
+Compiling '/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/__init__.py'...
+Listing '/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/msg'...
+Compiling '/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/msg/__init__.py'...
+Compiling '/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/msg/_piper_status_msg.py'...
+Compiling '/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/msg/_pos_cmd.py'...
+Listing '/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv'...
+Compiling '/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/__init__.py'...
+Compiling '/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_enable.py'...
+Compiling '/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_move_to_home.py'...
+Compiling '/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_move_to_pose.py'...
+Compiling '/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_pick_place_request.py'...
+Compiling '/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/srv/_set_grip_width.py'...
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/piper_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/piper_msgs_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so" to ""
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/piper_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/piper_msgs_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so" to ""
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/piper_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages/piper_msgs/piper_msgs_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so" to ""
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_generator_py.so
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib/libpiper_msgs__rosidl_generator_py.so" to ""
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/msg/PiperStatusMsg.idl
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/msg/PosCmd.idl
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/Enable.idl
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/MoveToHome.idl
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/MoveToPose.idl
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/PickPlaceRequest.idl
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/SetGripWidth.idl
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/msg/PiperStatusMsg.msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/msg/PosCmd.msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/Enable.srv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/Enable_Request.msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/Enable_Response.msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/MoveToHome.srv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/MoveToHome_Request.msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/MoveToHome_Response.msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/MoveToPose.srv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/MoveToPose_Request.msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/MoveToPose_Response.msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/PickPlaceRequest.srv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/PickPlaceRequest_Request.msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/PickPlaceRequest_Response.msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/SetGripWidth.srv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/SetGripWidth_Request.msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/srv/SetGripWidth_Response.msg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/ament_index/resource_index/package_run_dependencies/piper_msgs
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/ament_index/resource_index/parent_prefix_path/piper_msgs
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/environment/ament_prefix_path.sh
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/environment/ament_prefix_path.dsv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/environment/path.sh
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/environment/path.dsv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/local_setup.bash
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/local_setup.sh
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/local_setup.zsh
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/local_setup.dsv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/package.dsv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/ament_index/resource_index/packages/piper_msgs
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/export_piper_msgs__rosidl_generator_cExport.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/export_piper_msgs__rosidl_generator_cExport-noconfig.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/export_piper_msgs__rosidl_typesupport_fastrtps_cExport.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/export_piper_msgs__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/export_piper_msgs__rosidl_generator_cppExport.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/export_piper_msgs__rosidl_typesupport_fastrtps_cppExport.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/export_piper_msgs__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/piper_msgs__rosidl_typesupport_introspection_cExport.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/piper_msgs__rosidl_typesupport_introspection_cExport-noconfig.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/piper_msgs__rosidl_typesupport_cExport.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/piper_msgs__rosidl_typesupport_cExport-noconfig.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/piper_msgs__rosidl_typesupport_introspection_cppExport.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/piper_msgs__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/piper_msgs__rosidl_typesupport_cppExport.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/piper_msgs__rosidl_typesupport_cppExport-noconfig.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/export_piper_msgs__rosidl_generator_pyExport.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/export_piper_msgs__rosidl_generator_pyExport-noconfig.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/rosidl_cmake-extras.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/ament_cmake_export_dependencies-extras.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/ament_cmake_export_include_directories-extras.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/ament_cmake_export_libraries-extras.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/ament_cmake_export_targets-extras.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/piper_msgsConfig.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake/piper_msgsConfig-version.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/package.xml

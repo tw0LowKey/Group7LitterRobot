@@ -1,0 +1,6 @@
+setup.py
+piper_msgs/__init__.py
+piper_msgs.egg-info/PKG-INFO
+piper_msgs.egg-info/SOURCES.txt
+piper_msgs.egg-info/dependency_links.txt
+piper_msgs.egg-info/top_level.txt

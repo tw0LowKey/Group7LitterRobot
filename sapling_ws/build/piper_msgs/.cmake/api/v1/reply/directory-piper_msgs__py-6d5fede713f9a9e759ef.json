@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "piper_msgs__py",
+		"source" : "/home/leo/Group7LitterRobot/sapling_ws/build/piper_msgs/piper_msgs__py"
+	}
+}

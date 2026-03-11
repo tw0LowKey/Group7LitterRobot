@@ -1,0 +1,81 @@
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Found ament_cmake: 1.3.12 (/opt/ros/humble/share/ament_cmake/cmake)
+-- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+-- Found rclcpp: 16.0.17 (/opt/ros/humble/share/rclcpp/cmake)
+-- Found rosidl_generator_c: 3.1.8 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+-- Found rosidl_adapter: 3.1.8 (/opt/ros/humble/share/rosidl_adapter/cmake)
+-- Found rosidl_generator_cpp: 3.1.8 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+-- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+-- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+-- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+-- Found rmw_fastrtps_cpp: 6.2.9 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+-- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  
+-- Found FastRTPS: /opt/ros/humble/include  
+-- Using RMW implementation 'rmw_fastrtps_cpp' as default
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Found geometry_msgs: 4.9.0 (/opt/ros/humble/share/geometry_msgs/cmake)
+-- Found piper_msgs: 0.0.0 (/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/share/piper_msgs/cmake)
+-- Found moveit_ros_planning_interface: 2.5.9 (/opt/ros/humble/share/moveit_ros_planning_interface/cmake)
+-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: date_time filesystem program_options system thread 
+-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: chrono date_time filesystem iostreams program_options regex serialization system thread 
+-- Found parameter_traits: 0.6.0 (/opt/ros/humble/share/parameter_traits/cmake)
+-- Found rclcpp_lifecycle: 16.0.17 (/opt/ros/humble/share/rclcpp_lifecycle/cmake)
+-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: filesystem 
+-- library: /usr/lib/x86_64-linux-gnu/libcurl.so
+-- Found Eigen3: TRUE (found version "3.4.0") 
+-- Ensuring Eigen3 include directory is part of orocos-kdl CMake target
+-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: system filesystem date_time program_options thread chrono 
+-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: thread system filesystem regex date_time program_options 
+-- Found Boost: /usr/lib/x86_64-linux-gnu/cmake/Boost-1.74.0/BoostConfig.cmake (found version "1.74.0") found components: system filesystem date_time program_options thread 
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_pkg
+[ 44%] [32mBuilding CXX object CMakeFiles/move_to_home_server.dir/src/home_node_main.cpp.o[0m
+[ 44%] [32mBuilding CXX object CMakeFiles/move_to_home_server.dir/src/home_node.cpp.o[0m
+[ 44%] [32mBuilding CXX object CMakeFiles/move_to_pose_server.dir/src/pick_and_place_node.cpp.o[0m
+[ 44%] [32mBuilding CXX object CMakeFiles/move_to_pose_server.dir/src/pick_and_place_node_main.cpp.o[0m
+[ 66%] [32mBuilding CXX object CMakeFiles/set_grip_width_server.dir/src/gripper_node.cpp.o[0m
+[ 66%] [32mBuilding CXX object CMakeFiles/set_grip_width_server.dir/src/gripper_node_main.cpp.o[0m
+[ 77%] [32m[1mLinking CXX executable move_to_home_server[0m
+[ 88%] [32m[1mLinking CXX executable set_grip_width_server[0m
+[ 88%] Built target move_to_home_server
+[ 88%] Built target set_grip_width_server
+[100%] [32m[1mLinking CXX executable move_to_pose_server[0m
+[100%] Built target move_to_pose_server
+-- Install configuration: ""
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/lib/pick_and_place_pkg/move_to_pose_server
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/lib/pick_and_place_pkg/move_to_pose_server" to ""
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/lib/pick_and_place_pkg/set_grip_width_server
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/lib/pick_and_place_pkg/set_grip_width_server" to ""
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/lib/pick_and_place_pkg/move_to_home_server
+-- Set runtime path of "/home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/lib/pick_and_place_pkg/move_to_home_server" to ""
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/ament_index/resource_index/package_run_dependencies/pick_and_place_pkg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/ament_index/resource_index/parent_prefix_path/pick_and_place_pkg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/pick_and_place_pkg/environment/ament_prefix_path.sh
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/pick_and_place_pkg/environment/ament_prefix_path.dsv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/pick_and_place_pkg/environment/path.sh
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/pick_and_place_pkg/environment/path.dsv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/pick_and_place_pkg/local_setup.bash
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/pick_and_place_pkg/local_setup.sh
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/pick_and_place_pkg/local_setup.zsh
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/pick_and_place_pkg/local_setup.dsv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/pick_and_place_pkg/package.dsv
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/ament_index/resource_index/packages/pick_and_place_pkg
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/pick_and_place_pkg/cmake/pick_and_place_pkgConfig.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/pick_and_place_pkg/cmake/pick_and_place_pkgConfig-version.cmake
+-- Installing: /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_pkg/share/pick_and_place_pkg/package.xml

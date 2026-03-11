@@ -1,0 +1,41 @@
+[0.848s] Invoking command in '/home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_moveit/pick_and_place_python': AMENT_PREFIX_PATH=/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs:${CMAKE_PREFIX_PATH} LD_LIBRARY_PATH=/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/lib/python3.10/site-packages:/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../../../build/pick_and_place_python build --build-base /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/build install --record /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/install.log --single-version-externally-managed install_data
+[1.149s] running egg_info
+[1.150s] creating ../../../../../build/pick_and_place_python/pick_and_place_python.egg-info
+[1.150s] writing ../../../../../build/pick_and_place_python/pick_and_place_python.egg-info/PKG-INFO
+[1.151s] writing dependency_links to ../../../../../build/pick_and_place_python/pick_and_place_python.egg-info/dependency_links.txt
+[1.151s] writing entry points to ../../../../../build/pick_and_place_python/pick_and_place_python.egg-info/entry_points.txt
+[1.151s] writing requirements to ../../../../../build/pick_and_place_python/pick_and_place_python.egg-info/requires.txt
+[1.151s] writing top-level names to ../../../../../build/pick_and_place_python/pick_and_place_python.egg-info/top_level.txt
+[1.152s] writing manifest file '../../../../../build/pick_and_place_python/pick_and_place_python.egg-info/SOURCES.txt'
+[1.154s] reading manifest file '../../../../../build/pick_and_place_python/pick_and_place_python.egg-info/SOURCES.txt'
+[1.156s] writing manifest file '../../../../../build/pick_and_place_python/pick_and_place_python.egg-info/SOURCES.txt'
+[1.157s] running build
+[1.157s] running build_py
+[1.157s] creating /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/build
+[1.157s] creating /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/build/lib
+[1.158s] creating /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/build/lib/pick_and_place_python
+[1.158s] copying pick_and_place_python/pick_place_client.py -> /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/build/lib/pick_and_place_python
+[1.158s] copying pick_and_place_python/__init__.py -> /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/build/lib/pick_and_place_python
+[1.158s] copying pick_and_place_python/multi_pick.py -> /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/build/lib/pick_and_place_python
+[1.159s] running install
+[1.159s] running install_lib
+[1.159s] creating /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/lib/python3.10/site-packages/pick_and_place_python
+[1.160s] copying /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/build/lib/pick_and_place_python/pick_place_client.py -> /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/lib/python3.10/site-packages/pick_and_place_python
+[1.160s] copying /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/build/lib/pick_and_place_python/__init__.py -> /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/lib/python3.10/site-packages/pick_and_place_python
+[1.160s] copying /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/build/lib/pick_and_place_python/multi_pick.py -> /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/lib/python3.10/site-packages/pick_and_place_python
+[1.161s] byte-compiling /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/lib/python3.10/site-packages/pick_and_place_python/pick_place_client.py to pick_place_client.cpython-310.pyc
+[1.163s] byte-compiling /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/lib/python3.10/site-packages/pick_and_place_python/__init__.py to __init__.cpython-310.pyc
+[1.163s] byte-compiling /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/lib/python3.10/site-packages/pick_and_place_python/multi_pick.py to multi_pick.cpython-310.pyc
+[1.164s] running install_data
+[1.164s] creating /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/share/ament_index
+[1.164s] creating /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/share/ament_index/resource_index
+[1.164s] creating /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/share/ament_index/resource_index/packages
+[1.165s] copying resource/pick_and_place_python -> /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/share/ament_index/resource_index/packages
+[1.165s] copying package.xml -> /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/share/pick_and_place_python
+[1.165s] running install_egg_info
+[1.167s] Copying ../../../../../build/pick_and_place_python/pick_and_place_python.egg-info to /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/lib/python3.10/site-packages/pick_and_place_python-0.0.0-py3.10.egg-info
+[1.168s] running install_scripts
+[1.194s] Installing multi_pick script to /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/lib/pick_and_place_python
+[1.194s] Installing pick_and_place_client script to /home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/lib/pick_and_place_python
+[1.194s] writing list of installed files to '/home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/install.log'
+[1.232s] Invoked command in '/home/leo/Group7LitterRobot/sapling_ws/src/domains/arm/piper_moveit/pick_and_place_python' returned '0': AMENT_PREFIX_PATH=/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs:${CMAKE_PREFIX_PATH} LD_LIBRARY_PATH=/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/leo/Group7LitterRobot/sapling_ws/install/pick_and_place_python/lib/python3.10/site-packages:/home/leo/Group7LitterRobot/sapling_ws/install/piper_msgs/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../../../build/pick_and_place_python build --build-base /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/build install --record /home/leo/Group7LitterRobot/sapling_ws/build/pick_and_place_python/install.log --single-version-externally-managed install_data

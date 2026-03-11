@@ -1,0 +1,4 @@
+source;share/piper_no_gripper_moveit/local_setup.bash
+source;share/piper_no_gripper_moveit/local_setup.dsv
+source;share/piper_no_gripper_moveit/local_setup.sh
+source;share/piper_no_gripper_moveit/local_setup.zsh
