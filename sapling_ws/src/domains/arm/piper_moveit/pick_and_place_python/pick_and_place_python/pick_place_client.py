@@ -4,12 +4,12 @@ import rclpy
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, PoseStamped, TransformStamped 
 from piper_msgs.srv import MoveToPose
 from piper_msgs.srv import MoveToHome
 from piper_msgs.srv import SetGripWidth
 from piper_msgs.srv import PickPlaceRequest
-
+import tf2_geometry_msgs 
 
 class ServerClientNode(Node):
     def __init__(self):
@@ -17,7 +17,7 @@ class ServerClientNode(Node):
 
         self.cb_group = ReentrantCallbackGroup()
 
-        # --- Service Server ---
+        # --- Service Server (Triggered by Vision System) ---
         self.server = self.create_service(
             PickPlaceRequest,
             'pick_place_request',
@@ -44,6 +44,7 @@ class ServerClientNode(Node):
             callback_group=self.cb_group
         )
 
+        # Hardcoded drop-off location (e.g., the bin)
         self.place_pose = Pose()
         self.place_pose.position.x = 0.0
         self.place_pose.position.y = -0.4
@@ -53,24 +54,87 @@ class ServerClientNode(Node):
         self.place_pose.orientation.z = 0.0
         self.place_pose.orientation.w = 0.0
 
+        # Pre-calculate and store the static transform once
+        self.camera_to_base_transform = self.get_camera_transform()
+
         self._executor = None  # set in main after executor is created
 
-        self.get_logger().info('ServerClientNode is ready.')
+        self.get_logger().info('ServerClientNode is ready and waiting for PickPlaceRequests.')
+
+    def get_camera_transform(self) -> TransformStamped:
+        """Creates and returns the mathematical transform from the camera to the robot base."""
+        t = TransformStamped()
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = 'base_link'   # The robot's origin point
+        t.child_frame_id = 'camera_link'  # The Femto Mega's location
+       
+        t.transform.translation.x = 0.0093  # 9.3mm
+        t.transform.translation.y = 0.014   # 14mm
+        t.transform.translation.z = 0.600   # 600mm
+
+        # Camera pitched 57.30 degrees downwards
+        t.transform.rotation.x = 0.0
+        t.transform.rotation.y = 0.479  
+        t.transform.rotation.z = 0.0
+        t.transform.rotation.w = 0.878
+        
+        return t
 
     def server_callback(self, request, response):
-        self.get_logger().info(f'Received request: {request}')
+        """Handles the service request containing an array of potential PoseStamped targets."""
+        self.get_logger().info(f'Received pick request with {len(request.poses)} potential poses.')
 
-        pick_pose = request.pose
+        transformed_poses_list = []
 
+        # 1. Transform all Pose objects into the robot's base frame
+        for target_pose_stamped in request.poses:
+            try:
+                # FIX 1: Extract '.pose' BEFORE passing it to the ROS 2 transform math!
+                transformed_pose = tf2_geometry_msgs.do_transform_pose(target_pose_stamped.pose, self.camera_to_base_transform)
+                transformed_poses_list.append(transformed_pose)
+            except Exception as e:
+                self.get_logger().warn(f"Could not transform pose: {e}")
+
+        # Safety Check
+        if not transformed_poses_list:
+            self.get_logger().error('No valid poses remained after transformation. Aborting sequence.')
+            response.success = False
+            return response
+
+        sequence_success = False
+
+        # 2. Iterate through the transformed poses until one succeeds
+        for index, test_pose in enumerate(transformed_poses_list):
+            self.get_logger().info(f'--- Attempting Grasp with Pose {index + 1} of {len(transformed_poses_list)} ---')
+            
+            # FIX 2: test_pose is already a raw Pose now, so we removed the '.pose' here!
+            if self.execute_pick_place_sequence(test_pose):
+                self.get_logger().info(f'SUCCESS: Pose {index + 1} was reachable and sequence completed.')
+                sequence_success = True
+                break  
+            else:
+                self.get_logger().warn(f'FAILURE: Pose {index + 1} failed (likely a planning error). Trying next pose...')
+
+        if not sequence_success:
+            self.get_logger().error('CRITICAL: All provided poses failed. Object is unreachable.')
+
+        response.success = sequence_success
+        return response
+
+
+    def execute_pick_place_sequence(self, pick_pose: Pose) -> bool:
+        """The core physical movement logic for the Piper Arm."""
         results = 0
 
         # Open gripper then move to pick position
         self.get_logger().info('Attempting Pick')
         self.set_grip("open")
+        
+        # If this fails (e.g., unreachable), result is False
         result = self.send_pose_request(pick_pose)
 
         if not result:
-            self.get_logger().error('Pick failed.')
+            self.get_logger().error('Pick failed (Path planning rejected).')
         else:
             self.get_logger().info('Pick succeeded')
             results += 1
@@ -89,23 +153,16 @@ class ServerClientNode(Node):
                 results += 1
                 self.set_grip("open")
 
-        # Always return home
+        # Always return home (Even if the pick failed, we want to reset the arm to a safe position)
         self.get_logger().info('Returning home')
         while not self.request_home():
-            self.get_logger().error('Return home failed.')
+            self.get_logger().error('Return home failed. Retrying...')
         self.set_grip("close")
 
         self.get_logger().info('Returned home')
         results += 1
 
-        #if not result:
-        #    self.get_logger().error('Return home failed.')
-        #else:
-        #    self.get_logger().info('Returned home')
-        #    results += 1
-
-        response.success = (results == 3)
-        return response
+        return (results == 3)
 
     def send_pose_request(self, pose: Pose) -> bool:
         if not self.move_client.wait_for_service(timeout_sec=2.0):
@@ -164,7 +221,7 @@ def main(args=None):
 
     executor = MultiThreadedExecutor()
     executor.add_node(node)
-    node._executor = executor  # give the node a reference to the executor
+    node._executor = executor  
 
     try:
         executor.spin()

@@ -36,16 +36,16 @@ class PoseTransformNode(Node):
         t.header.frame_id = 'base_link'   # The robot's origin point
         t.child_frame_id = 'camera_link'  # The Femto Mega's location
 
-        # Your exact physical offsets converted to meters
+       
         t.transform.translation.x = 0.0093  # 9.3mm
         t.transform.translation.y = 0.014   # 14mm
         t.transform.translation.z = 0.600   # 600mm
 
-        # Will have to tune accordingly, this assumes camera pointing straight down
+        # Camera pitched 57.30 degrees (approx 1 radian) downwards
         t.transform.rotation.x = 0.0
-        t.transform.rotation.y = 0.0
+        t.transform.rotation.y = 0.479  # Change to positive 0.479 if the camera looks up!
         t.transform.rotation.z = 0.0
-        t.transform.rotation.w = 1.0
+        t.transform.rotation.w = 0.878
 
         self.tf_static_broadcaster.sendTransform(t)
 
