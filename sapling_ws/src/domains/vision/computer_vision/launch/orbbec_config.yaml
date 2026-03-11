@@ -1,0 +1,6 @@
+depth_registration: true
+enable_colored_point_cloud: true
+depth_width: 1024
+depth_height: 1024
+color_width: 1920
+color_height: 1080
