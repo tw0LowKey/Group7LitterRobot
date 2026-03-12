@@ -8,6 +8,7 @@ from scipy.spatial.transform import Rotation as R
 from sensor_msgs.msg import PointCloud2
 import sensor_msgs_py.point_cloud2 as pc2
 from visualization_msgs.msg import Marker, MarkerArray
+from piper_msgs.srv import PickPlaceRequest
 
 # Gripper parameters
 GRIPPER_WIDTH_MIN = 0.001
@@ -105,6 +106,9 @@ class RobustGraspNode(Node):
         self.grasp_pub = self.create_publisher(PoseStamped, '/grasp_pose', 10)
         self.marker_pub = self.create_publisher(MarkerArray, '/grasp_markers', 10)
         self.ground_marker_pub = self.create_publisher(Marker, '/ground_marker', 10)
+
+        self.pick_client = self.create_client(PickPlaceRequest, 'pick_place_request')
+        self.robot_is_busy = False  # The lock flag
 
         self.get_logger().info("RobustGraspNode started")
 
@@ -399,6 +403,11 @@ class RobustGraspNode(Node):
     # Callback
     # -------------------------
     def pc_callback(self, pc_msg):
+        # 1. Check if the robot is already moving. If it is, abort this vision cycle!
+        if self.robot_is_busy:
+            self.get_logger().info("Arm is currently moving. Skipping vision request...", throttle_duration_sec=2.0)
+            return
+        
         callback_start = time.time()
         self._msg_count += 1
         if self._msg_count % PROCESS_EVERY_N != 0:
@@ -504,10 +513,19 @@ class RobustGraspNode(Node):
 
             self.ground_marker_pub.publish(marker)
 
+       
         # -------------------------
-        # Publish gripper markers & poses
+        # Publish markers & Send Service Call
         # -------------------------
+        
+        # 1. Check if the robot is already moving. If it is, abort this vision cycle!
+        if self.robot_is_busy:
+            self.get_logger().info("Arm is currently moving. Skipping vision request...", throttle_duration_sec=2.0)
+            return
+
         marker_array = MarkerArray()
+        pose_array_to_send = []  # NEW: The list we will send to the Master Node
+
         for idx, (score, pos, rot) in enumerate(top_candidates):
             quat = R.from_matrix(rot).as_quat()  # [x, y, z, w]
 
@@ -521,13 +539,27 @@ class RobustGraspNode(Node):
             pose_msg.pose.orientation.y = float(quat[1])
             pose_msg.pose.orientation.z = float(quat[2])
             pose_msg.pose.orientation.w = float(quat[3])
-            self.grasp_pub.publish(pose_msg)
+            self.grasp_pub.publish(pose_msg)  # Kept for RViz visualization
+            
+            pose_array_to_send.append(pose_msg)  # NEW: Add the pose to our service array
 
             # Markers (palm + two fingers + shaft)
             for m in self._build_gripper_markers(pc_msg.header, idx, pos, rot, quat):
                 marker_array.markers.append(m)
 
         self.marker_pub.publish(marker_array)
+
+        # 2. Trigger the Master Node!
+        if pose_array_to_send:
+            self.get_logger().info(f"Sending {len(pose_array_to_send)} grasp poses to Master Node...")
+            self.robot_is_busy = True  # Lock the vision system
+            
+            req = PickPlaceRequest.Request()
+            req.poses = pose_array_to_send
+            
+            # Send the request and tell it which function to run when the Master Node replies
+            future = self.pick_client.call_async(req)
+            future.add_done_callback(self.grasp_response_callback)
 
         callback_elapsed = time.time() - callback_start
         self.get_logger().info(
@@ -537,6 +569,20 @@ class RobustGraspNode(Node):
             f"Published {len(top_candidates)} poses and markers"
         )
 
+    def grasp_response_callback(self, future):
+        """Triggered automatically when the Master Node finishes the pick-and-place sequence."""
+        try:
+            response = future.result()
+            if response.success:
+                self.get_logger().info("SUCCESS: Master Node completed the pick-and-place sequence!")
+            else:
+                self.get_logger().warn("FAILURE: Master Node could not reach any of the provided poses.")
+        except Exception as e:
+            self.get_logger().error(f"Service call to Master Node failed: {e}")
+        finally:
+            # Unlock the vision system to look for the next piece of litter!
+            self.get_logger().info("Unlocking vision system for next scan.")
+            self.robot_is_busy = False
 
 def main(args=None):
     rclpy.init(args=args)
