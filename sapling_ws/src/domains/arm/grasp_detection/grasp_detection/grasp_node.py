@@ -9,6 +9,7 @@ from sensor_msgs.msg import PointCloud2
 import sensor_msgs_py.point_cloud2 as pc2
 from visualization_msgs.msg import Marker, MarkerArray
 from piper_msgs.srv import PickPlaceRequest
+from ament_index_python.packages import get_package_share_directory
 
 # ── Gripper parameters ───────────────────────────────
 # See (FILE LOCATION) for further documentation
@@ -105,7 +106,7 @@ class GraspNode(Node):
         # ── Ground plane ─────────────────────────────────────────────────────
         self._ground_plane = None
         self._up = np.array([0.0, 0.0, 1.0])  # fallback if no ground plane
-        plane_path = os.path.expanduser('~/ground_plane.npy')
+        plane_path = os.path.join(get_package_share_directory('computer_vision'), 'ground_plane.npy')
         if os.path.exists(plane_path):
             self._ground_plane = np.load(plane_path)
             self._ground_plane[3] += GROUND_PLANE_OFFSET

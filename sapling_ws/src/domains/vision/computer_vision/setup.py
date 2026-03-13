@@ -13,6 +13,7 @@ setup(
     ('share/' + package_name + '/models', ['models/Model_1_x2.engine']),
     ('share/' + package_name + '/launch', ['launch/vision_start.launch.py']),
     ('share/' + package_name + '/launch', ['launch/orbbec_config.yaml']),
+    ('share/' + package_name, [ package_name + '/ground_plane.npy']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

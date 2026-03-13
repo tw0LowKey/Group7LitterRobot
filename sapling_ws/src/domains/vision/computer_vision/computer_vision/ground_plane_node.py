@@ -6,8 +6,11 @@ from sensor_msgs.msg import PointCloud2
 from std_msgs.msg import Float64MultiArray, MultiArrayDimension
 from geometry_msgs.msg import PointStamped
 import sensor_msgs_py.point_cloud2 as pc2
+from ament_index_python.packages import get_package_share_directory
 
-PLANE_SAVE_PATH = os.path.expanduser('~/ground_plane.npy')
+# THIS HAS BEEN UPDATED, BUT NOT RUN TO TEST DUE TO PRE-EXISTENCE OF A GOOD GROUND PLANE, RUN FOR TESTING IF NEEDED.
+
+PLANE_SAVE_PATH = os.path.join(get_package_share_directory('computer_vision'), 'ground_plane.npy')
 
 RANSAC_ITERATIONS = 100
 RANSAC_INLIER_THRESHOLD = 0.01
