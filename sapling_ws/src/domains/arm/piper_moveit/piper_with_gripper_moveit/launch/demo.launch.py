@@ -38,12 +38,7 @@ def generate_launch_description():
         executable="set_grip_width_server"
     )
 
-    translation_node = Node(
-        package='vision_pkg',
-        executable='perception_transform_node',
-        name='perception_transform_node',
-        output='screen'
-    )
+
 
     return LaunchDescription(
         generate_demo_launch(moveit_config).entities + [
@@ -52,6 +47,5 @@ def generate_launch_description():
             set_grip_width_server,
             move_to_pose_server,
             move_to_home_server,
-            translation_node,
         ]
     )

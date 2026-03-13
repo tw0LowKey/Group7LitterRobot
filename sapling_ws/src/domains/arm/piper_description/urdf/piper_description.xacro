@@ -509,7 +509,7 @@
   <joint name = "tcp_joint" type = "fixed">
      <parent link="link6"/>
      <child link = "grasp_tcp"/>
-     <origin xyz="0 0 0.145" rpy = "0 0 0"/>
+     <origin xyz="0 0 0.072" rpy = "0 0 0"/>
   </joint>
 
 <!-- controller -->
