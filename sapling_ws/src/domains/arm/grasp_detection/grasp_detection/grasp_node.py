@@ -21,22 +21,11 @@ GRIPPER_BODY_DEPTH = 0.145
 GRIPPER_MIN_PENETRATION = 0.001
 GRIPPER_TARGET_PENETRATION = GRIPPER_FINGER_LENGTH / 2.0
 
-# GRIPPER_BODY_DEPTH = GRIPPER_PALM_THICK + shaft_depth
-# => shaft_depth = GRIPPER_BODY_DEPTH - GRIPPER_PALM_THICK = 0.121
 GRIPPER_SHAFT_DEPTH = GRIPPER_BODY_DEPTH - GRIPPER_PALM_THICK  # 0.121
+GRIPPER_PALM_WIDTH_Y = 0.09
+GRIPPER_SHAFT_RADIUS = 0.04
 
-# Palm extends further in Y than the fingers do.
-GRIPPER_PALM_WIDTH_Y  = 0.09   # 9 cm — full palm depth in the Y axis
-
-# Shaft is a cylinder whose axis runs along local Z.
-# The closing axis (X) gives the diameter: 6 cm -> radius = 3 cm.
-GRIPPER_SHAFT_RADIUS  = 0.04   # 3 cm — radius of the cylindrical body
-
-# Thickness of the contact slab just inside each finger's inner face used by
-# score_grasp.  Points within this slab on either side contribute to body_score.
-# A value of ~1/7 of the jaw half-width works well — wide enough to catch
-# surface points on a curved object without reaching the jaw centre.
-GRASP_CONTACT_DEPTH = 0.01  # 1 cm
+GRASP_CONTACT_DEPTH = 0.01
 
 # Scoring weights
 W_BODY        = 0.5
@@ -44,17 +33,15 @@ W_SYM         = 0.2
 W_PENETRATION = 0.2
 W_FRICTION    = 0.1
 
-TOP_K = 1
+TOP_K = 10
 PROCESS_EVERY_N = 3
 
 
 def _local_to_world_pos(local_offset: np.ndarray, grasp_pos: np.ndarray, grasp_rot: np.ndarray) -> np.ndarray:
-    """Transform a local-frame offset into a world-frame position."""
     return grasp_pos + grasp_rot @ local_offset
 
 
 def _make_cube_marker(header, ns, marker_id, world_pos, quat, scale_xyz, rgba):
-    """Helper to build a CUBE Marker."""
     m = Marker()
     m.header = header
     m.ns = ns
@@ -84,7 +71,6 @@ class RobustGraspNode(Node):
 
         self._msg_count = 0
 
-        # Load ground plane
         self._ground_plane = None
         plane_path = os.path.expanduser('~/ground_plane.npy')
         if os.path.exists(plane_path):
@@ -99,7 +85,6 @@ class RobustGraspNode(Node):
                 "No ground plane file found — ground collision disabled."
             )
 
-        # Subscribers / Publishers
         self.pc_sub = self.create_subscription(
             PointCloud2, '/cloud/masks_clean', self.pc_callback, 10
         )
@@ -108,7 +93,7 @@ class RobustGraspNode(Node):
         self.ground_marker_pub = self.create_publisher(Marker, '/ground_marker', 10)
 
         self.pick_client = self.create_client(PickPlaceRequest, 'pick_place_request')
-        self.robot_is_busy = False  # The lock flag
+        self.robot_is_busy = False
 
         self.get_logger().info("RobustGraspNode started")
 
@@ -122,12 +107,10 @@ class RobustGraspNode(Node):
         half_ft = GRIPPER_FINGER_THICK / 2.0
         outer_x = half_w + GRIPPER_FINGER_THICK
 
-        # 1. At least one point must lie within the finger envelope (z axis).
         in_env = (z >= 0.0) & (z <= GRIPPER_FINGER_LENGTH)
         if pts_local[in_env].shape[0] == 0:
             return 'no_points_in_envelope'
 
-        # 2. At least one point must lie inside the jaw gap (between the fingers).
         in_jaw = (np.abs(x) <= half_w) & (np.abs(y) <= GRIPPER_WIDTH_Y / 2.0)
         pts_in_jaw = pts_local[in_jaw]
         pts_in_jaw_env = pts_in_jaw[
@@ -136,7 +119,6 @@ class RobustGraspNode(Node):
         if pts_in_jaw_env.shape[0] == 0:
             return 'insufficient_penetration'
 
-        # 3. Finger collision — solid volume of either finger block.
         left_finger  = (x >= half_w)   & (x <= outer_x)
         right_finger = (x <= -half_w)  & (x >= -outer_x)
         in_finger_y  = np.abs(y) <= GRIPPER_WIDTH_Y / 2.0
@@ -144,42 +126,33 @@ class RobustGraspNode(Node):
         if np.any((left_finger | right_finger) & in_finger_y & in_finger_z):
             return 'finger_collision'
 
-        # 4. Palm collision — rectangular plate behind the finger roots.
         in_palm_x = np.abs(x) <= outer_x
         in_palm_y = np.abs(y) <= GRIPPER_PALM_WIDTH_Y / 2.0
         in_palm_z = (z < 0.0) & (z >= -GRIPPER_PALM_THICK)
         if np.any(in_palm_x & in_palm_y & in_palm_z):
             return 'palm_collision'
 
-        # 5. Shaft collision — cylindrical body behind the palm.
         in_shaft_z      = (z < -GRIPPER_PALM_THICK) & (z >= -GRIPPER_BODY_DEPTH)
         radial_dist     = np.sqrt(x**2 + y**2)
         in_shaft_radial = radial_dist <= GRIPPER_SHAFT_RADIUS
         if np.any(in_shaft_z & in_shaft_radial):
             return 'shaft_collision'
 
-        # 6. Ground collision — bounding box corners of every gripper part
-        #    transformed into world space and tested against the floor plane.
         if self._ground_plane is not None:
             a, b, c, d = self._ground_plane
             corners_local = np.array([
-                # Finger tip corners
                 [ outer_x,  GRIPPER_WIDTH_Y/2,       GRIPPER_FINGER_LENGTH],
                 [ outer_x, -GRIPPER_WIDTH_Y/2,       GRIPPER_FINGER_LENGTH],
                 [-outer_x,  GRIPPER_WIDTH_Y/2,       GRIPPER_FINGER_LENGTH],
                 [-outer_x, -GRIPPER_WIDTH_Y/2,       GRIPPER_FINGER_LENGTH],
-                # Palm front corners (z = 0, widest Y extent)
                 [ outer_x,  GRIPPER_PALM_WIDTH_Y/2,  0.0],
                 [ outer_x, -GRIPPER_PALM_WIDTH_Y/2,  0.0],
                 [-outer_x,  GRIPPER_PALM_WIDTH_Y/2,  0.0],
                 [-outer_x, -GRIPPER_PALM_WIDTH_Y/2,  0.0],
-                # Palm back corners (z = -PALM_THICK, widest Y extent)
                 [ outer_x,  GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_PALM_THICK],
                 [ outer_x, -GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_PALM_THICK],
                 [-outer_x,  GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_PALM_THICK],
                 [-outer_x, -GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_PALM_THICK],
-                # Shaft back corners (z = -BODY_DEPTH, Y bounded by palm width
-                # since the cylinder cross-section fits within the palm footprint)
                 [ outer_x,  GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_BODY_DEPTH],
                 [ outer_x, -GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_BODY_DEPTH],
                 [-outer_x,  GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_BODY_DEPTH],
@@ -217,7 +190,6 @@ class RobustGraspNode(Node):
         n_contact = n_left + n_right
 
         body_score = n_contact / (n_enclosed + 1e-6)
-
         sym_score = 1.0 - abs(n_left - n_right) / (n_contact + 1e-6)
 
         in_jaw = in_volume & (np.abs(y) <= GRIPPER_WIDTH_Y / 2.0)
@@ -227,7 +199,6 @@ class RobustGraspNode(Node):
         adaptive_target = min(GRIPPER_TARGET_PENETRATION, object_extent / 2.0)
         adaptive_target = max(adaptive_target, GRIPPER_MIN_PENETRATION)
         penetration_score = max(0.0, 1.0 - abs(actual_pen - adaptive_target) / adaptive_target)
-
 
         approach_axis = grasp_rot[:, 2]
         clearance = self._ground_clearance(points)
@@ -260,7 +231,6 @@ class RobustGraspNode(Node):
         n_hemi    = n_samples - n_lateral
         directions = []
 
-        # Upper-hemisphere directions
         while len(directions) < n_hemi:
             vec = np.random.randn(3)
             if np.dot(vec, up) < 0:
@@ -270,7 +240,6 @@ class RobustGraspNode(Node):
                 continue
             directions.append(vec / norm)
 
-        # Lateral directions (parallel to ground + small downward tilt)
         while len(directions) < n_samples:
             vec = np.random.randn(3)
             vec -= np.dot(vec, up) * up
@@ -294,7 +263,7 @@ class RobustGraspNode(Node):
         standoff = GRIPPER_PALM_THICK / 2 + 0.005
 
         clearance = self._ground_clearance(points)
-        threshold = GRIPPER_WIDTH_Y / 2.0   # 0.0275 m
+        threshold = GRIPPER_WIDTH_Y / 2.0
         lateral_fraction = float(np.clip(1.0 - clearance / threshold, 0.0, 1.0))
         self.get_logger().info(
             f"Ground clearance: {clearance*100:.1f} cm  ->  lateral fraction: {lateral_fraction:.2f}"
@@ -330,12 +299,9 @@ class RobustGraspNode(Node):
     # -------------------------
     def _build_gripper_markers(self, header, idx, pos, rot, quat):
         markers = []
-        half_w = GRIPPER_WIDTH_MAX / 2.0          # ±X extent of palm / body
-        half_ft = GRIPPER_FINGER_THICK / 2.0      # half-thickness of one finger in X
+        half_w = GRIPPER_WIDTH_MAX / 2.0
+        half_ft = GRIPPER_FINGER_THICK / 2.0
 
-        # ------------------------------------------------------------------
-        # Palm  —  local centre at (0, 0, −GRIPPER_PALM_THICK/2)
-        # ------------------------------------------------------------------
         palm_local = np.array([0.0, 0.0, -GRIPPER_PALM_THICK / 2.0])
         palm_world = _local_to_world_pos(palm_local, pos, rot)
         markers.append(_make_cube_marker(
@@ -345,9 +311,6 @@ class RobustGraspNode(Node):
             rgba=[0.0, 1.0, 0.0, 0.5],
         ))
 
-        # ------------------------------------------------------------------
-        # Left finger
-        # ------------------------------------------------------------------
         lf_local = np.array([half_w + half_ft, 0.0, GRIPPER_FINGER_LENGTH / 2.0])
         lf_world = _local_to_world_pos(lf_local, pos, rot)
         markers.append(_make_cube_marker(
@@ -357,9 +320,6 @@ class RobustGraspNode(Node):
             rgba=[0.0, 0.5, 0.0, 0.5],
         ))
 
-        # ------------------------------------------------------------------
-        # Right finger — mirror of left in X
-        # ------------------------------------------------------------------
         rf_local = np.array([-(half_w + half_ft), 0.0, GRIPPER_FINGER_LENGTH / 2.0])
         rf_world = _local_to_world_pos(rf_local, pos, rot)
         markers.append(_make_cube_marker(
@@ -369,10 +329,6 @@ class RobustGraspNode(Node):
             rgba=[0.0, 0.5, 0.0, 0.5],
         ))
 
-        # ------------------------------------------------------------------
-        # Shaft (body) — cylindrical, axis along local Z.
-        #   centre at (0, 0, −PALM_THICK − SHAFT_DEPTH/2)
-        # ------------------------------------------------------------------
         shaft_local = np.array([0.0, 0.0, -GRIPPER_PALM_THICK - GRIPPER_SHAFT_DEPTH / 2.0])
         shaft_world = _local_to_world_pos(shaft_local, pos, rot)
         shaft_m = Marker()
@@ -388,9 +344,9 @@ class RobustGraspNode(Node):
         shaft_m.pose.orientation.y = float(quat[1])
         shaft_m.pose.orientation.z = float(quat[2])
         shaft_m.pose.orientation.w = float(quat[3])
-        shaft_m.scale.x = GRIPPER_SHAFT_RADIUS * 2   # diameter in X
-        shaft_m.scale.y = GRIPPER_SHAFT_RADIUS * 2   # diameter in Y
-        shaft_m.scale.z = float(GRIPPER_SHAFT_DEPTH) # length along Z
+        shaft_m.scale.x = GRIPPER_SHAFT_RADIUS * 2
+        shaft_m.scale.y = GRIPPER_SHAFT_RADIUS * 2
+        shaft_m.scale.z = float(GRIPPER_SHAFT_DEPTH)
         shaft_m.color.r = 0.5
         shaft_m.color.g = 0.0
         shaft_m.color.b = 0.0
@@ -403,17 +359,18 @@ class RobustGraspNode(Node):
     # Callback
     # -------------------------
     def pc_callback(self, pc_msg):
-        # 1. Check if the robot is already moving. If it is, abort this vision cycle!
         if self.robot_is_busy:
-            self.get_logger().info("Arm is currently moving. Skipping vision request...", throttle_duration_sec=2.0)
+            self.get_logger().info(
+                "Arm is currently moving. Skipping vision request...",
+                throttle_duration_sec=2.0
+            )
             return
-        
+
         callback_start = time.time()
         self._msg_count += 1
         if self._msg_count % PROCESS_EVERY_N != 0:
             return
 
-        # Read points
         points_list = list(pc2.read_points(pc_msg, field_names=("x","y","z","instance_id"), skip_nans=True))
         if not points_list:
             return
@@ -429,12 +386,10 @@ class RobustGraspNode(Node):
         if points.shape[0] == 0:
             return
 
-        # Generate candidates
         gen_start = time.time()
         candidates = self.generate_candidates(points, n_samples=500, rolls_per_point=10)
         gen_time = time.time() - gen_start
 
-        # Feasibility & scoring
         reject_counts = {
             'no_points_in_envelope':    0,
             'insufficient_penetration': 0,
@@ -465,9 +420,7 @@ class RobustGraspNode(Node):
         scored_candidates.sort(key=lambda x: x[0], reverse=True)
         top_candidates = scored_candidates[:TOP_K]
 
-        # -------------------------
         # Publish ground plane marker
-        # -------------------------
         if self._ground_plane is not None:
             a, b, c, d = self._ground_plane
             normal = np.array([a, b, c])
@@ -483,7 +436,6 @@ class RobustGraspNode(Node):
             marker.pose.position.y = float(origin[1])
             marker.pose.position.z = float(origin[2])
 
-            # Orient cube so local +Z = plane normal
             world_z = np.array([0.0, 0.0, 1.0])
             axis = np.cross(world_z, normal)
             axis_norm = np.linalg.norm(axis)
@@ -502,7 +454,6 @@ class RobustGraspNode(Node):
             marker.pose.orientation.y = qy
             marker.pose.orientation.z = qz
             marker.pose.orientation.w = qw
-
             marker.scale.x = 2.0
             marker.scale.y = 2.0
             marker.scale.z = 0.002
@@ -513,23 +464,20 @@ class RobustGraspNode(Node):
 
             self.ground_marker_pub.publish(marker)
 
-       
-        # -------------------------
-        # Publish markers & Send Service Call
-        # -------------------------
-        
-        # 1. Check if the robot is already moving. If it is, abort this vision cycle!
+        # Final busy check before sending service call
         if self.robot_is_busy:
-            self.get_logger().info("Arm is currently moving. Skipping vision request...", throttle_duration_sec=2.0)
+            self.get_logger().info(
+                "Arm is currently moving. Skipping vision request...",
+                throttle_duration_sec=2.0
+            )
             return
 
         marker_array = MarkerArray()
-        pose_array_to_send = []  # NEW: The list we will send to the Master Node
+        pose_array_to_send = []
 
         for idx, (score, pos, rot) in enumerate(top_candidates):
-            quat = R.from_matrix(rot).as_quat()  # [x, y, z, w]
+            quat = R.from_matrix(rot).as_quat()
 
-            # Pose
             pose_msg = PoseStamped()
             pose_msg.header = pc_msg.header
             pose_msg.pose.position.x = float(pos[0])
@@ -539,27 +487,37 @@ class RobustGraspNode(Node):
             pose_msg.pose.orientation.y = float(quat[1])
             pose_msg.pose.orientation.z = float(quat[2])
             pose_msg.pose.orientation.w = float(quat[3])
-            self.grasp_pub.publish(pose_msg)  # Kept for RViz visualization
-            
-            pose_array_to_send.append(pose_msg)  # NEW: Add the pose to our service array
+            self.grasp_pub.publish(pose_msg)
+            pose_array_to_send.append(pose_msg)
 
-            # Markers (palm + two fingers + shaft)
             for m in self._build_gripper_markers(pc_msg.header, idx, pos, rot, quat):
                 marker_array.markers.append(m)
 
         self.marker_pub.publish(marker_array)
 
-        # 2. Trigger the Master Node!
         if pose_array_to_send:
-            self.get_logger().info(f"Sending {len(pose_array_to_send)} grasp poses to Master Node...")
-            self.robot_is_busy = True  # Lock the vision system
-            
+            self.get_logger().info(
+                f"Sending {len(pose_array_to_send)} grasp poses to Master Node..."
+            )
+
+            if not self.pick_client.wait_for_service(timeout_sec=2.0):
+                self.get_logger().warn(
+                    "Master node service not available. Skipping this cycle."
+                )
+                return
+
+            self.get_logger().info(
+                "DEBUG: Service is available. Setting busy and calling async..."
+            )
+            self.robot_is_busy = True
+
             req = PickPlaceRequest.Request()
             req.poses = pose_array_to_send
-            
-            # Send the request and tell it which function to run when the Master Node replies
+
             future = self.pick_client.call_async(req)
+            self.get_logger().info(f"DEBUG: call_async fired. Future: {future}")
             future.add_done_callback(self.grasp_response_callback)
+            self.get_logger().info("DEBUG: Done callback registered.")
 
         callback_elapsed = time.time() - callback_start
         self.get_logger().info(
@@ -570,19 +528,23 @@ class RobustGraspNode(Node):
         )
 
     def grasp_response_callback(self, future):
-        """Triggered automatically when the Master Node finishes the pick-and-place sequence."""
+        self.get_logger().info("DEBUG: grasp_response_callback entered.")
         try:
             response = future.result()
             if response.success:
-                self.get_logger().info("SUCCESS: Master Node completed the pick-and-place sequence!")
+                self.get_logger().info(
+                    "SUCCESS: Master Node completed the pick-and-place sequence!"
+                )
             else:
-                self.get_logger().warn("FAILURE: Master Node could not reach any of the provided poses.")
+                self.get_logger().warn(
+                    "FAILURE: Master Node could not reach any of the provided poses."
+                )
         except Exception as e:
             self.get_logger().error(f"Service call to Master Node failed: {e}")
         finally:
-            # Unlock the vision system to look for the next piece of litter!
             self.get_logger().info("Unlocking vision system for next scan.")
             self.robot_is_busy = False
+
 
 def main(args=None):
     rclpy.init(args=args)

@@ -5,14 +5,14 @@ PickAndPlace::PickAndPlace(rclcpp::Node::SharedPtr node, const std::string& grou
     move_group_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node_, group_name);
 
     // Your teammate's exact settings
-    move_group_->setPlanningTime(15.0);
+    move_group_->setPlanningTime(2.0);
     move_group_->setNumPlanningAttempts(100);
     move_group_->setMaxVelocityScalingFactor(1);
     move_group_->setMaxAccelerationScalingFactor(1);
     move_group_->setEndEffectorLink("grasp_tcp"); 
     move_group_->setPoseReferenceFrame("base_link");
     move_group_->setGoalPositionTolerance(0.001);
-    move_group_->setGoalOrientationTolerance(0.01); // radians
+    move_group_->setGoalOrientationTolerance(0.01); //radians
 
     // Initialize the Service Server
     service_ = node_->create_service<piper_msgs::srv::MoveToPose>(
