@@ -68,10 +68,6 @@ class ServerClientNode(Node):
         return t
 
     def _wait_for_future(self, future, timeout_sec=10.0) -> bool:
-        """
-        Polls a future until complete or timed out.
-        Safe to call from a worker thread alongside MultiThreadedExecutor.
-        """
         start = time.time()
         while not future.done():
             if time.time() - start > timeout_sec:
@@ -100,8 +96,8 @@ class ServerClientNode(Node):
         self.get_logger().info('Waiting for arm services to be fully ready...')
         time.sleep(2.0)
 
+        # --- Transform all poses into base_link frame ---
         transformed_poses_list = []
-
         for target_pose_stamped in request.poses:
             try:
                 transformed_pose = tf2_geometry_msgs.do_transform_pose(
@@ -120,50 +116,59 @@ class ServerClientNode(Node):
             self.get_logger().error('No valid poses after transformation. Aborting.')
             return False
 
-        for index, test_pose in enumerate(transformed_poses_list):
-            self.get_logger().info(
-                f'--- Attempting grasp {index + 1} / {len(transformed_poses_list)} ---'
-            )
-            if self.execute_pick_place_sequence(test_pose):
-                self.get_logger().info(f'SUCCESS on pose {index + 1}.')
-                return True
-            else:
-                self.get_logger().warn(f'Pose {index + 1} failed. Trying next...')
-
-        self.get_logger().error('All poses failed.')
-        return False
-
-    def execute_pick_place_sequence(self, pick_pose: Pose) -> bool:
-        results = 0
-
-        self.get_logger().info('Opening gripper')
+        # --- Loop: open gripper and attempt to reach each pose ---
+        # Only the gripper open + move_to_pose is inside the loop.
+        # Everything else (close gripper, place, return home) only
+        # runs once a reachable pose is found.
+        self.get_logger().info('Opening gripper before search.')
         self.set_grip("open")
 
-        self.get_logger().info('Moving to pick pose')
-        if not self.send_pose_request(pick_pose):
-            self.get_logger().error('Pick move failed.')
-        else:
-            results += 1
-            self.get_logger().info('Pick move succeeded. Closing gripper.')
-            self.set_grip("close")
-
-            self.request_home()
-
-            self.get_logger().info('Moving to place pose')
-            if not self.send_pose_request(self.place_pose):
-                self.get_logger().error('Place move failed.')
+        reachable_pose = None
+        for index, test_pose in enumerate(transformed_poses_list):
+            self.get_logger().info(
+                f'--- Trying pose {index + 1} / {len(transformed_poses_list)} ---'
+            )
+            if self.send_pose_request(test_pose):
+                self.get_logger().info(f'Pose {index + 1} is reachable. Proceeding with sequence.')
+                reachable_pose = test_pose
+                break
             else:
-                results += 1
-                self.get_logger().info('Place move succeeded. Opening gripper.')
-                self.set_grip("open")
+                self.get_logger().warn(f'Pose {index + 1} unreachable. Trying next...')
 
-        self.get_logger().info('Returning home')
+        # --- If no pose was reachable, return home and report failure ---
+        if reachable_pose is None:
+            self.get_logger().error('All poses failed. Returning home.')
+            while not self.request_home():
+                self.get_logger().error('Home failed, retrying...')
+            self.set_grip("close")
+            return False
+
+        # --- A reachable pose was found — complete the pick/place sequence ---
+        self.get_logger().info('Closing gripper to grasp object.')
+        self.set_grip("close")
+
+        self.get_logger().info('Returning to home before place.')
+        while not self.request_home():
+            self.get_logger().error('Home failed, retrying...')
+
+        self.get_logger().info('Moving to place pose.')
+        if not self.send_pose_request(self.place_pose):
+            self.get_logger().error('Place move failed. Returning home.')
+            while not self.request_home():
+                self.get_logger().error('Home failed, retrying...')
+            self.set_grip("close")
+            return False
+
+        self.get_logger().info('Place move succeeded. Opening gripper to release.')
+        self.set_grip("open")
+
+        self.get_logger().info('Returning home after place.')
         while not self.request_home():
             self.get_logger().error('Home failed, retrying...')
         self.set_grip("close")
-        results += 1
 
-        return (results == 3)
+        self.get_logger().info('Full pick-and-place sequence complete.')
+        return True
 
     def send_pose_request(self, pose: Pose) -> bool:
         if not self.move_client.wait_for_service(timeout_sec=10.0):
