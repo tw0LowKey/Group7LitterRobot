@@ -35,10 +35,10 @@ GROUND_PLANE_OFFSET = 0.01  # metres
 N_ANCHORS = 500
 
 # Number of nearest neighbours used for surface normal estimation via PCA
-NORMAL_K = 15
+NORMAL_K = 50
 
 # Only objects within 0.6 m can be reached by the manipulator
-REACHABILITY_RADIUS = 0.6  # metres
+REACHABILITY_RADIUS = 0.7  # metres
 
 # Distance to the base link from the camera and camera quaternion
 _CAMERA_TRANSLATION = np.array([0.14, 0.014, 0.600])
@@ -479,10 +479,7 @@ class GraspNode(Node):
         for anchor in anchors:
             z_axis = self._estimate_normal(anchor, points)
 
-            if np.dot(z_axis, self._up) < 0:
-                continue
-
-            z_axis = -z_axis
+            z_axis = -z_axis  # Face into surface
 
             grasp_pos = anchor - z_axis * standoff
 
@@ -615,14 +612,14 @@ class GraspNode(Node):
             if dist <= REACHABILITY_RADIUS:
                 selected_points = candidate_pts
                 selected_id     = uid
-                self.get_logger().info(
-                    f"Instance {int(uid)} centroid {dist*100:.1f}cm from base_link — selected"
-                )
+                # self.get_logger().info(
+                #     f"Instance {int(uid)} centroid {dist*100:.1f}cm from base_link — selected"
+                # )
                 break
-            else:
-                self.get_logger().info(
-                    f"Instance {int(uid)} centroid {dist*100:.1f}cm from base_link — outside sphere, skipping"
-                )
+            # else:
+            #     self.get_logger().info(
+            #         f"Instance {int(uid)} centroid {dist*100:.1f}cm from base_link — outside sphere, skipping"
+            #     )
 
         if selected_points is None:
             self.get_logger().info("No instances within reachability sphere")
