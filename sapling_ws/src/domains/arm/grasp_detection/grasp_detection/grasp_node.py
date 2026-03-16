@@ -21,7 +21,7 @@ GRIPPER_PALM_THICK = 0.024
 GRIPPER_WIDTH_Y = 0.035
 GRIPPER_BODY_DEPTH = 0.145
 GRIPPER_MIN_PENETRATION = 0.001
-GRIPPER_TARGET_PENETRATION = GRIPPER_FINGER_LENGTH / 2.0
+GRIPPER_TARGET_PENETRATION = GRIPPER_FINGER_LENGTH / 3.0
 
 GRIPPER_SHAFT_DEPTH = GRIPPER_BODY_DEPTH - GRIPPER_PALM_THICK  # 0.121
 GRIPPER_PALM_WIDTH_Y = 0.09
@@ -671,7 +671,8 @@ class GraspNode(Node):
         pose_array_to_send = []
 
         for idx, (score, pos, rot) in enumerate(top_candidates):
-            quat = R.from_matrix(rot).as_quat()
+            rot_swapped = rot[:, [1, 0, 2]]
+            quat = R.from_matrix(rot_swapped).as_quat()
 
             pose_msg                    = PoseStamped()
             pose_msg.header             = pc_msg.header
