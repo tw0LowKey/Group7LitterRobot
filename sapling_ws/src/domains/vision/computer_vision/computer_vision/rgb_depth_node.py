@@ -126,6 +126,50 @@ class RGBDepthNode(Node):
 
         self.last_callback_time = None
 
+    def _is_transparent(self, mask, depth, fx, fy, cx, cy, pts_raw, expand_px=15, z_threshold=0.04):
+        instance_mean_z = float(np.mean(pts_raw[:, 2]))
+
+        mask_uint8 = mask.astype(np.uint8)
+        kernel = np.ones((expand_px * 2 + 1, expand_px * 2 + 1), np.uint8)
+        dilated = cv2.dilate(mask_uint8, kernel)
+        ring = (dilated - mask_uint8).astype(bool)
+
+        ys, xs = np.nonzero(ring)
+        bg_z = depth[ys, xs]
+        bg_z = bg_z[(bg_z > 0) & (bg_z > instance_mean_z - 0.05)]
+        if bg_z.size < 10:
+            return False
+
+        bg_X = (xs - cx) * bg_z / fx
+        bg_Y = (ys - cy) * bg_z / fy
+        bg_pts = np.stack([bg_X, bg_Y, bg_z], axis=1)
+
+        best_inlier_mean_z = None
+        best_count = 0
+        n = bg_pts.shape[0]
+        for _ in range(50):
+            if n < 3:
+                break
+            idx = np.random.choice(n, 3, replace=False)
+            p0, p1, p2 = bg_pts[idx[0]], bg_pts[idx[1]], bg_pts[idx[2]]
+            normal = np.cross(p1 - p0, p2 - p0)
+            norm = np.linalg.norm(normal)
+            if norm < 1e-6:
+                continue
+            normal /= norm
+            d = -np.dot(normal, p0)
+            dists = np.abs(bg_pts @ normal + d)
+            inliers = dists < 0.01
+            count = np.sum(inliers)
+            if count > best_count:
+                best_count = count
+                best_inlier_mean_z = float(np.mean(bg_pts[inliers, 2]))
+
+        if best_inlier_mean_z is None:
+            return False
+
+        return abs(instance_mean_z - best_inlier_mean_z) < z_threshold
+    
     def synced_callback(self, rgb_msg, depth_msg, info_msg):
         rgb = self.bridge.imgmsg_to_cv2(rgb_msg, 'bgr8')
         depth = self.bridge.imgmsg_to_cv2(depth_msg, 'passthrough')
@@ -163,6 +207,9 @@ class RGBDepthNode(Node):
             Y = (ys - cy) * Z / fy
             pts_raw = np.stack((X, Y, Z), axis=-1)
             colors_raw = rgb_for_color[ys, xs]
+
+            is_transparent = self._is_transparent(mask, depth, fx, fy, cx, cy, pts_raw)
+            self.get_logger().info(f"Instance {i}: {'TRANSPARENT' if is_transparent else 'opaque'} | mean_z={np.mean(pts_raw[:,2]):.3f}m")
 
             raw_points_list.append(pts_raw)
             raw_ids_list.append(np.full(pts_raw.shape[0], i, dtype=np.int32))
