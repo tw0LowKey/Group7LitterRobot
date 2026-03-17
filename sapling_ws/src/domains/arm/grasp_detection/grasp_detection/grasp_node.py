@@ -20,13 +20,15 @@ GRIPPER_FINGER_THICK = 0.04
 GRIPPER_PALM_THICK = 0.024
 GRIPPER_WIDTH_Y = 0.035
 GRIPPER_BODY_DEPTH = 0.145
-GRIPPER_MIN_PENETRATION = 0.001
 GRIPPER_TARGET_PENETRATION = GRIPPER_FINGER_LENGTH / 3.0
 
 GRIPPER_SHAFT_DEPTH = GRIPPER_BODY_DEPTH - GRIPPER_PALM_THICK  # 0.121
 GRIPPER_PALM_WIDTH_Y = 0.09
 GRIPPER_SHAFT_RADIUS = 0.04
 GRASP_CONTACT_DEPTH = 0.02
+
+# Standoff is fixed by gripper geometry and desired grasp depth
+GRIPPER_STANDOFF = GRIPPER_FINGER_LENGTH - GRIPPER_TARGET_PENETRATION
 
 # Ground plane placed slightly below assignment to prevent objects intersecting ground
 GROUND_PLANE_OFFSET = 0.01  # metres
@@ -37,18 +39,17 @@ N_ANCHORS = 500
 # Number of nearest neighbours used for surface normal estimation via PCA
 NORMAL_K = 50
 
-# Only objects within 0.6 m can be reached by the manipulator
+# Only objects within 0.7 m can be reached by the manipulator
 REACHABILITY_RADIUS = 0.7  # metres
 
-# Distance to the base link from the camera and camera quaternion
+# Distance to the base link from the camera
 _CAMERA_TRANSLATION = np.array([0.14, 0.014, 0.600])
 _CAMERA_ROTATION    = np.array([0.0, 0.479, 0.0, 0.878])  # [x, y, z, w]
 
-# Scoring weights
-W_BODY        = 0.5
-W_SYM         = 0.2
-W_PENETRATION = 0.2
-W_FRICTION    = 0.1
+# Scoring weights — must sum to 1.0
+W_BODY        = 0.6
+W_SYM         = 0.25
+W_FRICTION    = 0.15
 
 # Publish only the best scoring K grasp candidates
 TOP_K = 10
@@ -91,9 +92,6 @@ class GraspNode(Node):
         self._msg_count = 0
 
         # ── Base link position in camera frame ───────────────────────────────
-        # Physical offset [0.14, 0.014, 0.600] (right, slight, above) rotated
-        # into the camera optical frame (Z forward, Y down, X right) by the
-        # 57deg downward pitch around the X axis.
         _pitch_rot = R.from_euler('x', -57.0, degrees=True).as_matrix()
         self._base_pos_in_camera = _pitch_rot @ _CAMERA_TRANSLATION
         self.get_logger().info(
@@ -128,18 +126,17 @@ class GraspNode(Node):
         self.pc_sub = self.create_subscription(
             PointCloud2, '/cloud/masks_clean', self.pc_callback, 1
         )
-        self.grasp_pub        = self.create_publisher(PoseStamped,  '/grasp_pose',      1)
-        self.marker_pub       = self.create_publisher(MarkerArray,  '/grasp_markers',   10)
-        self.ground_marker_pub = self.create_publisher(Marker,      '/ground_marker',   10)
-        self.sphere_marker_pub = self.create_publisher(Marker,      '/reachability_sphere', 10)
-        self.base_link_markers_pub = self.create_publisher(MarkerArray, '/base_link_debug', 10)
+        self.grasp_pub             = self.create_publisher(PoseStamped,  '/grasp_pose',          1)
+        self.marker_pub            = self.create_publisher(MarkerArray,  '/grasp_markers',       10)
+        self.ground_marker_pub     = self.create_publisher(Marker,       '/ground_marker',       10)
+        self.sphere_marker_pub     = self.create_publisher(Marker,       '/reachability_sphere', 10)
+        self.base_link_markers_pub = self.create_publisher(MarkerArray,  '/base_link_debug',     10)
 
         self._startup_count = 0
         self._startup_timer = self.create_timer(0.5, self._startup_publish)
 
-        self.pick_client = self.create_client(PickPlaceRequest, 'pick_place_request')
+        self.pick_client   = self.create_client(PickPlaceRequest, 'pick_place_request')
         self.robot_is_busy = False
-
 
         self.get_logger().info("GraspNode started")
 
@@ -147,11 +144,6 @@ class GraspNode(Node):
     # Static marker publishing
     # -------------------------
     def _startup_publish(self):
-        """
-        Publish static markers at 0.5s intervals for the first 5 seconds
-        (10 attempts) so RViz receives them on startup without needing a
-        point cloud message.  Timer is cancelled after 10 publishes.
-        """
         self._startup_count += 1
         if self._startup_count > 10:
             self._startup_timer.cancel()
@@ -164,7 +156,6 @@ class GraspNode(Node):
             self.ground_marker_pub.publish(self._build_ground_plane_marker(header))
 
     def _make_static_header(self):
-        """Build a Header stamped now with the camera frame id."""
         from std_msgs.msg import Header
         h = Header()
         h.stamp    = self.get_clock().now().to_msg()
@@ -217,19 +208,8 @@ class GraspNode(Node):
     # Base link debug markers
     # -------------------------
     def _build_base_link_debug_markers(self, header):
-        """
-        Debug markers tracing the physical offset from camera origin to base link
-        in camera optical frame steps (Z forward, Y down, X right):
-
-          Blue  — 60cm down          (positive Y)
-          Red   — 14cm behind camera (negative Z)
-          Green — 14cm to the right  (positive X)
-          Cyan  — camera forward vector (0.5m along optical Z)
-          White sphere — tip of the path / computed base link position
-        """
         markers = []
 
-        bx, by, bz = [float(v) for v in self._base_pos_in_camera]
         up = self._up
         cam_z = np.array([0.0, 0.0, 1.0])
         horiz_forward = cam_z - np.dot(cam_z, up) * up
@@ -240,9 +220,9 @@ class GraspNode(Node):
             horiz_forward = np.array([0.0, 0.0, 1.0])
 
         p0 = np.array([0.0, 0.0, 0.0])
-        p1 = p0 + (-up)           * 0.6    # 60cm down along ground normal
-        p2 = p1 + (-horiz_forward) * 0.14  # 14cm behind (away from camera)
-        p3 = p2 + np.array([0.14, 0.0, 0.0])  # 14cm to the right (+X)
+        p1 = p0 + (-up)            * 0.6
+        p2 = p1 + (-horiz_forward) * 0.14
+        p3 = p2 + np.array([0.14, 0.0, 0.0])
 
         def line_marker(mid, start, end, r, g, b, width=0.01):
             m = Marker()
@@ -262,17 +242,13 @@ class GraspNode(Node):
             m.points = [p_s, p_e]
             return m
 
-        markers.append(line_marker(0, p0, p1, 0, 0, 1))              # blue  — 60cm down
-        markers.append(line_marker(1, p1, p2, 1, 0, 0))              # red   — 14cm behind
-        markers.append(line_marker(2, p2, p3, 0, 1, 0))              # green — 14cm right
-        markers.append(line_marker(3, [0,0,0], [0,0,0.5], 0,1,1, width=0.015))  # cyan — forward
+        markers.append(line_marker(0, p0, p1, 0, 0, 1))
+        markers.append(line_marker(1, p1, p2, 1, 0, 0))
+        markers.append(line_marker(2, p2, p3, 0, 1, 0))
+        markers.append(line_marker(3, [0,0,0], [0,0,0.5], 0, 1, 1, width=0.015))
 
-        # Store p3 as the authoritative base link position for the sphere
-        # and reachability check — it is correct by construction from the
-        # known physical offsets and ground plane normal.
         self._base_pos_in_camera = p3.copy()
 
-        # White sphere at tip of path
         m = Marker()
         m.header    = header
         m.ns        = "base_link_debug"
@@ -298,12 +274,6 @@ class GraspNode(Node):
     # Reachability sphere marker
     # -------------------------
     def _build_sphere_marker(self, header):
-        """
-        Build a semi-transparent sphere marker centred on the base link
-        position (expressed in the camera frame) with radius REACHABILITY_RADIUS.
-        Published every callback so RViz always has a fresh copy regardless of
-        when it subscribes.
-        """
         m = Marker()
         m.header    = header
         m.ns        = "reachability_sphere"
@@ -332,21 +302,9 @@ class GraspNode(Node):
         half_w  = GRIPPER_WIDTH_MAX / 2.0
         outer_x = half_w + GRIPPER_FINGER_THICK
 
-        # ── Reachability checks ───────────────────────────────────────────────
-
         in_env = (z >= 0.0) & (z <= GRIPPER_FINGER_LENGTH)
         if pts_local[in_env].shape[0] == 0:
             return 'no_points_in_envelope'
-
-        in_jaw = (np.abs(x) <= half_w) & (np.abs(y) <= GRIPPER_WIDTH_Y / 2.0)
-        pts_in_jaw = pts_local[in_jaw]
-        pts_in_jaw_env = pts_in_jaw[
-            (pts_in_jaw[:, 2] >= 0.0) & (pts_in_jaw[:, 2] <= GRIPPER_FINGER_LENGTH)
-        ]
-        if pts_in_jaw_env.shape[0] == 0:
-            return 'insufficient_penetration'
-
-        # ── Collision checks ─────────────────────────────────────────────────
 
         left_finger  = (x >= half_w)  & (x <= outer_x)
         right_finger = (x <= -half_w) & (x >= -outer_x)
@@ -402,9 +360,9 @@ class GraspNode(Node):
         x, y, z = pts_local[:, 0], pts_local[:, 1], pts_local[:, 2]
         half_w = GRIPPER_WIDTH_MAX / 2.0
 
-        in_env     = (z >= 0.0) & (z <= GRIPPER_FINGER_LENGTH)
-        in_volume  = in_env & (x >= -half_w) & (x <= half_w)
-        enclosed   = pts_local[in_volume]
+        in_env    = (z >= 0.0) & (z <= GRIPPER_FINGER_LENGTH)
+        in_volume = in_env & (x >= -half_w) & (x <= half_w)
+        enclosed  = pts_local[in_volume]
         n_enclosed = enclosed.shape[0]
 
         in_contact_y  = np.abs(enclosed[:, 1]) <= GRIPPER_WIDTH_Y / 2.0
@@ -418,38 +376,24 @@ class GraspNode(Node):
         n_right   = float(np.sum(right_contact & in_contact_yz))
         n_contact = n_left + n_right
 
-        body_score = n_contact / (n_enclosed + 1e-6)
-        sym_score  = 1.0 - abs(n_left - n_right) / (n_contact + 1e-6)
-
-        in_jaw     = in_volume & (np.abs(y) <= GRIPPER_WIDTH_Y / 2.0)
-        pts_in_jaw = pts_local[in_jaw]
-        actual_pen      = float(pts_in_jaw[:, 2].max()) if pts_in_jaw.shape[0] > 0 else 0.0
-        object_extent   = float(pts_local[:, 2].max() - pts_local[:, 2].min()) if pts_local.shape[0] > 0 else GRIPPER_FINGER_LENGTH
-        adaptive_target = min(GRIPPER_TARGET_PENETRATION, object_extent / 2.0)
-        adaptive_target = max(adaptive_target, GRIPPER_MIN_PENETRATION)
-        penetration_score = max(0.0, 1.0 - abs(actual_pen - adaptive_target) / adaptive_target)
-
+        body_score     = n_contact / (n_enclosed + 1e-6)
+        sym_score      = 1.0 - abs(n_left - n_right) / (n_contact + 1e-6)
         approach_axis  = grasp_rot[:, 2]
         friction_score = max(0.0, float(-np.dot(approach_axis, self._up)))
 
-        return (W_BODY * body_score + W_SYM * sym_score
-                + W_PENETRATION * penetration_score + W_FRICTION * friction_score)
+        return (W_BODY * body_score + W_SYM * sym_score + W_FRICTION * friction_score)
 
     # -------------------------
     # Surface normal estimation
     # -------------------------
     def _estimate_normal(self, anchor: np.ndarray, points: np.ndarray) -> np.ndarray:
-        """
-        Estimate the outward surface normal at an anchor point using PCA on its
-        k nearest neighbours.
-        """
-        dists = np.linalg.norm(points - anchor, axis=1)
-        k = min(NORMAL_K, points.shape[0])
+        dists      = np.linalg.norm(points - anchor, axis=1)
+        k          = min(NORMAL_K, points.shape[0])
         neighbours = points[np.argsort(dists)[:k]]
 
-        centred = neighbours - neighbours.mean(axis=0)
+        centred  = neighbours - neighbours.mean(axis=0)
         _, _, Vt = np.linalg.svd(centred, full_matrices=False)
-        normal = Vt[-1]
+        normal   = Vt[-1]
 
         if np.dot(normal, self._up) < 0:
             normal = -normal
@@ -460,28 +404,19 @@ class GraspNode(Node):
     # Candidate generation
     # -------------------------
     def generate_candidates(self, points, n_anchors=N_ANCHORS, rolls_per_point=10):
-        """
-        Surface-normal based candidate generation.  Samples anchor points
-        directly from the object surface and derives the approach direction
-        from the local surface normal at each anchor.  Anchors in the ground 
-        and anchors facing the camera are discarded. 
-        """
         candidates = []
         if points.shape[0] == 0:
             return candidates
 
-        n = min(n_anchors, points.shape[0])
+        n       = min(n_anchors, points.shape[0])
         indices = np.random.choice(points.shape[0], size=n, replace=False)
         anchors = points[indices]
 
-        standoff = GRIPPER_PALM_THICK / 2 + 0.005
-
         for anchor in anchors:
             z_axis = self._estimate_normal(anchor, points)
-
             z_axis = -z_axis  # Face into surface
 
-            grasp_pos = anchor - z_axis * standoff
+            grasp_pos = anchor - z_axis * GRIPPER_STANDOFF
 
             tmp = np.array([1.0, 0.0, 0.0])
             if abs(np.dot(tmp, z_axis)) > 0.9:
@@ -511,7 +446,6 @@ class GraspNode(Node):
         half_w  = GRIPPER_WIDTH_MAX / 2.0
         half_ft = GRIPPER_FINGER_THICK / 2.0
 
-        # ── Gripper Palm ─────────────────────────────────────────────────
         palm_local = np.array([0.0, 0.0, -GRIPPER_PALM_THICK / 2.0])
         palm_world = _local_to_world_pos(palm_local, pos, rot)
         markers.append(_make_cube_marker(
@@ -521,7 +455,6 @@ class GraspNode(Node):
             rgba=[0.0, 1.0, 0.0, 0.5],
         ))
 
-        # ── Gripper Left Finger ─────────────────────────────────────────────────
         lf_local = np.array([half_w + half_ft, 0.0, GRIPPER_FINGER_LENGTH / 2.0])
         lf_world = _local_to_world_pos(lf_local, pos, rot)
         markers.append(_make_cube_marker(
@@ -531,7 +464,6 @@ class GraspNode(Node):
             rgba=[0.0, 0.5, 0.0, 0.5],
         ))
 
-        # ── Gripper Right Finger ─────────────────────────────────────────────────
         rf_local = np.array([-(half_w + half_ft), 0.0, GRIPPER_FINGER_LENGTH / 2.0])
         rf_world = _local_to_world_pos(rf_local, pos, rot)
         markers.append(_make_cube_marker(
@@ -541,7 +473,6 @@ class GraspNode(Node):
             rgba=[0.0, 0.5, 0.0, 0.5],
         ))
 
-        # ── Gripper Body (Manipulator link 6) ─────────────────────────────────────────────────
         shaft_local = np.array([0.0, 0.0, -GRIPPER_PALM_THICK - GRIPPER_SHAFT_DEPTH / 2.0])
         shaft_world = _local_to_world_pos(shaft_local, pos, rot)
         shaft_m = Marker()
@@ -576,7 +507,7 @@ class GraspNode(Node):
         self._msg_count += 1
         if self._msg_count % PROCESS_EVERY_N != 0:
             return
-        
+
         if self.robot_is_busy:
             self.get_logger().info(
                 "Arm is currently moving. Skipping vision request...",
@@ -598,8 +529,6 @@ class GraspNode(Node):
             return
 
         # ── Reachability filter ───────────────────────────────────────────────
-        # Select the first instance whose centroid falls within REACHABILITY_RADIUS
-        # of the base link (expressed in the camera frame).
         selected_points = None
         selected_id     = None
         for uid in unique_ids:
@@ -612,14 +541,15 @@ class GraspNode(Node):
             if dist <= REACHABILITY_RADIUS:
                 selected_points = candidate_pts
                 selected_id     = uid
-                # self.get_logger().info(
-                #     f"Instance {int(uid)} centroid {dist*100:.1f}cm from base_link — selected"
-                # )
+                self.get_logger().info(
+                    f"Instance {int(uid)} centroid {dist*100:.1f}cm from base_link — selected | "
+                    f"centroid xyz: [{centroid[0]:.3f}, {centroid[1]:.3f}, {centroid[2]:.3f}]"
+                )
                 break
-            # else:
-            #     self.get_logger().info(
-            #         f"Instance {int(uid)} centroid {dist*100:.1f}cm from base_link — outside sphere, skipping"
-            #     )
+            else:
+                self.get_logger().info(
+                    f"Instance {int(uid)} centroid {dist*100:.1f}cm from base_link — outside sphere, skipping"
+                )
 
         if selected_points is None:
             self.get_logger().info("No instances within reachability sphere")
@@ -632,12 +562,11 @@ class GraspNode(Node):
         gen_time   = time.time() - gen_start
 
         reject_counts = {
-            'no_points_in_envelope':    0,
-            'insufficient_penetration': 0,
-            'finger_collision':         0,
-            'palm_collision':           0,
-            'shaft_collision':          0,
-            'ground_collision':         0,
+            'no_points_in_envelope': 0,
+            'finger_collision':      0,
+            'palm_collision':        0,
+            'shaft_collision':       0,
+            'ground_collision':      0,
         }
         scored_candidates = []
         for grasp_pos, grasp_rot in candidates:
@@ -661,18 +590,15 @@ class GraspNode(Node):
         scored_candidates.sort(key=lambda x: x[0], reverse=True)
         top_candidates = scored_candidates[:TOP_K]
 
-        # Publish ground plane marker
         if self._ground_plane is not None:
             self.ground_marker_pub.publish(self._build_ground_plane_marker(pc_msg.header))
 
-        # Publish gripper markers & poses
-        marker_array = MarkerArray()
-
+        marker_array       = MarkerArray()
         pose_array_to_send = []
 
         for idx, (score, pos, rot) in enumerate(top_candidates):
-            rot_swapped = rot[:, [1, 0, 2]]
-            quat = R.from_matrix(rot_swapped).as_quat()
+            rot_swapped = rot @ R.from_euler('z', 90, degrees=True).as_matrix()
+            quat        = R.from_matrix(rot_swapped).as_quat()
 
             pose_msg                    = PoseStamped()
             pose_msg.header             = pc_msg.header
@@ -684,9 +610,7 @@ class GraspNode(Node):
             pose_msg.pose.orientation.z = float(quat[2])
             pose_msg.pose.orientation.w = float(quat[3])
             self.grasp_pub.publish(pose_msg)
-
             pose_array_to_send.append(pose_msg)
-
 
             for m in self._build_gripper_markers(pc_msg.header, idx, pos, rot, quat):
                 marker_array.markers.append(m)
@@ -709,15 +633,12 @@ class GraspNode(Node):
             )
             self.robot_is_busy = True
 
-            req = PickPlaceRequest.Request()
+            req       = PickPlaceRequest.Request()
             req.poses = pose_array_to_send
-
-            future = self.pick_client.call_async(req)
+            future    = self.pick_client.call_async(req)
             self.get_logger().info(f"DEBUG: call_async fired. Future: {future}")
             future.add_done_callback(self.grasp_response_callback)
             self.get_logger().info("DEBUG: Done callback registered.")
-
-
 
         callback_elapsed = time.time() - callback_start
         self.get_logger().info(
@@ -744,8 +665,6 @@ class GraspNode(Node):
         finally:
             self.get_logger().info("Unlocking vision system for next scan.")
             self.robot_is_busy = False
-
-
 
 
 def main(args=None):
