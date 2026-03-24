@@ -24,6 +24,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'nav_transform = navigation.nav_transform:main',
         ],
     },
 )
