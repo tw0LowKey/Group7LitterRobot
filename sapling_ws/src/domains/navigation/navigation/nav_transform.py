@@ -18,7 +18,7 @@ class LitterTransformNode(Node):
         # 2. Subscriber: Listens for a SINGLE litter coordinate from the vision system
         self.subscription = self.create_subscription(
             PoseStamped,
-            '/grasp_pose',  # Update this to your vision node's output topic
+            '/camera/litter_pose',  # Update this to your vision node's output topic
             self.pose_callback,
             10
         )
@@ -40,9 +40,9 @@ class LitterTransformNode(Node):
         t.child_frame_id = 'camera_link_qais_smells'  # The Femto Mega's location
        
         # Ensure these are the actual mounted offsets on your Scout Mini
-        t.transform.translation.x = 0.14  
+        t.transform.translation.x = 0.28  
         t.transform.translation.y = 0.14   
-        t.transform.translation.z = 0.600  
+        t.transform.translation.z = 0.900  
 
         # Camera pitched 57.30 degrees downwards
         t.transform.rotation.x = 0.0

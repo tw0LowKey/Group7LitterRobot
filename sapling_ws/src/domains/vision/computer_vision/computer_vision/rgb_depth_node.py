@@ -14,6 +14,7 @@ from sensor_msgs.msg import CameraInfo, Image, PointCloud2, PointField
 from ultralytics import YOLO
 from ament_index_python.packages import get_package_share_directory
 import torch
+from geometry_msgs.msg import PoseStamped
 
 torch.cuda.empty_cache()
 
@@ -124,6 +125,9 @@ class RGBDepthNode(Node):
         self.pc_pub_clean = self.create_publisher(PointCloud2, '/cloud/masks_clean', 10)
         self.contour_mask_pub = self.create_publisher(Image, '/camera/masks/contours', 10)
 
+        # NEW: publisher for the Scout Mini
+        self.centroid_pub = self.create_publisher(PoseStamped, '/camera/litter_pose', 10)
+
         self.last_callback_time = None
 
     def _is_transparent(self, mask, depth, fx, fy, cx, cy, pts_raw, expand_px=15, z_threshold=0.04):
@@ -219,6 +223,25 @@ class RGBDepthNode(Node):
             if pts_clean.shape[0] > 0:
                 clean_points_list.append(pts_clean)
                 clean_ids_list.append(np.full(pts_clean.shape[0], i, dtype=np.int32))
+
+                # --- NEW: CALCULATE AND PUBLISH THE CENTROID FOR THE SCOUT MINI ---
+                centroid = np.mean(pts_clean, axis=0) # Calculates the exact middle [X, Y, Z]
+
+                pose_msg = PoseStamped()
+                pose_msg.header = rgb_msg.header      # Automatically gets 'camera_color_frame' and exact timestamp
+                
+                pose_msg.pose.position.x = float(centroid[0])
+                pose_msg.pose.position.y = float(centroid[1])
+                pose_msg.pose.position.z = float(centroid[2])
+                
+                # Quaternions must be valid. w=1.0 means "no rotation relative to camera"
+                pose_msg.pose.orientation.x = 0.0
+                pose_msg.pose.orientation.y = 0.0
+                pose_msg.pose.orientation.z = 0.0
+                pose_msg.pose.orientation.w = 1.0
+                
+                self.centroid_pub.publish(pose_msg)
+                # -----------------------------------------------------------------
 
             # 2D contours for visualization
             mask_uint8 = mask.astype(np.uint8)
