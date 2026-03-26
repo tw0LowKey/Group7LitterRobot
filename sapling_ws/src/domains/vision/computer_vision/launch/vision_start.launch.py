@@ -28,6 +28,13 @@ def generate_launch_description():
     	name = 'grasp_node',
     	output = 'screen',
     )
+
+    filter_node = Node(
+        package='computer_vision',
+        executable='filter_node',
+        name='filter_node',
+        output='screen'
+    )
     	
     
     
@@ -36,4 +43,5 @@ def generate_launch_description():
         orbbec_launch,
         cv_node,
         grasping_node,
+        filter_node
     ])
