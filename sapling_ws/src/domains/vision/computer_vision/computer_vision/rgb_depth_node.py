@@ -12,6 +12,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import CameraInfo, Image, PointCloud2, PointField
 from ultralytics import YOLO
 from ament_index_python.packages import get_package_share_directory
+from geometry_msgs.msg import PoseStamped
 
 # Environmental setup for Jetson/Headless
 os.environ["OPEN3D_CPU_RENDERING"] = "true"
@@ -101,6 +102,9 @@ class RGBDepthNode(Node):
         self.pc_pub_clean     = self.create_publisher(PointCloud2, '/cloud/masks_clean',       10)
         self.contour_mask_pub = self.create_publisher(Image,       '/camera/masks/contours',   10)
 
+        # NEW: publisher for the Scout Mini
+        self.centroid_pub = self.create_publisher(PoseStamped, '/camera/litter_pose', 10)
+
         self.last_callback_time = None
         self._score_stats = {}  # track_id -> {'sum': float, 'count': int}
 
@@ -144,8 +148,28 @@ class RGBDepthNode(Node):
                 clean_pts_l.append(pts_clean)
                 clean_ids_l.append(np.full(pts_clean.shape[0], i, dtype=np.int32))
 
-            # Fill contour mask
-            contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                # --- NEW: CALCULATE AND PUBLISH THE CENTROID FOR THE SCOUT MINI ---
+                centroid = np.mean(pts_clean, axis=0) # Calculates the exact middle [X, Y, Z]
+
+                pose_msg = PoseStamped()
+                pose_msg.header = rgb_msg.header      # Automatically gets 'camera_color_frame' and exact timestamp
+                
+                pose_msg.pose.position.x = float(centroid[0])
+                pose_msg.pose.position.y = float(centroid[1])
+                pose_msg.pose.position.z = float(centroid[2])
+                
+                # Quaternions must be valid. w=1.0 means "no rotation relative to camera"
+                pose_msg.pose.orientation.x = 0.0
+                pose_msg.pose.orientation.y = 0.0
+                pose_msg.pose.orientation.z = 0.0
+                pose_msg.pose.orientation.w = 1.0
+                
+                self.centroid_pub.publish(pose_msg)
+                # -----------------------------------------------------------------
+
+            # 2D contours for visualization
+            mask_uint8 = mask.astype(np.uint8)
+            contours, _ = cv2.findContours(mask_uint8, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             if contours:
                 cv2.fillPoly(instance_mask_contour, [max(contours, key=cv2.contourArea)], color=i)
 
