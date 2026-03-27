@@ -72,6 +72,7 @@ endif()
 
 # Install Python scripts
 install(PROGRAMS
+  script/FollowWaypoint.py
   script/ScoutStriaghtDriver.py
   script/lawnmower.py
   script/rtk_gps_relay.py
