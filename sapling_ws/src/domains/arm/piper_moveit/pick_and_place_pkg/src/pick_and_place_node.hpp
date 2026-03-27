@@ -12,7 +12,6 @@ public:
     PickAndPlace(rclcpp::Node::SharedPtr node, const std::string& group_name);
 
     bool move_to_pose(const geometry_msgs::msg::Pose& target_pose);
-    bool return_home();
 
 private:
     // This is the function that triggers when the Python node calls the service

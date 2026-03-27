@@ -6,7 +6,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
-from geometry_msgs.msg import Pose, PoseStamped, TransformStamped
+from geometry_msgs.msg import Pose, PoseStamped, TransformStamped, Transform
 from piper_msgs.srv import MoveToPose
 from piper_msgs.srv import MoveToHome
 from piper_msgs.srv import SetGripWidth
@@ -66,6 +66,20 @@ class ServerClientNode(Node):
         t.transform.rotation.z = -0.201
         t.transform.rotation.w = 0.201
         return t
+    
+    def get_pose_rotation(self) -> TransformStamped:
+        t = TransformStamped()
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = 'camera_link_qais_smells'
+        t.child_frame_id = 'pose_rotation'
+        t.transform.translation.x = 0.0
+        t.transform.translation.y = 0.0
+        t.transform.translation.z = 0.0
+        t.transform.rotation.x = 0.0
+        t.transform.rotation.y = 0.0
+        t.transform.rotation.z = -0.7071
+        t.transform.rotation.w = 0.7071
+        return t
 
     def _wait_for_future(self, future, timeout_sec=10.0) -> bool:
         start = time.time()
@@ -103,6 +117,9 @@ class ServerClientNode(Node):
                 transformed_pose = tf2_geometry_msgs.do_transform_pose(
                     target_pose_stamped.pose, self.camera_to_base_transform
                 )
+                # rotated_pose = tf2_geometry_msgs.do_transform_pose(
+                #     transformed_pose, self.get_pose_rotation()
+                # )
                 transformed_poses_list.append(transformed_pose)
                 self.get_logger().info(
                     f'Transformed: x={transformed_pose.position.x:.3f} '

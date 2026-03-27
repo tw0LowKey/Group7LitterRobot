@@ -3,6 +3,7 @@ import numpy as np
 import rclpy
 from rclpy.node import Node
 from scipy.spatial.transform import Rotation as R
+from std_msgs.msg import Bool
 from sensor_msgs.msg import PointCloud2, PointField
 from geometry_msgs.msg import Point
 from visualization_msgs.msg import Marker, MarkerArray
@@ -110,6 +111,7 @@ class FilterNode(Node):
         self.sphere_marker_pub = self.create_publisher(Marker, '/reachability_sphere', 10)
         self.base_link_markers_pub = self.create_publisher(MarkerArray, '/base_link_debug', 10)
         self.ground_marker_pub = self.create_publisher(Marker, '/ground_marker', 10)
+        self.stop_nav = self.create_publisher(Bool, '/stop_navigation', 10)
 
         self._startup_count = 0
         self._startup_timer = self.create_timer(0.5, self._startup_publish)
@@ -269,6 +271,9 @@ class FilterNode(Node):
 
     def pc_callback(self, pc_msg):
         self._msg_count += 1
+        
+        nav_msg =  Bool()
+        nav_msg.data = False
 
         if self._msg_count % PROCESS_EVERY_N != 0:
             return
@@ -320,6 +325,8 @@ class FilterNode(Node):
                     self.get_logger().info(
                         f"Instance {uid} selected | dist={dist:.3f}"
                     )
+                    nav_msg.data = True
+
             else:
                 outside_centroids.append(centroid)
                 outside_ids.append(uid)
@@ -358,6 +365,8 @@ class FilterNode(Node):
             self.get_logger().info(
                 f"Published {len(outside_centroids)} centroids"
             )
+        
+        self.stop_nav.publish(nav_msg)
 
 
 def main(args=None):

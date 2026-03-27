@@ -102,6 +102,7 @@ class RGBDepthNode(Node):
         self.contour_mask_pub = self.create_publisher(Image,       '/camera/masks/contours',   10)
 
         self.last_callback_time = None
+        self._score_stats = {}  # track_id -> {'sum': float, 'count': int}
 
     def synced_callback(self, rgb_msg, depth_msg, info_msg):
         rgb   = self.bridge.imgmsg_to_cv2(rgb_msg,   'bgr8')
@@ -115,7 +116,7 @@ class RGBDepthNode(Node):
         results    = self.model.track(rgb, conf=0.5, verbose=False, imgsz=1280, retina_masks=True, batch=1, persist=True)
         masks_full = results[0].masks.data.cpu().numpy().astype(bool) if results[0].masks else []
         ids        = results[0].boxes.id if results[0].boxes.id is not None else range(1, len(masks_full) + 1)
-        scores = results[0].boxes.conf.cpu().numpy() if results[0].boxes.conf is not None else np.ones(len(masks_full))
+        scores     = results[0].boxes.conf.cpu().numpy() if results[0].boxes.conf is not None else np.ones(len(masks_full))
 
         instance_mask_contour = np.zeros(depth.shape, dtype=np.uint16)
         raw_pts_l, raw_ids_l, raw_cols_l = [], [], []
@@ -148,8 +149,23 @@ class RGBDepthNode(Node):
             if contours:
                 cv2.fillPoly(instance_mask_contour, [max(contours, key=cv2.contourArea)], color=i)
 
-            # Log the instance score
-            self.get_logger().info(f"Instance {i} | score: {score:.3f} | raw pts: {pts_raw.shape[0]} | clean pts: {pts_clean.shape[0] if pts_clean.shape[0] > 0 else 0}")
+            # Accumulate score and log average every 30 frames
+            stats = self._score_stats.setdefault(i, {'sum': 0.0, 'count': 0})
+            stats['sum']   += float(score)
+            stats['count'] += 1
+            if stats['count'] % 30 == 0:
+                avg = stats['sum'] / stats['count']
+                self.get_logger().info(
+                    f"Instance {i} | avg_score ({stats['count']} frames): {avg:.3f} "
+                    f"| raw pts: {pts_raw.shape[0]} "
+                    f"| clean pts: {pts_clean.shape[0] if pts_clean.shape[0] > 0 else 0}"
+                )
+
+        # Reset stats for instances no longer visible
+        active_ids = {int(t) for t in ids}
+        for stale_id in list(self._score_stats.keys()):
+            if stale_id not in active_ids:
+                del self._score_stats[stale_id]
 
         if raw_pts_l:
             self.pc_pub_raw.publish(build_raw_cloud_msg(
