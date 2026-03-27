@@ -39,9 +39,13 @@ def convert_value(value):
 def load_parameters(context, args):
     default_params = {arg.name: LaunchConfiguration(arg.name).perform(context) for arg in args}
     config_file_path = LaunchConfiguration('config_file_path').perform(context)
+    print("LOAD_PARAM")
     if config_file_path:
+        print("GOOD PATH")
         yaml_params = load_yaml(config_file_path)
         default_params = merge_params(default_params, yaml_params)
+    else:
+        print("BAD PATH")
     skip_convert = {'config_file_path', 'usb_port', 'serial_number'}
 
     result = {}
