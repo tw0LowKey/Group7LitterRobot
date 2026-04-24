@@ -1,0 +1,9 @@
+repositories:
+  scout_ros2:
+    type: git
+    url: https://github.com/agilexrobotics/scout_ros2.git
+    version: humble
+  ugv_sdk:
+    type: git
+    url: https://github.com/westonrobot/ugv_sdk.git
+    version: main
