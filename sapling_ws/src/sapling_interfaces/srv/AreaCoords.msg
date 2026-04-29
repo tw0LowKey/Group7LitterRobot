@@ -1,3 +1,4 @@
+bool success
 float64 top_left_latitude
 float64 top_left_longitude
 float64 bottom_right_latitude
