@@ -19,9 +19,9 @@ set(msg_files
 )
 
 # List the service files
-# set(service_files
-#   "srv/.srv"
-# )
+set(service_files
+  "srv/AreaCoords.srv"
+)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -38,7 +38,7 @@ endif()
 # Generate the interfaces
 rosidl_generate_interfaces(${PROJECT_NAME}
   ${msg_files}
-#   ${srv_files}
+  ${srv_files}
 )
 
 ament_package()
