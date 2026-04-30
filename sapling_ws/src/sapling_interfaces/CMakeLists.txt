@@ -19,7 +19,7 @@ set(msg_files
 )
 
 # List the service files
-set(service_files
+set(srv_files
   "srv/AreaCoords.srv"
 )
 
