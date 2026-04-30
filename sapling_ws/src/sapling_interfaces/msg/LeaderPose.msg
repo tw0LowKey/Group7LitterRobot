@@ -1,4 +1,4 @@
-int32 sequence_number
+int32 sequence
 float64 latitude
 float64 longitude
 float32 orientation_z

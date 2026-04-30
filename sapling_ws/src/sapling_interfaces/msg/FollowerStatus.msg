@@ -1,2 +1,2 @@
-int32 sequence_number
+int32 sequence
 bool parked
