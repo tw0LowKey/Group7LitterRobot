@@ -24,3 +24,7 @@ __pycache__/
 .env
 .venv
 venv/
+
+# --- Downloaded Github Repos ---
+sapling_ws/src/drivers/scout_ros2/
+sapling_ws/src/drivers/ugv_sdk/
