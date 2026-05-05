@@ -12,6 +12,7 @@ from piper_msgs.srv import MoveToHome
 from piper_msgs.srv import SetGripWidth
 from piper_msgs.srv import PickPlaceRequest
 from piper_msgs.srv import MoveBehind
+from std_msgs.msg import Bool
 import tf2_geometry_msgs
 
 
@@ -46,6 +47,16 @@ class ServerClientNode(Node):
             MoveBehind, 'arm_move_behind',
             callback_group=self.cb_group
         )
+
+        self.subscription = self.create_subscription(
+            Bool,                     
+            'bin_ready',          
+            self.update_bin_status,   
+            10
+        )
+
+        self.bin_status = False
+
 
         self.place_pose = Pose()
 
@@ -106,6 +117,10 @@ class ServerClientNode(Node):
             t.transform.rotation.w = 0.0
 
         return t
+    
+    def update_bin_status(self, msg) -> None:
+        self.bin_status = msg.data
+        return
     
     def get_pose_rotation(self) -> TransformStamped:
         t = TransformStamped()
@@ -230,6 +245,9 @@ class ServerClientNode(Node):
             #     self.get_logger().error('Home failed, retrying...')
             self.set_grip("close")
             return False
+
+        while not self.bin_status:
+            self.get_logger().info('Waiting for bin.')
 
         self.get_logger().info('Place move succeeded. Opening gripper to release.')
         self.set_grip("open")
