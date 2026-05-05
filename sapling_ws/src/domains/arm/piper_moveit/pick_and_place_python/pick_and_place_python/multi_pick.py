@@ -3,7 +3,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.callback_groups import ReentrantCallbackGroup
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import PoseStamped
 from piper_msgs.srv import PickPlaceRequest
 
 
@@ -22,43 +22,44 @@ class ServerClientNode(Node):
         self._executor = None  # set in main before run_requests is called
 
     def run_requests(self):
-        pose = Pose()
-        pose.position.x = 0.4
-        pose.position.y = 0.0
-        pose.position.z = -0.24
-        pose.orientation.x = 0.0
-        pose.orientation.y = 1.0
-        pose.orientation.z = 0.0
-        pose.orientation.w = 0.0
+        pose_stamped = PoseStamped()
+        pose_stamped.header.frame_id = 'base_link'
+        pose_stamped.pose.position.x = 0.4
+        pose_stamped.pose.position.y = 0.0
+        pose_stamped.pose.position.z = -0.16
+        pose_stamped.pose.orientation.x = 0.0
+        pose_stamped.pose.orientation.y = 1.0
+        pose_stamped.pose.orientation.z = 0.0
+        pose_stamped.pose.orientation.w = 0.0
 
         while True:
             try:
                 option = float(input("Pick pose: "))
 
                 if option == 1.0:
-                    pose.position.x = 0.25
-                    self.send_pp_request(pose)
+                    pose_stamped.pose.position.x = 0.25
+                    self.send_pp_request(pose_stamped)
                 elif option == 2.0:
-                    pose.position.x = 0.40
-                    self.send_pp_request(pose)
+                    pose_stamped.pose.position.x = 0.40
+                    self.send_pp_request(pose_stamped)
                 elif option == 3.0:
-                    pose.position.x = 0.50
-                    self.send_pp_request(pose)
+                    pose_stamped.pose.position.x = 0.50
+                    self.send_pp_request(pose_stamped)
             
             except Exception as e:
                 print(e)
                 break
 
-    def send_pp_request(self, pose: Pose) -> bool:
+    def send_pp_request(self, pose_stamped: PoseStamped) -> bool:
         if not self.pick_place_client.wait_for_service(timeout_sec=2.0):
             self.get_logger().error('pick_place_request service not available.')
             return False
 
         pose_request = PickPlaceRequest.Request()
-        pose_request.pose = pose
+        pose_request.poses = [pose_stamped]  # array with single PoseStamped
 
         future = self.pick_place_client.call_async(pose_request)
-        self._executor.spin_until_future_complete(future, timeout_sec=30.0)  # FIX: wait for result
+        self._executor.spin_until_future_complete(future, timeout_sec=30.0)
 
         if future.result() is not None:
             return future.result().success
@@ -73,9 +74,9 @@ def main(args=None):
 
     executor = MultiThreadedExecutor()
     executor.add_node(node)
-    node._executor = executor  # FIX: set before calling run_requests
+    node._executor = executor
 
-    node.run_requests()  # FIX: called after executor is assigned, not in __init__
+    node.run_requests()
 
     try:
         executor.spin_once()

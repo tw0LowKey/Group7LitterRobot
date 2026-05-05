@@ -19,7 +19,7 @@ GRIPPER_FINGER_THICK = 0.04
 GRIPPER_PALM_THICK = 0.024
 GRIPPER_WIDTH_Y = 0.02
 GRIPPER_BODY_DEPTH = 0.145
-GRIPPER_TARGET_PENETRATION = GRIPPER_FINGER_LENGTH * (1/10)
+GRIPPER_TARGET_PENETRATION = GRIPPER_FINGER_LENGTH * (2/10)
 
 GRIPPER_SHAFT_DEPTH = GRIPPER_BODY_DEPTH - GRIPPER_PALM_THICK
 GRIPPER_PALM_WIDTH_Y = 0.09
@@ -36,11 +36,11 @@ REACHABILITY_RADIUS = 0.6
 _CAMERA_TRANSLATION = np.array([0.14, 0.13, 0.600])
 _CAMERA_ROTATION    = np.array([0.0, 0.479, 0.0, 0.878])  # [x, y, z, w]
 
-W_BODY        = 0.33
+W_BODY        = 0.34
 W_SYM         = 0.33
-W_FRICTION    = 0.34
+W_FRICTION    = 0.33
 
-TOP_K = 1
+TOP_K = 10
 PROCESS_EVERY_N = 3
 
 
@@ -324,6 +324,9 @@ class GraspNode(Node):
 
     def pc_callback(self, pc_msg):
         callback_start = time.time()
+        self.get_logger().info(
+            f"Entered Grasp Callback"
+        )
         self._msg_count += 1
         if self._msg_count % PROCESS_EVERY_N != 0:
             return
@@ -384,7 +387,7 @@ class GraspNode(Node):
         pose_array_to_send = []
 
         for idx, (score, pos, rot) in enumerate(top_candidates):
-            rot_swapped = rot @ R.from_euler('z', 90, degrees=True).as_matrix()
+            rot_swapped = rot @ R.from_euler('z', 100, degrees=True).as_matrix()
             quat = R.from_matrix(rot_swapped).as_quat()
             quat_marker = R.from_matrix(rot).as_quat()
 
@@ -433,6 +436,7 @@ class GraspNode(Node):
             f"Scoring/filtering: {score_time:.3f}s | "
             f"Published {len(top_candidates)} poses and markers"
         )
+
 
     def grasp_response_callback(self, future):
         self.get_logger().info("DEBUG: grasp_response_callback entered.")

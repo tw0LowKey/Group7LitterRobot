@@ -11,12 +11,15 @@ from piper_msgs.srv import MoveToPose
 from piper_msgs.srv import MoveToHome
 from piper_msgs.srv import SetGripWidth
 from piper_msgs.srv import PickPlaceRequest
+from piper_msgs.srv import MoveBehind
 import tf2_geometry_msgs
 
 
 class ServerClientNode(Node):
     def __init__(self):
         super().__init__('server_client_node')
+
+        self.transform_flag = True
 
         self.cb_group = ReentrantCallbackGroup()
 
@@ -39,15 +42,39 @@ class ServerClientNode(Node):
             SetGripWidth, 'set_grip_width',
             callback_group=self.cb_group
         )
+        self.behind_client = self.create_client(
+            MoveBehind, 'arm_move_behind',
+            callback_group=self.cb_group
+        )
 
         self.place_pose = Pose()
-        self.place_pose.position.x = 0.0
-        self.place_pose.position.y = -0.4
-        self.place_pose.position.z = -0.05
-        self.place_pose.orientation.x = 0.707
-        self.place_pose.orientation.y = 0.707
-        self.place_pose.orientation.z = 0.0
-        self.place_pose.orientation.w = 0.0
+
+        if self.transform_flag:
+            self.place_pose.position.x = 0.0
+            self.place_pose.position.y = -0.4
+            self.place_pose.position.z = -0.05
+            self.place_pose.orientation.x = 0.707
+            self.place_pose.orientation.y = 0.707
+            self.place_pose.orientation.z = 0.0
+            self.place_pose.orientation.w = 0.0
+
+            # self.place_pose.position.x = -0.3
+            # self.place_pose.position.y = 0.0
+            # self.place_pose.position.z = 0.3
+            # self.place_pose.orientation.x = 0.0
+            # self.place_pose.orientation.y = 1.0
+            # self.place_pose.orientation.z = 0.0
+            # self.place_pose.orientation.w = 0.0
+
+        else:
+            ##USE THIS TO PLACE IN POS 2##
+            self.place_pose.position.x = 0.4
+            self.place_pose.position.y = -0.0
+            self.place_pose.position.z = -0.08
+            self.place_pose.orientation.x = 0.0
+            self.place_pose.orientation.y = 1.0
+            self.place_pose.orientation.z = 0.0
+            self.place_pose.orientation.w = 0.0
 
         self.camera_to_base_transform = self.get_camera_transform()
 
@@ -58,13 +85,26 @@ class ServerClientNode(Node):
         t.header.stamp = self.get_clock().now().to_msg()
         t.header.frame_id = 'base_link'
         t.child_frame_id = 'camera_link_qais_smells'
-        t.transform.translation.x = 0.14
-        t.transform.translation.y = 0.13
-        t.transform.translation.z = 0.600
-        t.transform.rotation.x = -0.678
-        t.transform.rotation.y = 0.678
-        t.transform.rotation.z = -0.201
-        t.transform.rotation.w = 0.201
+
+        if self.transform_flag:
+            t.transform.translation.x = 0.14
+            t.transform.translation.y = 0.14
+            t.transform.translation.z = 0.598
+            t.transform.rotation.x = -0.682
+            t.transform.rotation.y = 0.682
+            t.transform.rotation.z = -0.191
+            t.transform.rotation.w = 0.191
+
+        else:
+            ##USE THIS FOR TESTING SET MULTI PICK CODE##
+            t.transform.translation.x = 0.0
+            t.transform.translation.y = 0.0
+            t.transform.translation.z = 0.0
+            t.transform.rotation.x = -0.0
+            t.transform.rotation.y = 0.0
+            t.transform.rotation.z = -0.0
+            t.transform.rotation.w = 0.0
+
         return t
     
     def get_pose_rotation(self) -> TransformStamped:
@@ -77,8 +117,16 @@ class ServerClientNode(Node):
         t.transform.translation.z = 0.0
         t.transform.rotation.x = 0.0
         t.transform.rotation.y = 0.0
-        t.transform.rotation.z = -0.7071
-        t.transform.rotation.w = 0.7071
+
+        if self.transform_flag:
+            t.transform.rotation.z = -0.7071
+            t.transform.rotation.w = 0.7071
+
+        else:
+            ##USE THIS FOR TESTING SET MULTI PICK CODE##
+            t.transform.rotation.z = -0.0
+            t.transform.rotation.w = 0.0
+
         return t
 
     def _wait_for_future(self, future, timeout_sec=10.0) -> bool:
@@ -167,12 +215,19 @@ class ServerClientNode(Node):
         self.get_logger().info('Returning to home before place.')
         while not self.request_home():
             self.get_logger().error('Home failed, retrying...')
+            
+        self.get_logger().info(
+            f'Place pose: x={self.place_pose.position.x:.3f}, '
+            f'y={self.place_pose.position.y:.3f}, '
+            f'z={self.place_pose.position.z:.3f}'
+        )
 
         self.get_logger().info('Moving to place pose.')
-        if not self.send_pose_request(self.place_pose):
-            self.get_logger().error('Place move failed. Returning home.')
-            while not self.request_home():
-                self.get_logger().error('Home failed, retrying...')
+        # if not self.send_pose_request(self.place_pose):
+        if not self.request_place_behind():
+            # self.get_logger().error('Place move failed. Returning home.')
+            # while not self.request_home():
+            #     self.get_logger().error('Home failed, retrying...')
             self.set_grip("close")
             return False
 
@@ -191,16 +246,31 @@ class ServerClientNode(Node):
         if not self.move_client.wait_for_service(timeout_sec=10.0):
             self.get_logger().error('move_to_pose not available.')
             return False
+
         req = MoveToPose.Request()
         req.pose = pose
+
+        self.get_logger().info(
+            f"Sending pose: x={pose.position.x:.3f}, "
+            f"y={pose.position.y:.3f}, z={pose.position.z:.3f}"
+        )
+
         future = self.move_client.call_async(req)
+
         if not self._wait_for_future(future, timeout_sec=10.0):
             return False
+
         if future.result() is not None:
-            return future.result().success
+            result = future.result()
+
+            if result.success:
+                self.get_logger().info("Motion reported SUCCESS")
+
+            return result.success
+
         self.get_logger().error(f'move_to_pose failed: {future.exception()}')
         return False
-
+    
     def request_home(self) -> bool:
         if not self.home_client.wait_for_service(timeout_sec=10.0):
             self.get_logger().error('move_to_home not available.')
@@ -212,6 +282,19 @@ class ServerClientNode(Node):
         if future.result() is not None:
             return future.result().success
         self.get_logger().error(f'move_to_home failed: {future.exception()}')
+        return False
+    
+    def request_place_behind(self) -> bool:
+        if not self.behind_client.wait_for_service(timeout_sec=10.0):
+            self.get_logger().error('arm_place_behind not available.')
+            return False
+        req = MoveBehind.Request()
+        future = self.behind_client.call_async(req)
+        if not self._wait_for_future(future, timeout_sec=10.0):
+            return False
+        if future.result() is not None:
+            return future.result().success
+        self.get_logger().error(f'place_behind failed: {future.exception()}')
         return False
 
     def set_grip(self, state: str) -> bool:

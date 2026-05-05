@@ -1,14 +1,8 @@
 HOW TO RUN PICK AND PLACE PACKAGE
 
 --ACTIVATE CAN--
-cd ~/Group7LitterRobot/sapling_ws/src/domains/arm/scripts
-
-check CAN interface for arm: 
-bash find_all_can_port.sh
-
-activate CAN: 
-bash can_activate.sh can0 1000000 1-2.3:1.0
-(maybe can1, its the one in the form 1-2.3:1.0) 
+cd ~/Group7LitterRobot/sapling_ws/src/domains/arm/scripts 
+bash can_activate.sh can_arm 1000000 1-2.1:1.0
 
 --LAUNCH VISION--
 cd ~/Group7LitterRobot/sapling_ws
@@ -18,10 +12,7 @@ ros2 launch computer_vision vision_start.launch.py
 --ACTIVATE ARM--
 cd ~/Group7LitterRobot/sapling_ws
 source install/setup.bash
-(If CAN0:)
-ros2 launch piper start_single_piper.launch.py 
-(If CAN1:)
-ros2 launch piper start_single_piper.launch.py can_port:=can1
+ros2 launch piper start_single_piper.launch.py can_port:=can_arm
 
 
 --ACTIVATE MOVEIT-- 
