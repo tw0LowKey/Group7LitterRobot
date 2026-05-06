@@ -26,6 +26,7 @@ setup(
         'console_scripts': [
             'waypoint_navigation_node = waypoint_navigation_pkg.waypoint_navigation_node:main',
             'gps_follower_behaviour_node = waypoint_navigation_pkg.gps_follower_behaviour_node:main',
-                    ],
+            'leader = waypoint_navigation_pkg.leader:main',
+        ],
     },
 )
