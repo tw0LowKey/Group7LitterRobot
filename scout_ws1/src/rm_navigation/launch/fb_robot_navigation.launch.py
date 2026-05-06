@@ -199,7 +199,7 @@ def launch_setup(context, *args, **kwargs):
         parameters=[{
             "use_sim_time": False,
 
-            "follower_navsat_topic": "/follower/gps/fix",
+            "follower_navsat_topic": "/gps/fix",
             "follower_imu_topic": "/follower/imu",
             "follower_action": "/follower/navigate_to_pose",
             "goal_frame": "follower/odom",
