@@ -43,7 +43,7 @@ class EmergencyStopNode(Node):
 				self.disableEmergencyStop(self.virtualStopButtonVal)
 
 	def enableEmergencyStop(self, virtual: bool):
-		subprocess.run(["sudo", "candown"], check=True)
+		subprocess.run(["candown"], check=True)
 		self.stopped = True
 
 		if virtual:
@@ -52,7 +52,7 @@ class EmergencyStopNode(Node):
 			self.get_logger().error("The physical emergency stop button has been pressed")
 
 	def disableEmergencyStop(self):
-		subprocess.run(["sudo", "canup"], check=True)
+		subprocess.run(["canup"], check=True)
 		self.stopped = False
 
 def main(args=None):
