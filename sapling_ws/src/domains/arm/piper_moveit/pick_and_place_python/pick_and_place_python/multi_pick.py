@@ -22,11 +22,13 @@ class ServerClientNode(Node):
         self._executor = None  # set in main before run_requests is called
 
     def run_requests(self):
+        z_height = -0.16
+
         pose_stamped = PoseStamped()
         pose_stamped.header.frame_id = 'base_link'
         pose_stamped.pose.position.x = 0.4
         pose_stamped.pose.position.y = 0.0
-        pose_stamped.pose.position.z = -0.16
+        pose_stamped.pose.position.z = z_height
         pose_stamped.pose.orientation.x = 0.0
         pose_stamped.pose.orientation.y = 1.0
         pose_stamped.pose.orientation.z = 0.0
@@ -37,14 +39,54 @@ class ServerClientNode(Node):
                 option = float(input("Pick pose: "))
 
                 if option == 1.0:
-                    pose_stamped.pose.position.x = 0.25
+                    pose_stamped.pose.position.x = 0.4
+                    pose_stamped.pose.position.y = 0.0
+                    pose_stamped.pose.position.z = z_height
+                    pose_stamped.pose.orientation.x = 0.0
+                    pose_stamped.pose.orientation.y = 1.0
+                    pose_stamped.pose.orientation.z = 0.0
+                    pose_stamped.pose.orientation.w = 0.0
                     self.send_pp_request(pose_stamped)
                 elif option == 2.0:
-                    pose_stamped.pose.position.x = 0.40
+                    pose_stamped.pose.position.x = 0.31
+                    pose_stamped.pose.position.y = -0.11
+                    pose_stamped.pose.position.z = z_height
+                    pose_stamped.pose.orientation.x = -0.2924
+                    pose_stamped.pose.orientation.y = 0.9563
+                    pose_stamped.pose.orientation.z = 0.0
+                    pose_stamped.pose.orientation.w = 0.0
                     self.send_pp_request(pose_stamped)
                 elif option == 3.0:
-                    pose_stamped.pose.position.x = 0.50
+                    pose_stamped.pose.position.x = 0.27
+                    pose_stamped.pose.position.y = 0.19
+                    pose_stamped.pose.position.z = z_height
+                    pose_stamped.pose.orientation.x = -0.3987
+                    pose_stamped.pose.orientation.y = 0.9171
+                    pose_stamped.pose.orientation.z = 0.0
+                    pose_stamped.pose.orientation.w = 0.0
                     self.send_pp_request(pose_stamped)
+                elif option == 4.0:
+                    pose_stamped.pose.position.x = 0.45
+                    pose_stamped.pose.position.y = -0.22
+                    pose_stamped.pose.position.z = z_height
+                    pose_stamped.pose.orientation.x = 0.1219
+                    pose_stamped.pose.orientation.y = 0.9925
+                    pose_stamped.pose.orientation.z = 0.0
+                    pose_stamped.pose.orientation.w = 0.0
+                    self.send_pp_request(pose_stamped)
+                elif option == 5.0:
+                    pose_stamped.pose.position.x = 0.43
+                    pose_stamped.pose.position.y = 0.15
+                    pose_stamped.pose.position.z = z_height
+                    pose_stamped.pose.orientation.x = 0.3256
+                    pose_stamped.pose.orientation.y = 0.9455
+                    pose_stamped.pose.orientation.z = 0.0
+                    pose_stamped.pose.orientation.w = 0.0
+                    self.send_pp_request(pose_stamped)
+
+                elif option == 0.0:
+                    print("Current z = ",z_height)
+                    z_height = float(input("Enter new z height: "))         
             
             except Exception as e:
                 print(e)

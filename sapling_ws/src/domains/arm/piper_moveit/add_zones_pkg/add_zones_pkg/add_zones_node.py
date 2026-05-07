@@ -23,13 +23,13 @@ class BannedZonePublisher(Node):
                                       ["camera_pole_h", 0.342, 0.05, 0.05, -0.120, 0.15, 0.635, 1.0],
                                       ["camera", 0.17, 0.14, 0.17, 0.1, 0.15, 0.635,1.0],
                                       ["floor", 2.0, 2.0, 0.01, 0.0, 0.0, -0.270, 1.0],
-                                      ["LiDAR", 0.13, 0.09, 0.08, 0.03, -0.085, 0.04, 1.0],
+                                      ["LiDAR", 0.13, 0.09, 0.08, 0.115, 0.0, 0.04, 1.0],
                                       ["GPS_antenna", 0.05, 0.05, 0.17, -0.275, 0.15, 0.735, 1.0],
                                       ["payload", 0.245 ,0.38, 0.12, -0.22, 0.0, 0.03, 1.0]]
 
         self.publisher_ = self.create_publisher(
             PlanningScene,
-            '/planning_scene',
+            'planning_scene',
             10
         )
 
