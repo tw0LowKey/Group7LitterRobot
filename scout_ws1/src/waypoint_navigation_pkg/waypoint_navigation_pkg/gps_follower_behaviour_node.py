@@ -21,7 +21,7 @@ class GPSFollowerBehaviorNode(Node):
     Real-robot GPS follower behaviour node.
 
     Subscribes:
-        /follower/gps/fix
+        /gps/fix
         /follower/imu
         /comms/leader_to_follower_rx
 
@@ -74,7 +74,7 @@ class GPSFollowerBehaviorNode(Node):
         self.declare_parameter("follower_gps_offset_y", -0.16)
 
         # Real follower topics
-        self.declare_parameter("follower_navsat_topic", "/follower/gps/fix")
+        self.declare_parameter("follower_navsat_topic", "/gps/fix")
         self.declare_parameter("follower_imu_topic", "/follower/imu")
         self.declare_parameter("follower_action", "/follower/navigate_to_pose")
 

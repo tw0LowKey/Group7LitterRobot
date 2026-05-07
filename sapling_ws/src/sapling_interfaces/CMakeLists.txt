@@ -16,6 +16,7 @@ find_package(rosidl_default_generators REQUIRED)
 set(msg_files
   "msg/FollowerStatus.msg"
   "msg/LeaderPose.msg"
+  "msg/LoraTransmission.msg"
 )
 
 # List the service files

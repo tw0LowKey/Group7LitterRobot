@@ -22,8 +22,8 @@ class GPSLeaderBehaviorNode(Node):
     Real-robot GPS leader behaviour node for lawnmower coverage pattern.
 
     Subscribes:
-        /leader/gps/fix
-        /leader/imu
+        gps/fix
+        /imu
         /call_bin
         /comms/follower_to_leader_rx
 
@@ -65,8 +65,8 @@ class GPSLeaderBehaviorNode(Node):
         self.declare_parameter("use_sim_time", False)
 
         self.declare_parameter("leader_action", "/navigate_to_pose")
-        self.declare_parameter("leader_navsat_topic", "/leader/gps/fix")
-        self.declare_parameter("leader_imu_topic", "/leader/imu")
+        self.declare_parameter("leader_navsat_topic", "gps/fix")
+        self.declare_parameter("leader_imu_topic", "/imu")
         self.declare_parameter("pickup_wait_time", 2.0)
         self.declare_parameter("goal_frame", "map")
         self.declare_parameter("strip_width", 1.35)
