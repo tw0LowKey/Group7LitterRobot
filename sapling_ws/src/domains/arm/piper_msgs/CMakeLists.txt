@@ -19,6 +19,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/MoveToPose.srv"
   "srv/PickPlaceRequest.srv"
   "srv/SetGripWidth.srv"
+  "srv/MoveBehind.srv"
   DEPENDENCIES geometry_msgs# Add packages that above messages depend on, in this case geometry_msgs for Sphere.msg
 )
 

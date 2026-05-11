@@ -1,0 +1,43 @@
+# for lawnmower
+
+# waypoints:
+
+
+
+#   # --- Forward (0 → 4 m) ---
+#   - pose: {position: {x: 0.5, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+#   - pose: {position: {x: 1.0, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+#   - pose: {position: {x: 1.5, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+#   - pose: {position: {x: 2.0, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+#   - pose: {position: {x: 2.5, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+#   - pose: {position: {x: 3.0, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+#   - pose: {position: {x: 3.5, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+#   - pose: {position: {x: 4.0, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+
+#   # --- Shift RIGHT (y: 0 → -0.8) ---
+#   - pose: {position: {x: 4.0, y: -0.5, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: -0.707, w: 0.707}}
+#   - pose: {position: {x: 4.0, y: -0.8, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: -0.707, w: 0.707}}
+
+#   # --- Backward (4 → 0 m) ---
+#   - pose: {position: {x: 3.5, y: -0.8, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 1.0, w: 0.0}}
+#   - pose: {position: {x: 3.0, y: -0.8, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 1.0, w: 0.0}}
+#   - pose: {position: {x: 2.5, y: -0.8, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 1.0, w: 0.0}}
+#   - pose: {position: {x: 2.0, y: -0.8, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 1.0, w: 0.0}}
+#   - pose: {position: {x: 1.5, y: -0.8, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 1.0, w: 0.0}}
+#   - pose: {position: {x: 1.0, y: -0.8, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 1.0, w: 0.0}}
+#   - pose: {position: {x: 0.5, y: -0.8, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 1.0, w: 0.0}}
+#   - pose: {position: {x: 0.0, y: -0.8, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 1.0, w: 0.0}}
+
+
+# Simple straight line navigation
+
+waypoints:
+  - pose: {position: {x: 0.0, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  - pose: {position: {x: 0.5, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  - pose: {position: {x: 1.0, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  - pose: {position: {x: 1.5, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  - pose: {position: {x: 2.0, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  - pose: {position: {x: 2.5, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  - pose: {position: {x: 3.0, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  - pose: {position: {x: 3.5, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}
+  - pose: {position: {x: 4.0, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}

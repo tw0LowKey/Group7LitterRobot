@@ -5,7 +5,7 @@ from launch import LaunchDescription
 
 
 def generate_launch_description():
-    moveit_config = MoveItConfigsBuilder("piper", package_name="piper_with_gripper_moveit").to_moveit_configs()
+    moveit_config = MoveItConfigsBuilder("sapling", package_name="piper_with_gripper_moveit").robot_description(file_path="config/piper.urdf.xacro").to_moveit_configs()
 
     joint_state_publisher = Node(
         package="joint_state_publisher",
@@ -38,6 +38,11 @@ def generate_launch_description():
         executable="set_grip_width_server"
     )
 
+    place_behind_server = Node(
+        package="pick_and_place_pkg",
+        executable="place_behind_server"
+    )
+
 
 
     return LaunchDescription(
@@ -47,5 +52,6 @@ def generate_launch_description():
             set_grip_width_server,
             move_to_pose_server,
             move_to_home_server,
+            place_behind_server
         ]
     )

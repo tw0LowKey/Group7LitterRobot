@@ -3,6 +3,7 @@ from rclpy.node import Node
 
 from moveit_msgs.msg import CollisionObject
 from moveit_msgs.msg import PlanningScene
+from moveit_msgs.srv import ApplyPlanningScene
 from shape_msgs.msg import SolidPrimitive
 from geometry_msgs.msg import Pose
 from std_msgs.msg import Header
@@ -27,13 +28,13 @@ class BannedZonePublisher(Node):
                                       ["GPS_antenna", 0.05, 0.05, 0.17, -0.275, 0.15, 0.735, 1.0],
                                       ["payload", 0.245 ,0.38, 0.12, -0.22, 0.0, 0.03, 1.0]]
 
-        self.publisher_ = self.create_publisher(
-            PlanningScene,
-            'planning_scene',
-            10
-        )
+        self.client = self.create_client(ApplyPlanningScene, '/apply_planning_scene')
 
-        self.timer = self.create_timer(2.0, self.add_banned_zone)
+        # Wait for move_group's service to come up before doing anything else
+        while not self.client.wait_for_service(timeout_sec=2.0):
+            self.get_logger().info('Waiting for /apply_planning_scene service...')
+
+        self.add_banned_zone()
 
     def add_banned_zone(self):
 
@@ -47,7 +48,7 @@ class BannedZonePublisher(Node):
             # Create scout mini collision object
             collision_object.id = object[0]
             collision_object.header = Header()
-            collision_object.header.frame_id = "world"
+            collision_object.header.frame_id = "arm_base_link"
 
             # Create a box shape
             box = SolidPrimitive()
@@ -73,9 +74,21 @@ class BannedZonePublisher(Node):
 
         planning_scene.is_diff = True
 
-        self.publisher_.publish(planning_scene)
+        request = ApplyPlanningScene.Request()
+        request.scene = planning_scene
 
-        self.timer.cancel()
+        future = self.client.call_async(request)
+        future.add_done_callback(self.scene_response_callback)
+
+    def scene_response_callback(self, future):
+        try:
+            response = future.result()
+            if response.success:
+                self.get_logger().info('Planning scene updated successfully.')
+            else:
+                self.get_logger().error('Failed to apply planning scene.')
+        except Exception as e:
+            self.get_logger().error(f'Service call failed: {e}')
 
 
 def main(args=None):

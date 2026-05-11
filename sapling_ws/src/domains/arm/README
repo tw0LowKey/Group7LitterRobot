@@ -24,3 +24,7 @@ ros2 launch piper_with_gripper_moveit demo.launch.py
 cd ~/Group7LitterRobot/sapling_ws
 source install/setup.bash
 ros2 run add_zones_pkg add_zones_node
+
+--ALLOW DROP--
+ros2 topic pub --once /comms/follower_to_leader sapling_interfaces/msg/FollowerStatus "{sequence: 0, parked: false, park_x: 0.0, park_y: 0.0, bin_ready: true}"
+

@@ -35,11 +35,20 @@ add_executable(move_to_home_server
 target_include_directories(move_to_home_server PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
 ament_target_dependencies(move_to_home_server rclcpp geometry_msgs piper_msgs moveit_ros_planning_interface)
 
+# --- PLACE NODE ---
+add_executable(place_behind_server
+  src/place_node_main.cpp
+  src/place_node.cpp
+)
+target_include_directories(place_behind_server PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>)
+ament_target_dependencies(place_behind_server rclcpp geometry_msgs piper_msgs moveit_ros_planning_interface)
+
 # --- INSTALL ---
 install(TARGETS
   move_to_pose_server
   set_grip_width_server
   move_to_home_server
+  place_behind_server
   DESTINATION lib/${PROJECT_NAME}
 )
 

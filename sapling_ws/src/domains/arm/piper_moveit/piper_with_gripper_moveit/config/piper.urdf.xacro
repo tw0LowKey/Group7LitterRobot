@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="piper">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="sapling">
     <xacro:arg name="initial_positions_file" default="initial_positions.yaml" />
 
     <!-- Import piper urdf file -->
-    <xacro:include filename="$(find piper_description)/urdf/piper_description.xacro" />
+    <xacro:include filename="$(find sapling_description)/urdf/sapling_description.urdf.xacro" />
 
     <!-- Import control_xacro -->
     <xacro:include filename="piper.ros2_control.xacro" />

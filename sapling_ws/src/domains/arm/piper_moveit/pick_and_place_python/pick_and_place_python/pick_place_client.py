@@ -21,7 +21,7 @@ class ServerClientNode(Node):
     def __init__(self):
         super().__init__('server_client_node')
 
-        self.transform_flag = True
+        self.transform_flag = False
 
         self.cb_group = ReentrantCallbackGroup()
 
@@ -95,7 +95,7 @@ class ServerClientNode(Node):
     def get_camera_transform(self) -> TransformStamped:
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
-        t.header.frame_id = 'arm_base_link'
+        t.header.frame_id = 'base_link'
         t.child_frame_id = 'camera_link_qais_smells'
 
         if self.transform_flag:
@@ -120,7 +120,7 @@ class ServerClientNode(Node):
         return t
     
     def update_bin_status(self, msg) -> None:
-        self.bin_status = msg.data.bin_ready
+        self.bin_status = msg.bin_ready
         return
     
     def get_pose_rotation(self) -> TransformStamped:
@@ -237,7 +237,7 @@ class ServerClientNode(Node):
             f'y={self.place_pose.position.y:.3f}, '
             f'z={self.place_pose.position.z:.3f}'
         )
-
+        
         self.get_logger().info('Moving to place pose.')
         # if not self.send_pose_request(self.place_pose):
         if not self.request_place_behind():

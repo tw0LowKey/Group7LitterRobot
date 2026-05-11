@@ -6,6 +6,8 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from geometry_msgs.msg import PoseStamped
 from piper_msgs.srv import PickPlaceRequest
 
+# Useless comment
+
 
 class ServerClientNode(Node):
     def __init__(self):
@@ -22,7 +24,7 @@ class ServerClientNode(Node):
         self._executor = None  # set in main before run_requests is called
 
     def run_requests(self):
-        z_height = -0.16
+        z_height = -0.17
 
         pose_stamped = PoseStamped()
         pose_stamped.header.frame_id = 'base_link'

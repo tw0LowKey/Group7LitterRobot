@@ -10,7 +10,11 @@ from ament_index_python.packages import get_package_share_directory
 
 # THIS HAS BEEN UPDATED, BUT NOT RUN TO TEST DUE TO PRE-EXISTENCE OF A GOOD GROUND PLANE, RUN FOR TESTING IF NEEDED.
 
-PLANE_SAVE_PATH = os.path.join(get_package_share_directory('computer_vision'), 'ground_plane.npy')
+PLANE_SAVE_PATH = os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)),
+    '..', '..', '..', '..', '..', '..',
+    'src', 'domains', 'vision', 'computer_vision', 'computer_vision', 'ground_plane.npy'
+))
 
 RANSAC_ITERATIONS = 100
 RANSAC_INLIER_THRESHOLD = 0.01

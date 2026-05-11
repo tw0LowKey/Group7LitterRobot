@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import rclpy
+import time  # Added for timing
 from rclpy.node import Node
 from scipy.spatial.transform import Rotation as R
 from std_msgs.msg import Bool
@@ -13,7 +14,7 @@ import sensor_msgs_py.point_cloud2 as pc2
 
 REACHABILITY_RADIUS = 0.6
 GROUND_PLANE_OFFSET = 0.01
-_CAMERA_TRANSLATION = np.array([0.14, 0.13, 0.600])
+_CAMERA_TRANSLATION = np.array([0.14, 0.14, 0.600])
 
 PROCESS_EVERY_N = 3
 
@@ -106,17 +107,27 @@ class FilterNode(Node):
             1
         )
 
+        self.start_grasp_flag = self.create_subscription(
+            Bool,
+            '/start_grasp',
+            self.start_grasp_callback,
+            1
+        )
+
         self.selected_mask_pub = self.create_publisher(PointCloud2, '/selected_mask', 1)
         self.centroids_pub = self.create_publisher(PointCloud2, '/cloud/centroids', 10)
         self.sphere_marker_pub = self.create_publisher(Marker, '/reachability_sphere', 10)
         self.base_link_markers_pub = self.create_publisher(MarkerArray, '/base_link_debug', 10)
         self.ground_marker_pub = self.create_publisher(Marker, '/ground_marker', 10)
-        self.stop_nav = self.create_publisher(Bool, '/stop_navigation', 10)
+        self.stop_nav = self.create_publisher(Bool, '/stop_navigation', 1)
 
         self._startup_count = 0
         self._startup_timer = self.create_timer(0.5, self._startup_publish)
 
         self.get_logger().info("FilterNode started")
+
+    def start_grasp_callback(self, msg):
+        self.start_grasp = msg.data
 
     def _startup_publish(self):
         self._startup_count += 1
@@ -270,9 +281,11 @@ class FilterNode(Node):
         return m
 
     def pc_callback(self, pc_msg):
+        t_start = time.perf_counter()  # Start Total Timer
+        
         self._msg_count += 1
         
-        nav_msg =  Bool()
+        nav_msg = Bool()
         nav_msg.data = False
 
         if self._msg_count % PROCESS_EVERY_N != 0:
@@ -284,96 +297,80 @@ class FilterNode(Node):
         if self._ground_plane is not None:
             self.ground_marker_pub.publish(self._build_ground_plane_marker(pc_msg.header))
 
+        # --- Time PointCloud Parsing ---
+        t_parse_start = time.perf_counter()
         points_list = list(pc2.read_points(
             pc_msg,
             field_names=("x", "y", "z", "instance_id"),
             skip_nans=True
         ))
+        t_parse_end = time.perf_counter()
 
         if not points_list:
             return
+        else:
+            nav_msg.data = True
 
+        self.stop_nav.publish(nav_msg)
+
+        # --- Time Filtering/Logic ---
+        t_logic_start = time.perf_counter()
         xyz = np.array([[p[0], p[1], p[2]] for p in points_list], dtype=np.float32)
         raw_ids = np.array([p[3] for p in points_list], dtype=np.float32)
         instance_ids = np.round(raw_ids).astype(np.int32)
 
         unique_ids = np.unique(instance_ids)
 
-        self.get_logger().info(f"Rounded unique ids: {unique_ids}")
-
         selected_points = None
         selected_id = None
-
         outside_centroids = []
         outside_ids = []
 
         for uid in unique_ids:
             candidate_pts = xyz[instance_ids == uid]
-            # candidate_pts = candidate_pts[candidate_pts[:, 2] < 1.0]
-
             if candidate_pts.shape[0] == 0:
                 continue
 
             centroid = candidate_pts.mean(axis=0)
+
             dist = np.linalg.norm(centroid - self._base_pos_in_camera)
 
-            if dist <= REACHABILITY_RADIUS:
+            if True: # THIS MUST BE CHANGED FOR GRASP TESTING, WILL ONLY WORK IF NAV GIVES GO AHEAD
                 if selected_points is None:
                     selected_points = candidate_pts
                     selected_id = uid
-
-                    self.get_logger().info(
-                        f"Instance {uid} selected | dist={dist:.3f}"
-                    )
-                    nav_msg.data = True
-
             else:
                 outside_centroids.append(centroid)
                 outside_ids.append(uid)
 
-                self.get_logger().info(
-                    f"Instance {uid} outside | dist={dist:.3f}"
-                )
-
         if selected_points is not None:
-            ids_array = np.full(
-                selected_points.shape[0],
-                selected_id,
-                dtype=np.int32
-            )
-
+            ids_array = np.full(selected_points.shape[0], selected_id, dtype=np.int32)
             self.selected_mask_pub.publish(
-                build_selected_cloud_msg(
-                    pc_msg.header,
-                    selected_points,
-                    ids_array
-                )
+                build_selected_cloud_msg(pc_msg.header, selected_points, ids_array)
             )
 
         if outside_centroids:
             centroid_array = np.array(outside_centroids, dtype=np.float32)
             id_array = np.array(outside_ids, dtype=np.int32)
-
             self.centroids_pub.publish(
-                build_centroid_cloud_msg(
-                    pc_msg.header,
-                    centroid_array,
-                    id_array
-                )
-            )
-
-            self.get_logger().info(
-                f"Published {len(outside_centroids)} centroids"
+                build_centroid_cloud_msg(pc_msg.header, centroid_array, id_array)
             )
         
-        self.stop_nav.publish(nav_msg)
+        t_end = time.perf_counter()
+
+        # --- Summary Print ---
+        total = (t_end - t_start) * 1000.0
+        parse = (t_parse_end - t_parse_start) * 1000.0
+        logic = (t_end - t_logic_start) * 1000.0
+        
+        self.get_logger().info(
+            f"PROF: Total={total:.1f}ms | Parse={parse:.1f}ms | Logic={logic:.1f}ms"
+        )
 
 
 def main(args=None):
     rclpy.init(args=args)
-
     node = FilterNode()
-
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

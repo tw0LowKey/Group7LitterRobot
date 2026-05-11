@@ -9,7 +9,7 @@ PickAndPlace::PickAndPlace(rclcpp::Node::SharedPtr node, const std::string& grou
     move_group_->setMaxVelocityScalingFactor(1.0);
     move_group_->setMaxAccelerationScalingFactor(1.0);
     move_group_->setEndEffectorLink("grasp_tcp"); 
-    move_group_->setPoseReferenceFrame("base_link");
+    move_group_->setPoseReferenceFrame("arm_base_link");
     move_group_->setGoalPositionTolerance(0.001);
     move_group_->setGoalOrientationTolerance(0.01);
 

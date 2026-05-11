@@ -5,7 +5,7 @@
 <robot
   name="piper">
   <link
-    name="base_link">
+    name="arm_base_link">
     <inertial>
       <origin xyz="-0.00473641164191482 2.56829134630247E-05 0.041451518036016" rpy="0 0 0" />
       <mass value="1.02" />
@@ -73,7 +73,7 @@
       xyz="0 0 0.123"
       rpy="0 0 0" />
     <parent
-      link="base_link" />
+      link="arm_base_link" />
     <child
       link="link1" />
     <axis
