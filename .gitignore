@@ -32,4 +32,4 @@ sapling_ws/src/drivers/ugv_sdk/
 # --- Misc ---
 safe
 tests
-sapling_ws/frames_*
+frames_*

@@ -8,6 +8,8 @@ from launch.actions import (
     ExecuteProcess,
     TimerAction,
     RegisterEventHandler,
+    GroupAction,
+    SetEnvironmentVariable
 )
 
 from launch.event_handlers import OnProcessExit
@@ -86,22 +88,20 @@ def launch_setup(context, *args, **kwargs):
     # ============================================================
     # YDLIDAR
     # ============================================================
+    ydlidar_launch = GroupAction(
+        actions=[
+            # This environment variable only exists for the scope of this GroupAction
+            SetEnvironmentVariable('RCUTILS_LOGGING_MIN_SEVERITY', 'WARN'),
 
-    ydlidar_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(
-                ydlidar_pkg,
-                "launch",
-                "ydlidar_launch.py"
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(ydlidar_pkg, "launch", "ydlidar_launch.py")
+                ),
+                launch_arguments={
+                    "params_file": os.path.join(ydlidar_pkg, "params", "X4-Pro.yaml")
+                }.items(),
             )
-        ),
-        launch_arguments={
-            "params_file": os.path.join(
-                ydlidar_pkg,
-                "params",
-                "X4-Pro.yaml"
-            )
-        }.items(),
+        ]
     )
 
     # ============================================================

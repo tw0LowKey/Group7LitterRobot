@@ -17,8 +17,9 @@ class FakeGpsFromOdom(Node):
         self.declare_parameter("gps_topic", "/gps/fix")
 
         # Starting GPS point. You can change this to any outdoor location.
-        self.declare_parameter("origin_latitude", 53.4668)
-        self.declare_parameter("origin_longitude", -2.2339)
+        # Start fake GPS from top-left point of your area
+        self.declare_parameter("origin_latitude", 53.47244480)
+        self.declare_parameter("origin_longitude", -2.23477520)
         self.declare_parameter("origin_altitude", 50.0)
 
         # Optional GPS noise in metres. Keep 0.0 first while testing.

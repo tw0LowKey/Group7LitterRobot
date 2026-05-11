@@ -25,6 +25,7 @@ def generate_launch_description():
         description="GPS NavSatFix topic"
     )
 
+
     local_ekf_node = Node(
         package="robot_localization",
         executable="ekf_node",
@@ -32,19 +33,21 @@ def generate_launch_description():
         output="screen",
         parameters=[params_file],
         remappings=[
-            ("odometry/filtered", "/odometry/filtered"),
+            ("odometry/filtered", "/odometry/local"),
         ],
+        arguments=["--ros-args", "--log-level", "WARN"],
     )
 
     navsat_node = Node(
         package="robot_localization",
         executable="navsat_transform_node",
         name="navsat_transform",
-        output="screen",
+        output="log",
         parameters=[params_file],
+        arguments=["--ros-args", "--log-level", "WARN"],
         remappings=[
             ("gps/fix", gps_topic),
-            ("odometry/filtered", "/odometry/filtered"),
+            ("odometry/filtered", "/odometry/local"),
             ("odometry/gps", "/odometry/gps"),
         ],
     )
@@ -55,8 +58,10 @@ def generate_launch_description():
         name="ekf_filter_node_map",
         output="screen",
         parameters=[params_file],
-        
-        
+        arguments=["--ros-args", "--log-level", "WARN"],
+        remappings=[
+            ("odometry/filtered", "/odometry/global"),
+        ],
     )
 
     return LaunchDescription([
@@ -65,7 +70,7 @@ def generate_launch_description():
         navsat_node,
 
         TimerAction(
-            period=6.0,
+            period=1.0,
             actions=[global_ekf_node],
         ),
     ])

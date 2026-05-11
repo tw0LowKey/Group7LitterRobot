@@ -29,6 +29,7 @@ setup(
         'console_scripts': [
             'sapling_comms_node = comms.sapling_comms_node:main',
             'sapling_executor_node = comms.sapling_executor_node:main',
+            'sapling_area_coords_test_node = comms.sapling_area_coords_test_node:main',
         ],
     },
 )

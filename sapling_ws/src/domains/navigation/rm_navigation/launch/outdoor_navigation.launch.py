@@ -79,7 +79,7 @@ def generate_launch_description():
         "0",      # roll
         "0",      # pitch
         "0",      # yaw
-        "base_footprint",
+        "base_link",
         "gps_link",
     ],
     output="screen",
@@ -112,20 +112,21 @@ def generate_launch_description():
         arguments=["-d", rviz_default_config_file],
         parameters=[{"use_sim_time": False}],
     )
-
     fake_fixed_gps_node = Node(
-        package="rm_localization",   # change this to the package where you put the file
-        executable="fake_fixed_gps_node.py",
+        package="rm_localization",
+        executable="fake_gps_from_odom.py",
         name="fake_fixed_gps_node",
         output="screen",
         parameters=[
-            {"latitude": 53.46680000},
-            {"longitude": -2.23390000},
-            {"altitude": 50.0},
-            {"frame_id": "gps_link"},
-            {"publish_rate": 5.0},],
+            {"origin_latitude": 53.47244480},
+            {"origin_longitude": -2.23477520},
+            {"origin_altitude": 50.0},
+            {"odom_topic": "/odom"},
+            {"gps_topic": "/gps/fix"},
+            {"noise_std_m": 0.0},
+        ],
     )
-    # ============================================================
+    #=========================================
     # Launch
     # ============================================================
 
@@ -135,7 +136,7 @@ def generate_launch_description():
 
         gps_static_tf,
 
-        # fake_fixed_gps_node,
+        fake_fixed_gps_node,
 
         outdoor_localization,
 
