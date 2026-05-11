@@ -1,4 +1,4 @@
-int32 sequence
+int32 seq
 bool parked
 float64 park_x
 float64 park_y

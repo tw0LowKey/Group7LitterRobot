@@ -10,6 +10,7 @@ from bleak.backends.characteristic import BleakGATTCharacteristic
 from bless import BlessServer, GATTCharacteristicProperties, GATTAttributePermissions
 from comms.sapling_shared import decodePacket
 from json import dumps, loads, JSONDecodeError
+from os import environ
 from rclpy.node import Node
 from sapling_interfaces.msg import LoraTransmission
 from sapling_interfaces.srv import AreaCoords
@@ -178,7 +179,11 @@ class CommsNode(Node):
 
 def main(args=None) -> None:
 	rclpy.init(args=args)
-	commsNode = CommsNode("R-067", SERVICE_UUID, CHAR_UUID)
+	robotId = environ.get("SAPLING_ID")
+	if robotId is None:
+		print("SAPLING_ID has not been set - please set the environment variable")
+		exit()
+	commsNode = CommsNode(robotId, SERVICE_UUID, CHAR_UUID)
 
 	try:
 		asyncio.run(commsNode.startBleProvisioning())
