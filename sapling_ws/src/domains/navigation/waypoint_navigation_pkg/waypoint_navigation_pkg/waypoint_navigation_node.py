@@ -30,7 +30,7 @@ class WaypointNavigationNode(Node):
     def load_waypoints(self):
         try:
             # --- CRITICAL CHECK: Make sure this name matches your actual package name ---
-            # If your package is "rm_localization_custom", change it below!
+            # If your package is "rm_localization", change it below!
             package_name = 'waypoint_navigation_pkg' 
             try:
                 package_path = get_package_share_directory(package_name)

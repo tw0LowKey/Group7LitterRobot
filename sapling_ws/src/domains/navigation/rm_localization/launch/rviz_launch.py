@@ -10,7 +10,7 @@ from nav2_common.launch import ReplaceString
 import os
 
 def generate_launch_description():
-	bringup_dir = get_package_share_directory('rm_localization_custom')
+	bringup_dir = get_package_share_directory('rm_localization')
 	namespace = LaunchConfiguration('namespace')
 	use_namespace = LaunchConfiguration('use_namespace')
 	rviz_config_file = LaunchConfiguration('rviz_config')

@@ -1,0 +1,98 @@
+
+ekf_filter_node_odom:
+  ros__parameters:
+    frequency: 30.0
+    sensor_timeout: 0.2
+    two_d_mode: true
+    publish_tf: true
+    print_diagnostics: false
+    debug: false
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_footprint
+    world_frame: odom
+
+    # Wheel odometry from Scout base
+    # This EKF mainly creates smooth odom -> base_footprint
+    odom0: /odom
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true,  true,  false,
+                   false, false, true,
+                   false, false, false]
+
+    odom0_queue_size: 10
+    odom0_nodelay: false
+    odom0_differential: false
+    odom0_relative: false
+
+
+ekf_filter_node_map:
+  ros__parameters:
+    frequency: 30.0
+    sensor_timeout: 0.3
+    two_d_mode: true
+    publish_tf: true
+    print_diagnostics: false
+    debug: false
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_footprint
+    world_frame: map
+
+    # Smooth local odom from odom EKF
+    # Use velocities only, not x/y position, to avoid fighting GPS position
+    odom0: /odometry/filtered
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true,  true,  false,
+                   false, false, true,
+                   false, false, false]
+
+    odom0_queue_size: 10
+    odom0_nodelay: false
+    odom0_differential: false
+    odom0_relative: false
+
+    # GPS correction from navsat_transform
+    # Use x/y position only
+    odom1: /odometry/gps
+    odom1_config: [true,  true,  false,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false,
+                   false, false, false]
+
+    odom1_queue_size: 5
+    odom1_nodelay: false
+    odom1_differential: false
+    odom1_relative: false
+    odom1_pose_rejection_threshold: 5.0
+    odom1_twist_rejection_threshold: 1.0
+
+ 
+
+navsat_transform:
+  ros__parameters:
+    frequency: 20.0
+    delay: 5.0
+
+    magnetic_declination_radians: 0.0
+    yaw_offset: 0.0
+    zero_altitude: true
+
+    broadcast_cartesian_transform: false
+    publish_filtered_gps: false
+
+    # Important because Scout Mini has no IMU
+    # navsat_transform will use odom yaw instead of IMU yaw
+    use_odometry_yaw: true
+
+    wait_for_datum: false
+    datum: [53.4668, -2.2339, 50.0]
+
+    gps_topic: /gps/fix
+    odom_topic: /odometry/filtered
+    base_link_frame: base_footprint

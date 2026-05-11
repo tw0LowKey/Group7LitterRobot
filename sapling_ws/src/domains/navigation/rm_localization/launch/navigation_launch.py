@@ -10,7 +10,7 @@ from nav2_common.launch import RewrittenYaml
 import os
 
 def generate_launch_description():
-    bringup_dir = get_package_share_directory("rm_localization_custom")
+    bringup_dir = get_package_share_directory("rm_localization")
     namespace = LaunchConfiguration("namespace")
     use_sim_time = LaunchConfiguration("use_sim_time")
     autostart = LaunchConfiguration("autostart")

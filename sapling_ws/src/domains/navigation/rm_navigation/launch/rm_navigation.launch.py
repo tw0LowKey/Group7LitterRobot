@@ -19,7 +19,7 @@ def generate_launch_description():
     )
 
 def launch_setup(context, *args, **kwargs):
-    nav2_launch_file = os.path.join(get_package_share_directory("rm_localization_custom"), "launch", "bringup_launch.py")
+    nav2_launch_file = os.path.join(get_package_share_directory("rm_localization"), "launch", "bringup_launch.py")
     nav2_params_file = os.path.join(get_package_share_directory("rm_navigation"), "config", "nav2_params.yaml")
     map_yaml_file = os.path.join(get_package_share_directory("rm_navigation"), "maps", "warehouse/map_slam_v2.yaml")
     nav2_slam_launch = IncludeLaunchDescription(PythonLaunchDescriptionSource(nav2_launch_file), launch_arguments={"use_sim_time": "true", "params_file": nav2_params_file, "slam": "True", "map": "", 'use_collision_monitor': 'false',}.items(), condition=IfCondition(PythonExpression(["'" , LaunchConfiguration("slam"), "' == 'true'"])))

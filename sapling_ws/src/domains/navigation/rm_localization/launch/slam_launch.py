@@ -17,7 +17,7 @@ def generate_launch_description():
 	use_respawn = LaunchConfiguration('use_respawn')
 	log_level = LaunchConfiguration('log_level')
 	lifecycle_nodes = ['map_saver']
-	bringup_dir = get_package_share_directory('rm_localization_custom')
+	bringup_dir = get_package_share_directory('rm_localization')
 	slam_toolbox_dir = get_package_share_directory('slam_toolbox')
 	slam_launch_file = os.path.join(slam_toolbox_dir, 'launch', 'online_sync_launch.py')
 	configured_params = ParameterFile(RewrittenYaml(source_file=params_file, root_key=namespace, param_rewrites={}, convert_types=True), allow_substs=True)

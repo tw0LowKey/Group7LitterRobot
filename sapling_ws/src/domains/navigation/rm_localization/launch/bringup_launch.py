@@ -11,7 +11,7 @@ from nav2_common.launch import RewrittenYaml, ReplaceString
 import os
 
 def generate_launch_description():
-    bringup_dir = os.path.join(get_package_share_directory("rm_localization_custom"))
+    bringup_dir = os.path.join(get_package_share_directory("rm_localization"))
     bringup_launch = os.path.join(bringup_dir, "launch")
     localization_launcher_py = os.path.join(bringup_launch, 'localization_launch.py')
     navigation_launcher_py = os.path.join(bringup_launch, 'navigation_launch.py')

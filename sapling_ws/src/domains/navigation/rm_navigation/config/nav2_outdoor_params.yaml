@@ -1,0 +1,383 @@
+amcl:
+    ros__parameters:
+        use_sim_time: False
+
+        alpha1: 0.15
+        alpha2: 0.15
+        alpha3: 0.15
+        alpha4: 0.15
+        alpha5: 0.08
+
+        base_frame_id: mobile_robot_base_link
+        odom_frame_id: odom
+        global_frame_id: odom
+
+        beam_skip_distance: 0.5
+        beam_skip_error_threshold: 0.9
+        beam_skip_threshold: 0.3
+        do_beamskip: false
+
+        lambda_short: 0.1
+        laser_likelihood_max_dist: 2.5
+        laser_max_range: 100.0
+        laser_min_range: -1.0
+        laser_model_type: "likelihood_field"
+
+        max_beams: 80
+
+        max_particles: 3000
+        min_particles: 800
+
+        pf_err: 0.03
+        pf_z: 0.99
+
+        recovery_alpha_fast: 0.0
+        recovery_alpha_slow: 0.0
+
+        resample_interval: 1
+
+        robot_model_type: "nav2_amcl::DifferentialMotionModel"
+
+        save_pose_rate: 0.5
+
+        sigma_hit: 0.2
+
+        tf_broadcast: true
+        transform_tolerance: 0.5
+
+        update_min_a: 0.12
+        update_min_d: 0.12
+
+        z_hit: 0.7
+        z_max: 0.05
+        z_rand: 0.2
+        z_short: 0.05
+
+        scan_topic: /scan
+        map_topic: /map
+
+        set_initial_pose: true
+
+        initial_pose:
+            x: 0.0
+            y: 0.0
+            z: 0.0
+            yaw: 0.0
+
+bt_navigator:
+  ros__parameters:
+    use_sim_time: False
+
+    global_frame: map
+    robot_base_frame: mobile_robot_base_link
+    odom_topic: /odometry/filtered
+
+    bt_loop_duration: 20
+    default_server_timeout: 20
+    wait_for_service_timeout: 1000
+
+controller_server:
+    ros__parameters:
+        use_sim_time: False
+
+        controller_frequency: 8.0
+        transform_tolerance: 0.5
+
+        min_x_velocity_threshold: 0.001
+        min_y_velocity_threshold: 0.0
+        min_theta_velocity_threshold: 0.001
+
+        failure_tolerance: 1.2
+
+        progress_checker_plugins: ["progress_checker"]
+        goal_checker_plugins: ["goal_checker"]
+        controller_plugins: ["FollowPath"]
+
+        use_realtime_priority: false
+
+        odom_topic: /odometry/filtered
+
+        progress_checker:
+            plugin: "nav2_controller::SimpleProgressChecker"
+            required_movement_radius: 0.08
+            movement_time_allowance: 45.0
+
+        goal_checker:
+            plugin: "nav2_controller::SimpleGoalChecker"
+            stateful: True
+            xy_goal_tolerance: 0.40
+            yaw_goal_tolerance: 1.2
+
+        FollowPath:
+            plugin: "nav2_rotation_shim_controller::RotationShimController"
+            primary_controller: "nav2_mppi_controller::MPPIController"
+
+            angular_dist_threshold: 0.5
+
+            forward_sampling_distance: 0.6
+
+            rotate_to_heading_angular_vel: 0.25
+            max_angular_accel: 0.7
+
+            simulate_ahead_time: 2.0
+
+            time_steps: 80
+            model_dt: 0.125
+
+            batch_size: 700
+
+            vx_std: 0.10
+            vy_std: 0.0
+            wz_std: 0.16
+
+            vx_max: 0.32
+            vx_min: 0.0
+
+            vy_max: 0.0
+
+            wz_max: 0.40
+
+            iteration_count: 1
+
+            temperature: 0.7
+            gamma: 0.015
+
+            visualize: False
+
+            retry_attempt_limit: 3
+            regenerate_noises: false
+
+            transform_tolerance: 0.5
+
+            prune_distance: 1.8
+
+            enforce_path_inversion: false
+
+            motion_model: "DiffDrive"
+
+            TrajectoryVisualizer:
+                trajectory_step: 20
+                time_step: 5
+
+            critics: [
+                "ConstraintCritic",
+                "ObstaclesCritic",
+                "GoalCritic",
+                "GoalAngleCritic",
+                "PathAlignCritic",
+                "PathFollowCritic",
+                "PathAngleCritic",
+                "PreferForwardCritic"
+            ]
+
+            ConstraintCritic:
+                enabled: true
+                cost_power: 1
+                cost_weight: 4.0
+
+            GoalCritic:
+                enabled: true
+                cost_power: 1
+                cost_weight: 3.0
+                threshold_to_consider: 1.5
+
+            GoalAngleCritic:
+                enabled: true
+                cost_power: 1
+                cost_weight: 0.8
+                threshold_to_consider: 0.6
+
+            PreferForwardCritic:
+                enabled: true
+                cost_power: 1
+                cost_weight: 5.0
+                threshold_to_consider: 0.5
+
+            ObstaclesCritic:
+                enabled: true
+                cost_power: 1
+
+                repulsion_weight: 0.12
+                critical_weight: 4.0
+
+                consider_footprint: true
+
+                collision_cost: 1000.0
+
+                collision_margin_distance: 0.08
+
+                near_goal_distance: 0.7
+
+            PathAlignCritic:
+                enabled: true
+                cost_power: 1
+
+                cost_weight: 4.0
+
+                max_path_occupancy_ratio: 0.05
+
+                trajectory_point_step: 4
+
+                threshold_to_consider: 1.5
+
+                offset_from_furthest: 12
+
+                use_path_orientations: false
+
+            PathFollowCritic:
+                enabled: true
+                cost_power: 1
+
+                cost_weight: 3.0
+
+                offset_from_furthest: 5
+
+                threshold_to_consider: 1.5
+
+            PathAngleCritic:
+                enabled: true
+                cost_power: 1
+
+                cost_weight: 0.8
+
+                offset_from_furthest: 4
+
+                threshold_to_consider: 0.5
+
+                max_angle_to_furthest: 1.2
+
+                mode: 0
+
+
+local_costmap:
+    local_costmap:
+        ros__parameters:
+
+            use_sim_time: False
+
+            transform_tolerance: 0.5
+
+            update_frequency: 10.0
+            publish_frequency: 5.0
+
+            global_frame: odom
+
+            robot_base_frame: mobile_robot_base_link
+
+            rolling_window: true
+
+            width: 6
+            height: 6
+
+            resolution: 0.05
+
+            footprint: "[ [0.306, 0.290], [0.306, -0.290], [-0.306, -0.290], [-0.306, 0.290] ]"
+
+            footprint_padding: 0.02
+
+            lethal_cost_threshold: 100
+
+            track_unknown_space: false
+
+            plugins: ["obstacle_layer", "inflation_layer"]
+
+            obstacle_layer:
+                plugin: "nav2_costmap_2d::ObstacleLayer"
+
+                enabled: True
+
+                observation_sources: scan
+
+                scan:
+                    topic: /scan
+
+                    min_obstacle_height: 0.1
+                    max_obstacle_height: 2.0
+
+                    clearing: True
+                    marking: True
+
+                    observation_persistence: 0.0
+                    expected_update_rate: 0.3
+
+                    data_type: "LaserScan"
+
+                    raytrace_max_range: 5.0
+                    raytrace_min_range: 0.2
+
+                    obstacle_max_range: 4.0
+                    obstacle_min_range: 0.2
+
+            inflation_layer:
+                plugin: "nav2_costmap_2d::InflationLayer"
+
+                cost_scaling_factor: 8.0
+
+                inflation_radius: 0.35
+
+            always_send_full_costmap: True
+
+
+global_costmap:
+    global_costmap:
+        ros__parameters:
+
+            use_sim_time: False
+
+            transform_tolerance: 0.5
+
+            update_frequency: 2.0
+            publish_frequency: 2.0
+
+            global_frame: map
+
+            robot_base_frame: mobile_robot_base_link
+
+            rolling_window: true
+
+            width: 15
+            height: 15
+
+            resolution: 0.05
+
+            footprint: "[ [0.306, 0.290], [0.306, -0.290], [-0.306, -0.290], [-0.306, 0.290] ]"
+
+            footprint_padding: 0.02
+
+            lethal_cost_threshold: 100
+
+            track_unknown_space: false
+
+            plugins: ["inflation_layer"]
+
+            obstacle_layer:
+                plugin: "nav2_costmap_2d::ObstacleLayer"
+
+                enabled: True
+
+                observation_sources: scan
+
+                scan:
+                    topic: /scan
+
+                    max_obstacle_height: 2.0
+
+                    clearing: True
+                    marking: True
+
+                    data_type: "LaserScan"
+
+                    raytrace_max_range: 15.0
+                    raytrace_min_range: 0.0
+
+                    obstacle_max_range: 12.0
+                    obstacle_min_range: 0.2
+
+            inflation_layer:
+                plugin: "nav2_costmap_2d::InflationLayer"
+
+                cost_scaling_factor: 5.0
+
+                inflation_radius: 0.45
+
+            always_send_full_costmap: True

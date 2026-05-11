@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(rm_localization_custom)
+project(rm_localization)
 
 find_package(ament_cmake REQUIRED)
 find_package(nav2_common REQUIRED)
@@ -19,12 +19,14 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU" OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-Wnon-virtual-dtor>")
 endif()
 
-install(DIRECTORY launch DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY launch config
+  DESTINATION share/${PROJECT_NAME}
+)
 
-
-if(BUILD_TESTING)
-	find_package(ament_lint_auto REQUIRED)
-	ament_lint_auto_find_test_dependencies()
-endif()
+install(PROGRAMS
+  scripts/fake_gps_from_odom.py
+  scripts/fake_fixed_gps_node.py
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 ament_package()

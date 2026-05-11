@@ -22,7 +22,7 @@ def generate_launch_description():
 def launch_setup(context, *args, **kwargs):
     sim_arg = LaunchConfiguration("simulation")
 
-    nav2_launch_file = os.path.join(get_package_share_directory("rm_localization_custom"), "launch", "bringup_launch.py")
+    nav2_launch_file = os.path.join(get_package_share_directory("rm_localization"), "launch", "bringup_launch.py")
     
     # CHANGED: Pointing to the real robot params file we just made
     nav2_params_file = os.path.join(get_package_share_directory("rm_navigation"), "config", "nav2_real_params.yaml")

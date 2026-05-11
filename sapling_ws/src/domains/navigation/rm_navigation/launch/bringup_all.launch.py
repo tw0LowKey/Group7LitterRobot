@@ -1,7 +1,6 @@
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, TimerAction
 from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 from launch.substitutions import PathJoinSubstitution, EnvironmentVariable
 from launch.actions import DeclareLaunchArgument
@@ -26,6 +25,7 @@ def generate_launch_description():
             description="Path to YDLIDAR parameter file"
         ),
 
+        # 1. LIDAR
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 PathJoinSubstitution([ydlidar_pkg, "launch", "ydlidar_launch.py"])
@@ -35,6 +35,7 @@ def generate_launch_description():
             }.items()
         ),
 
+        # 2. Scout base - delayed slightly so CAN is already up
         TimerAction(
             period=2.0,
             actions=[
@@ -46,6 +47,7 @@ def generate_launch_description():
             ]
         ),
 
+        # 3. Robot description / real robot
         TimerAction(
             period=4.0,
             actions=[
@@ -57,6 +59,7 @@ def generate_launch_description():
             ]
         ),
 
+        # 4. Navigation - delayed more so TF/odom/scan have time to come up
         TimerAction(
             period=7.0,
             actions=[
@@ -64,18 +67,6 @@ def generate_launch_description():
                     PythonLaunchDescriptionSource(
                         PathJoinSubstitution([rm_navigation_pkg, "launch", "real_robot_navigation.launch.py"])
                     )
-                )
-            ]
-        ),
-
-        TimerAction(
-            period=9.0,
-            actions=[
-                Node(
-                    package='waypoint_navigation_pkg',
-                    executable='front_back_node',
-                    name='front_back_node',
-                    output='screen'
                 )
             ]
         ),
