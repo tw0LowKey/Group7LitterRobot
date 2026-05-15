@@ -4,7 +4,7 @@ PickAndPlace::PickAndPlace(rclcpp::Node::SharedPtr node, const std::string& grou
 {
     move_group_ = std::make_shared<moveit::planning_interface::MoveGroupInterface>(node_, group_name);
 
-    move_group_->setPlanningTime(1.0);
+    move_group_->setPlanningTime(0.75);
     move_group_->setNumPlanningAttempts(100);
     move_group_->setMaxVelocityScalingFactor(1.0);
     move_group_->setMaxAccelerationScalingFactor(1.0);
@@ -46,7 +46,7 @@ bool PickAndPlace::move_to_pose(const geometry_msgs::msg::Pose& target_pose)
     tf2::Vector3 approach_dir = rot.getColumn(2);
 
     geometry_msgs::msg::Pose pre_pose = target_pose;
-    double offset = 0.10;
+    double offset = 0.15;
     pre_pose.position.x -= offset * approach_dir.x();
     pre_pose.position.y -= offset * approach_dir.y();
     pre_pose.position.z -= offset * approach_dir.z();

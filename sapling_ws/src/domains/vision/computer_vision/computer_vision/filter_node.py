@@ -10,11 +10,11 @@ from geometry_msgs.msg import Point
 from visualization_msgs.msg import Marker, MarkerArray
 from ament_index_python.packages import get_package_share_directory
 import sensor_msgs_py.point_cloud2 as pc2
-
+from rclpy.executors import ExternalShutdownException
 
 REACHABILITY_RADIUS = 0.6
 GROUND_PLANE_OFFSET = 0.01
-_CAMERA_TRANSLATION = np.array([0.14, 0.14, 0.600])
+_CAMERA_TRANSLATION = np.array([0.135, 0.14, 0.605])
 
 PROCESS_EVERY_N = 3
 
@@ -119,7 +119,7 @@ class FilterNode(Node):
         self.sphere_marker_pub = self.create_publisher(Marker, '/reachability_sphere', 10)
         self.base_link_markers_pub = self.create_publisher(MarkerArray, '/base_link_debug', 10)
         self.ground_marker_pub = self.create_publisher(Marker, '/ground_marker', 10)
-        self.stop_nav = self.create_publisher(Bool, '/stop_navigation', 1)
+        self.stop_nav = self.create_publisher(Bool, '/vision/resume_navigation', 1)
 
         self._startup_count = 0
         self._startup_timer = self.create_timer(0.5, self._startup_publish)
@@ -281,12 +281,13 @@ class FilterNode(Node):
         return m
 
     def pc_callback(self, pc_msg):
+        self.get_logger().info(f"Received PointCloud2 message with {pc_msg.width * pc_msg.height} points")
         t_start = time.perf_counter()  # Start Total Timer
         
         self._msg_count += 1
         
         nav_msg = Bool()
-        nav_msg.data = False
+        nav_msg.data = True
 
         if self._msg_count % PROCESS_EVERY_N != 0:
             return
@@ -307,11 +308,11 @@ class FilterNode(Node):
         t_parse_end = time.perf_counter()
 
         if not points_list:
+            self.stop_nav.publish(nav_msg)
             return
         else:
-            nav_msg.data = True
-
-        self.stop_nav.publish(nav_msg)
+            nav_msg.data = False
+            self.stop_nav.publish(nav_msg)
 
         # --- Time Filtering/Logic ---
         t_logic_start = time.perf_counter()
@@ -339,9 +340,8 @@ class FilterNode(Node):
                 if selected_points is None:
                     selected_points = candidate_pts
                     selected_id = uid
-            else:
-                outside_centroids.append(centroid)
-                outside_ids.append(uid)
+            outside_centroids.append(centroid)
+            outside_ids.append(uid)
 
         if selected_points is not None:
             ids_array = np.full(selected_points.shape[0], selected_id, dtype=np.int32)
@@ -371,13 +371,18 @@ class FilterNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = FilterNode()
+
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
+
     finally:
         node.destroy_node()
-        rclpy.shutdown()
+
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

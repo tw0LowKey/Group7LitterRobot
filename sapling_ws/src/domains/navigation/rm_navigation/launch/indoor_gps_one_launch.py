@@ -8,6 +8,8 @@ from launch.actions import (
     ExecuteProcess,
     TimerAction,
     RegisterEventHandler,
+    GroupAction,
+    SetEnvironmentVariable,
 )
 
 from launch.event_handlers import OnProcessExit
@@ -87,21 +89,20 @@ def launch_setup(context, *args, **kwargs):
     # YDLIDAR
     # ============================================================
 
-    ydlidar_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(
-                ydlidar_pkg,
-                "launch",
-                "ydlidar_launch.py"
+    ydlidar_launch = GroupAction(
+        actions=[
+            # This environment variable only exists for the scope of this GroupAction
+            SetEnvironmentVariable('RCUTILS_LOGGING_MIN_SEVERITY', 'WARN'),
+
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(ydlidar_pkg, "launch", "ydlidar_launch.py")
+                ),
+                launch_arguments={
+                    "params_file": os.path.join(ydlidar_pkg, "params", "X4-Pro.yaml")
+                }.items(),
             )
-        ),
-        launch_arguments={
-            "params_file": os.path.join(
-                ydlidar_pkg,
-                "params",
-                "X4-Pro.yaml"
-            )
-        }.items(),
+        ]
     )
 
     # ============================================================
@@ -245,15 +246,29 @@ def launch_setup(context, *args, **kwargs):
 #
     leader_node = Node(
         package="waypoint_navigation_pkg",
-        executable="leader",
-        name="gps_leader_behavior_node",
+        executable="leader_navigation_node_new",
+        name="leader_navigation_node_new",
         output="screen",
     )
 
     fake_area_coords_server_node = Node(
         package="waypoint_navigation_pkg",
-        executable="fake_area_coords_server",
-        name="fake_area_coords_server",
+        executable="straight_line_waypoint_generator_node",
+        name="straight_line_waypoint_generator_node",
+        output="screen",
+    )
+
+    litter_handler_node = Node(
+        package="waypoint_navigation_pkg",
+        executable="litter_handler_node_new",
+        name="litter_handler_node_new",
+        output="screen",
+    )
+
+    new_litter_monitor = Node(
+        package="waypoint_navigation_pkg",
+        executable="new_litter_monitor_new",
+        name="new_litter_monitor_new",
         output="screen",
     )
 
@@ -262,17 +277,17 @@ def launch_setup(context, *args, **kwargs):
         ydlidar_launch,
 
         TimerAction(
-            period=0.1,
+            period=0.0,
             actions=[scout_base_launch],
         ),
 
         TimerAction(
-            period=15.0,
+            period=0.0,
             actions=[robot_description_launch],
         ),
 
         TimerAction(
-            period=20.0,
+            period=10.0,
             actions=[
                 indoor_gps_nav_launch,
             ],
@@ -280,13 +295,23 @@ def launch_setup(context, *args, **kwargs):
 
         # Start fake area service first
         TimerAction(
-            period=28.0,
+            period=0.0,
             actions=[fake_area_coords_server_node],
         ),
 
         # Then start leader, which polls /comms/area_coords
         TimerAction(
-            period=32.0,
+            period=0.0,
             actions=[leader_node],
+        ),
+
+        TimerAction(
+            period=0.0,
+            actions=[litter_handler_node],
+        ),
+
+        TimerAction(
+            period=0.0,
+            actions=[new_litter_monitor],
         ),
     ]

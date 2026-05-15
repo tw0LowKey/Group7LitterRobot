@@ -21,7 +21,7 @@ class ServerClientNode(Node):
     def __init__(self):
         super().__init__('server_client_node')
 
-        self.transform_flag = False
+        self.transform_flag = True
 
         self.cb_group = ReentrantCallbackGroup()
 
@@ -99,9 +99,9 @@ class ServerClientNode(Node):
         t.child_frame_id = 'camera_link_qais_smells'
 
         if self.transform_flag:
-            t.transform.translation.x = 0.14
+            t.transform.translation.x = 0.135
             t.transform.translation.y = 0.14
-            t.transform.translation.z = 0.598
+            t.transform.translation.z = 0.605
             t.transform.rotation.x = -0.682
             t.transform.rotation.y = 0.682
             t.transform.rotation.z = -0.191

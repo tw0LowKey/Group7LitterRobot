@@ -11,7 +11,6 @@ import sensor_msgs_py.point_cloud2 as pc2
 from visualization_msgs.msg import MarkerArray
 from piper_msgs.srv import PickPlaceRequest
 from ament_index_python.packages import get_package_share_directory
-from rclpy.executors import ExternalShutdownException
 
 # ── Gripper parameters ───────────────────────────────
 GRIPPER_WIDTH_MIN = 0.001
@@ -22,30 +21,28 @@ GRIPPER_PALM_THICK = 0.024
 GRIPPER_WIDTH_Y = 0.04
 GRIPPER_BODY_DEPTH = 0.145
 GRIPPER_PALM_EXTRA_X = 0.025
+GRIPPER_TARGET_PENETRATION = GRIPPER_FINGER_LENGTH * (4/10)
 
 GRIPPER_SHAFT_DEPTH = GRIPPER_BODY_DEPTH - GRIPPER_PALM_THICK
 GRIPPER_PALM_WIDTH_Y = 0.075
 GRIPPER_SHAFT_RADIUS = 0.04
 GRASP_CONTACT_DEPTH = 0.01
 
-PENETRATION_FRACS = [0.2, 0.3, 0.4]  # fraction of GRIPPER_FINGER_LENGTH; deeper = higher score
+GRIPPER_STANDOFF = GRIPPER_FINGER_LENGTH - GRIPPER_TARGET_PENETRATION
 
-GROUND_PLANE_OFFSET = -0.005
-GRASS_PLANE_OFFSET = -0.035
-N_ANCHORS = 400
+GROUND_PLANE_OFFSET = -0.02
+N_ANCHORS = 500
 NORMAL_K = 50
-REACHABILITY_RADIUS = 0.4
+REACHABILITY_RADIUS = 0.6
 
-_CAMERA_TRANSLATION = np.array([0.135, 0.14, 0.605])
+_CAMERA_TRANSLATION = np.array([0.14, 0.13, 0.600])
 _CAMERA_ROTATION    = np.array([0.0, 0.479, 0.0, 0.878])  # [x, y, z, w]
 
-W_BODY        = 0.28
-W_SYM         = 0.26
-W_FRICTION    = 0.26
-W_DEPTH       = 0.2
-W_GRASS       = 0.8
+W_BODY        = 0.34
+W_SYM         = 0.33
+W_FRICTION    = 0.33
 
-TOP_K = 15
+TOP_K = 20
 PROCESS_EVERY_N = 1
 
 
@@ -111,21 +108,6 @@ class GraspNode(Node):
             self.get_logger().warn(
                 "No ground plane file found — ground collision disabled, "
                 "using world Z as up vector."
-            )
-
-        self._grass_plane = None
-        plane_path = os.path.join(get_package_share_directory('computer_vision'), 'ground_plane.npy')
-        if os.path.exists(plane_path):
-            self._grass_plane = np.load(plane_path)
-            self._grass_plane[3] += GRASS_PLANE_OFFSET
-            self.get_logger().info(
-                f"Loaded grass plane (offset {GRASS_PLANE_OFFSET*100:.1f}cm into ground): "
-                f"[a={self._grass_plane[0]:.4f}, b={self._grass_plane[1]:.4f}, "
-                f"c={self._grass_plane[2]:.4f}, d={self._grass_plane[3]:.4f}]"
-            )
-        else:
-            self.get_logger().warn(
-                "No grass plane file found — grass collision disabled, "
             )
 
         self.pc_sub = self.create_subscription(
@@ -218,11 +200,10 @@ class GraspNode(Node):
 
         return None
 
-    def score_grasp(self, points, grasp_pos, grasp_rot, penetration_frac):
+    def score_grasp(self, points, grasp_pos, grasp_rot):
         pts_local = (points - grasp_pos) @ grasp_rot
         x, y, z = pts_local[:, 0], pts_local[:, 1], pts_local[:, 2]
         half_w = GRIPPER_WIDTH_MAX / 2.0
-        outer_x = half_w + GRIPPER_FINGER_THICK
 
         in_env = (z >= 0.0) & (z <= GRIPPER_FINGER_LENGTH)
         in_volume = in_env & (x >= -half_w) & (x <= half_w)
@@ -245,38 +226,7 @@ class GraspNode(Node):
         approach_axis = grasp_rot[:, 2]
         friction_score = max(0.0, float(-np.dot(approach_axis, self._up)))
 
-        grass_collision = 1
-
-        if self._grass_plane is not None:
-            a, b, c, d = self._grass_plane
-            corners_local = np.array([
-                [ outer_x,                        GRIPPER_WIDTH_Y/2,       GRIPPER_FINGER_LENGTH],
-                [ outer_x,                        -GRIPPER_WIDTH_Y/2,      GRIPPER_FINGER_LENGTH],
-                [-outer_x,                        GRIPPER_WIDTH_Y/2,       GRIPPER_FINGER_LENGTH],
-                [-outer_x,                        -GRIPPER_WIDTH_Y/2,      GRIPPER_FINGER_LENGTH],
-                [ outer_x + GRIPPER_PALM_EXTRA_X,  GRIPPER_PALM_WIDTH_Y/2,  0.0],
-                [ outer_x + GRIPPER_PALM_EXTRA_X, -GRIPPER_PALM_WIDTH_Y/2,  0.0],
-                [-outer_x - GRIPPER_PALM_EXTRA_X,  GRIPPER_PALM_WIDTH_Y/2,  0.0],
-                [-outer_x - GRIPPER_PALM_EXTRA_X, -GRIPPER_PALM_WIDTH_Y/2,  0.0],
-                [ outer_x + GRIPPER_PALM_EXTRA_X,  GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_PALM_THICK],
-                [ outer_x + GRIPPER_PALM_EXTRA_X, -GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_PALM_THICK],
-                [-outer_x - GRIPPER_PALM_EXTRA_X,  GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_PALM_THICK],
-                [-outer_x - GRIPPER_PALM_EXTRA_X, -GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_PALM_THICK],
-                [ outer_x,                         GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_BODY_DEPTH],
-                [ outer_x,                        -GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_BODY_DEPTH],
-                [-outer_x,                         GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_BODY_DEPTH],
-                [-outer_x,                        -GRIPPER_PALM_WIDTH_Y/2, -GRIPPER_BODY_DEPTH],
-            ])
-            corners_world = grasp_pos + corners_local @ grasp_rot.T
-            signed_dists = corners_world @ np.array([a, b, c]) + d
-            if np.any(signed_dists < 0.0):
-                grass_collision = W_GRASS * (1 - penetration_frac)
-                depth_score = 0.0
-            else:
-                depth_range = PENETRATION_FRACS[-1] - PENETRATION_FRACS[0]
-                depth_score = (penetration_frac) / depth_range
-
-        return ((W_BODY * body_score + W_SYM * sym_score + W_FRICTION * friction_score + W_DEPTH * depth_score)*grass_collision)
+        return (W_BODY * body_score + W_SYM * sym_score + W_FRICTION * friction_score)
 
     def _estimate_normal(self, anchor: np.ndarray, points: np.ndarray) -> np.ndarray:
         dists = np.linalg.norm(points - anchor, axis=1)
@@ -305,6 +255,10 @@ class GraspNode(Node):
             z_axis = self._estimate_normal(anchor, points)
             z_axis = -z_axis
 
+            # penetration_frac = np.random.choice([0.1, 0.2, 0.3, 0.4])
+            # GRIPPER_STANDOFF = GRIPPER_FINGER_LENGTH * (1.0 - penetration_frac)
+            grasp_pos = anchor - z_axis * GRIPPER_STANDOFF
+
             tmp = np.array([1.0, 0.0, 0.0])
             if abs(np.dot(tmp, z_axis)) > 0.9:
                 tmp = np.array([0.0, 1.0, 0.0])
@@ -323,11 +277,7 @@ class GraspNode(Node):
                 y_axis /= np.linalg.norm(y_axis)
 
                 grasp_rot = np.stack([x_axis, y_axis, z_axis], axis=1)
-
-                for penetration_frac in PENETRATION_FRACS:
-                    standoff = GRIPPER_FINGER_LENGTH * (1.0 - penetration_frac)
-                    grasp_pos = anchor - z_axis * standoff
-                    candidates.append((grasp_pos, grasp_rot, penetration_frac))
+                candidates.append((grasp_pos, grasp_rot))
 
         return candidates
 
@@ -432,12 +382,12 @@ class GraspNode(Node):
         scored_candidates = []
 
         self.get_logger().info(f"Generated {len(candidates)} candidates, scoring and filtering...")
-        for grasp_pos, grasp_rot, penetration_frac in candidates:
+        for grasp_pos, grasp_rot in candidates:
             reason = self._feasibility_reason(points, grasp_pos, grasp_rot)
             if reason is not None:
                 reject_counts[reason] += 1
                 continue
-            score = self.score_grasp(points, grasp_pos, grasp_rot, penetration_frac)
+            score = self.score_grasp(points, grasp_pos, grasp_rot)
             scored_candidates.append((score, grasp_pos, grasp_rot))
         score_time = time.time() - gen_start
 
@@ -538,18 +488,13 @@ class GraspNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = GraspNode()
-
     try:
         rclpy.spin(node)
-
-    except (KeyboardInterrupt, ExternalShutdownException):
+    except KeyboardInterrupt:
         pass
-
     finally:
         node.destroy_node()
-
-        if rclpy.ok():
-            rclpy.shutdown()
+        rclpy.shutdown()
 
 
 if __name__ == "__main__":

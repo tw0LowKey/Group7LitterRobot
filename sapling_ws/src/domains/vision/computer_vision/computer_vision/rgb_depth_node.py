@@ -13,6 +13,7 @@ from sensor_msgs.msg import CameraInfo, Image, PointCloud2, PointField
 from ultralytics import YOLO
 from ament_index_python.packages import get_package_share_directory
 from geometry_msgs.msg import PoseStamped
+from rclpy.executors import ExternalShutdownException
 
 os.environ["OPEN3D_CPU_RENDERING"] = "true"
 os.environ["DISPLAY"] = ""
@@ -100,7 +101,7 @@ class RGBDepthNode(Node):
 
         model_path = os.path.join(
             get_package_share_directory('computer_vision'),
-            'models', 'Sem2Model_best_1280.engine'
+            'models', 'Model_1_engine_2.engine'
         )
         self.model = YOLO(model_path, task='segment')
 
@@ -109,7 +110,7 @@ class RGBDepthNode(Node):
         self.info_sub  = Subscriber(self, CameraInfo, '/camera/color/camera_info')
 
         self.sync = ApproximateTimeSynchronizer(
-            [self.rgb_sub, self.depth_sub, self.info_sub], queue_size=3, slop=0.03
+            [self.rgb_sub, self.depth_sub, self.info_sub], queue_size=3, slop=0.2
         )
         self.sync.registerCallback(self.synced_callback)
 
@@ -239,17 +240,21 @@ class RGBDepthNode(Node):
         self.last_callback_time = current_time
         self.get_logger().info("Mask End")
 
-
 def main(args=None):
     rclpy.init(args=args)
     node = RGBDepthNode()
+
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
+
     finally:
         node.destroy_node()
-        rclpy.shutdown()
+
+        if rclpy.ok():
+            rclpy.shutdown()
 
 
 if __name__ == "__main__":

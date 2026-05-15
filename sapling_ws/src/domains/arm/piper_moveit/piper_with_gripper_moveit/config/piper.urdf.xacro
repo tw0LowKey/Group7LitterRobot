@@ -6,7 +6,7 @@
     <xacro:include filename="$(find sapling_description)/urdf/sapling_description.urdf.xacro" />
 
     <!-- Import control_xacro -->
-    <xacro:include filename="piper.ros2_control.xacro" />
+    <xacro:include filename="piper_ros2_control.xacro" />
 
 
     <xacro:piper_ros2_control name="FakeSystem" initial_positions_file="$(arg initial_positions_file)"/>

@@ -4,3 +4,7 @@ depth_width: 1024
 depth_height: 1024
 color_width: 1920
 color_height: 1080
+
+enable_accel: true
+enable_gyro: true
+enable_sync_output_accel_gyro: true
