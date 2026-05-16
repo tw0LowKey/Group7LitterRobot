@@ -31,7 +31,7 @@ GRASP_CONTACT_DEPTH = 0.01
 W_BODY        = 0.5
 W_SYM         = 0.2
 W_PENETRATION = 0.2
-W_FRICTION    = 0.1
+W_UP          = 0.1
 
 TOP_K = 10
 PROCESS_EVERY_N = 3
@@ -209,7 +209,7 @@ class RobustGraspNode(Node):
         friction_score = (1.0 - lateral_fraction) * downward_score + lateral_fraction * lateral_score
 
         return (W_BODY * body_score + W_SYM * sym_score
-                + W_PENETRATION * penetration_score + W_FRICTION * friction_score)
+                + W_PENETRATION * penetration_score + W_UP * friction_score)
 
     def _ground_clearance(self, points: np.ndarray) -> float:
         if self._ground_plane is None:

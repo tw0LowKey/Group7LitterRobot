@@ -40,7 +40,7 @@ _CAMERA_ROTATION    = np.array([0.0, 0.479, 0.0, 0.878])  # [x, y, z, w]
 
 W_BODY        = 0.34
 W_SYM         = 0.33
-W_FRICTION    = 0.33
+W_UP          = 0.33
 
 TOP_K = 20
 PROCESS_EVERY_N = 1
@@ -226,7 +226,7 @@ class GraspNode(Node):
         approach_axis = grasp_rot[:, 2]
         friction_score = max(0.0, float(-np.dot(approach_axis, self._up)))
 
-        return (W_BODY * body_score + W_SYM * sym_score + W_FRICTION * friction_score)
+        return (W_BODY * body_score + W_SYM * sym_score + W_UP * friction_score)
 
     def _estimate_normal(self, anchor: np.ndarray, points: np.ndarray) -> np.ndarray:
         dists = np.linalg.norm(points - anchor, axis=1)

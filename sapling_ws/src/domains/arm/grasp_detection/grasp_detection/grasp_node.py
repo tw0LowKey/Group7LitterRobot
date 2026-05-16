@@ -41,7 +41,7 @@ _CAMERA_ROTATION    = np.array([0.0, 0.479, 0.0, 0.878])  # [x, y, z, w]
 
 W_BODY        = 0.28
 W_SYM         = 0.26
-W_FRICTION    = 0.26
+W_UP          = 0.26
 W_DEPTH       = 0.2
 W_GRASS       = 0.8
 
@@ -276,7 +276,7 @@ class GraspNode(Node):
                 depth_range = PENETRATION_FRACS[-1] - PENETRATION_FRACS[0]
                 depth_score = (penetration_frac) / depth_range
 
-        return ((W_BODY * body_score + W_SYM * sym_score + W_FRICTION * friction_score + W_DEPTH * depth_score)*grass_collision)
+        return ((W_BODY * body_score + W_SYM * sym_score + W_UP * friction_score + W_DEPTH * depth_score)*grass_collision)
 
     def _estimate_normal(self, anchor: np.ndarray, points: np.ndarray) -> np.ndarray:
         dists = np.linalg.norm(points - anchor, axis=1)
