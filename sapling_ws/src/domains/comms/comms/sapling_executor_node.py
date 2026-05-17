@@ -113,18 +113,20 @@ class ExecutorNode(Node):
 			payload = data["payload"]
 
 			# Handle known commands
-			if cmdName == "movement":
-				self.executeMovement(payload)
-			elif cmdName == "areaCoords":
+			if cmdName == "areaCoords":
 				self.executeAreaCoords(payload)
+			elif cmdName == "setCameraFeedStatus":
+				self.setCameraFeedStatus(payload)
+			elif cmdName == "movement":
+				self.executeMovement(payload)
 			elif cmdName == "resumeAuto":
-				self.executeResumeAuto()
-			elif cmdName == "toggleArm":
-				self.executeToggleArm()
-			elif cmdName == "soundBeeper":
-				self.executeSoundBeeper()
+				self.executeResumeAuto(payload)
+			elif cmdName == "setArmStatus":
+				self.executeToggleArm(payload)
+			elif cmdName == "setBeeperStatus":
+				self.executeSoundBeeper(payload)
 			elif cmdName == "returnToStart":
-				self.executeReturnToStart()
+				self.executeReturnToStart(payload)
 			elif cmdName == "sendLeaderToFollower":
 				self.sendLeaderToFollowerRx(payload)
 			elif cmdName == "sendFollowerToLeader":
@@ -220,7 +222,6 @@ class ExecutorNode(Node):
 	def heartbeatTimerCallback(self):
 		if self.protocol is None:
 			return
-		self.get_logger().warn(f"{self.batteryPercentage}, {self.lat}, {self.lng}")
 
 		encodedPacket = encodePacket(
 			self.protocol,
@@ -281,16 +282,19 @@ class ExecutorNode(Node):
 
 		return response
 
-	def executeResumeAuto(self):
+	def setCameraFeedStatus(self, payload):
+		self.get_logger().debug("EXECUTING: Setting Camera Feed")
+
+	def executeResumeAuto(self, payload):
 		self.get_logger().debug("EXECUTING: Resume Autonomous Navigation")
 
-	def executeToggleArm(self):
+	def executeToggleArm(self, payload):
 		self.get_logger().debug("EXECUTING: Toggle Manipulator Arm")
 
-	def executeSoundBeeper(self):
+	def executeSoundBeeper(self, payload):
 		self.get_logger().debug("EXECUTING: Sound On-Board Beeper")
 
-	def executeReturnToStart(self):
+	def executeReturnToStart(self, payload):
 		self.get_logger().debug("EXECUTING: Return to Start Service")
 
 		req = Trigger.Request()

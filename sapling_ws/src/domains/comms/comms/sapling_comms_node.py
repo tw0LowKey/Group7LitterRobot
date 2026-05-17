@@ -1,16 +1,16 @@
-
 import adafruit_rfm9x
 import asyncio
 import board
 import busio
 import digitalio
 import rclpy
-import struct
 from bleak.backends.characteristic import BleakGATTCharacteristic
 from bless import BlessServer, GATTCharacteristicProperties, GATTAttributePermissions
 from comms.sapling_shared import decodePacket
 from json import dumps, loads, JSONDecodeError
 from os import environ
+from pprint import pformat
+from queue import Queue, Empty
 from rclpy.node import Node
 from sapling_interfaces.msg import LoraTransmission
 from sapling_interfaces.srv import AreaCoords
@@ -24,27 +24,40 @@ CHAR_UUID = "92eda5fb-c187-4f41-aaf2-3931b9cb4c56"
 
 class CommsNode(Node):
 	def __init__(self, btName: str, serviceUuid: str, charUuid: str) -> None:
-		# Initialise the ROS 2 Node
 		super().__init__("sapling_comms_node")
 
-		self.secretKey = None
-		self.loraNodeId = None
-		self.loraRadio = None
+		# Attributes
 		self.protocol = None
-		self.server = None
+		self.secretKey = None
 
+		# Bluetooth Attributes
+		self.btBuffer = b""
 		self.btName = btName
 		self.charUuid = charUuid
 		self.provisionedEvent = None
+		self.server = None
 		self.serviceUuid = serviceUuid
-		self.btBuffer = b""
+
+		# LoRa Attributes
+		self.loraNodeId = None
+		self.loraRadio = None
+		self.loraRunning = True
+		self.loraTxQueue = Queue()
 
 		# Initialise the LoRa radio module
 		self.initLora()
 
-		# Create the necessary ROS2 publishers
+		# Publishers
 		self.loraRxPublisher = self.create_publisher(String, "/comms/lora_rx", 10)
 		self.protocolPublisher = self.create_publisher(String, "/comms/comms_protocol", 10)
+
+		# Subscribers
+		self.loraTxSub = self.create_subscription(
+			LoraTransmission,
+			"/comms/lora_tx",
+			self.loraTxCallback,
+			10
+		)
 
 	async def startBleProvisioning(self) -> None:
 		""" Starts BT advertising until the secret key is received """
@@ -83,24 +96,25 @@ class CommsNode(Node):
 				# Attempt to decode and parse the current buffer
 				payload = loads(self.btBuffer.decode("utf-8"))
 			except (UnicodeDecodeError, JSONDecodeError):
-				# Not enough data yet or invalid encoding, wait for next chunk
+				# Not enough data yet or invalid encoding - wait for next chunk
 				return
 
 			# If we reach here, we have a complete JSON object
 			self.loraNodeId = payload.get("loraNodeId")
 			self.secretKey = payload.get("secretKey")
 			self.protocol = payload.get("protocol")
-			self.get_logger().info(f"Provisioned Data: ID={self.loraNodeId}, Key={self.secretKey}, Protocol={self.protocol}")
+			self.get_logger().info(f"Provisioned Data:\n\tID={self.loraNodeId},\n\tKey={self.secretKey},\n\tProtocol={pformat(self.protocol, sort_dicts=False)}")
 
 			msg = String()
 			msg.data = dumps(self.protocol)
 			self.protocolPublisher.publish(msg)
 
-			# Clear the buffer for future use
+			# Clear the buffer
 			self.btBuffer = b""
 
 			# Signal the script to stop BLE and transition to LoRa
 			self.server.loop.call_soon_threadsafe(self.provisionedEvent.set)
+
 		except Exception as e:
 			self.get_logger().error(f"BLE Callback Error: {e}")
 
@@ -109,45 +123,55 @@ class CommsNode(Node):
 
 		try:
 			spi = busio.SPI(board.SCK, MOSI=board.MOSI, MISO=board.MISO)
-			cs = digitalio.DigitalInOut(board.CE0)
-			reset = digitalio.DigitalInOut(board.D6)
+			cs = digitalio.DigitalInOut(board.CE1)
+			reset = digitalio.DigitalInOut(board.D13)
 
-			reset.direction = digitalio.Direction.OUTPUT
-			reset.value = False
-			sleep(0.1)
-			reset.value = True
-			sleep(0.1)
-
-			self.loraRadio = adafruit_rfm9x.RFM9x(spi, cs, reset, 433.0, baudrate=1000000)
+			self.loraRadio = adafruit_rfm9x.RFM9x(spi, cs, reset, 433.0)
 			self.loraRadio.tx_power = 23 # Max
 
-			self.loraTxSub = self.create_subscription(
-				LoraTransmission,
-				"/comms/lora_tx",
-				self.loraTxCallback,
-				10
-			)
-
-			self.get_logger().info(f"LoRa Radio Initialised")
+			self.get_logger().info("LoRa Radio Initialised")
 
 		except Exception as e:
 			self.get_logger().fatal(f"LoRa Hardware Error: {e}")
 			exit()
 
+	def loraTxCallback(self, msg: LoraTransmission) -> None:
+		if self.loraRadio is not None:
+			data = msg.data.encode("utf-8")
+
+			if 0 < len(data) <= 252:
+				self.loraTxQueue.put((data, msg.destination, ))
+				self.get_logger().debug(f"LoRa Tx Queued: {msg.data}")
+			else:
+				self.get_logger().warn(f"LoRa Tx: Invalid data length ({len(data)}) - Skipping")
+
 	def startLoraThread(self) -> None:
 		""" Spawns a background thread so the blocking LoRa radio doesn't stall ROS 2 callbacks """
 
-		self.loraThread = Thread(target=self.loraReceiveLoop, daemon=True)
+		self.loraThread = Thread(target=self.loraLoop, daemon=True)
 		self.loraThread.start()
 
-	def loraReceiveLoop(self) -> None:
+	def loraLoop(self) -> None:
 		""" Transitions the node into LoRa operational mode (runs in a separate thread) """
 
 		self.loraRadio.node = self.loraNodeId
 		self.get_logger().info(f"LoRa Radio listening as Node {self.loraNodeId}")
 
-		while rclpy.ok():
-			packet = self.loraRadio.receive(with_ack=True, timeout=1.0)
+		while rclpy.ok() and self.loraRunning:
+			# Handle the transmitting
+			try:
+				while True:
+					data, destination = self.loraTxQueue.get_nowait()
+
+					self.loraRadio.destination = destination
+					self.loraRadio.send_with_ack(data)
+
+					self.get_logger().debug(f"LoRa Message Transmitted: {data}")
+			except Empty:
+				pass
+
+			# Handle the receiving
+			packet = self.loraRadio.receive(with_ack=True, timeout=0.1)
 
 			if packet is not None:
 				try:
@@ -161,21 +185,11 @@ class CommsNode(Node):
 					msg = String()
 					msg.data = dumps(decodedPacket)
 					self.loraRxPublisher.publish(msg)
+
 					self.get_logger().info(f"Payload decoded: {cmdName} -> {payload}")
 
 				except Exception as e:
 					self.get_logger().error(f"Payload decode error: {e}")
-
-	def loraTxCallback(self, msg: LoraTransmission) -> None:
-		if self.loraRadio is not None:
-			data = msg.data.encode("utf-8")
-
-			if 0 < len(data) <= 252:
-				self.loraRadio.destination = msg.destination
-				self.loraRadio.send_with_ack(data)
-				self.get_logger().info(f"LoRa Tx: {msg.data}")
-			else:
-				self.get_logger().warn(f"LoRa Tx: Invalid data length ({len(data)}) - Skipping")
 
 def main(args=None) -> None:
 	rclpy.init(args=args)
