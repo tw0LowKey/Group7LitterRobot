@@ -14,7 +14,7 @@ class YamlObstaclePublisher(Node):
     def __init__(self):
         super().__init__('yaml_obstacle_publisher')
 
-        # ===== HARD CODED SETTINGS =====
+        
 
         self.yaml_file = "/home/ashutosh/scout_ws_2mini/src/rm_navigation/config/fixed_obstacles.yaml"
         self.topic_name = "/obstacle_points"
@@ -22,7 +22,7 @@ class YamlObstaclePublisher(Node):
         self.publish_rate = 2.0
         self.z_height = 0.0
 
-        # ===============================
+
 
         self.points = self.load_points_from_yaml(self.yaml_file)
 
@@ -40,7 +40,7 @@ class YamlObstaclePublisher(Node):
         self.get_logger().info(f"Topic: {self.topic_name}")
         self.get_logger().info(f"Frame: {self.frame_id}")
 
-    # --------------------------
+
 
     def load_points_from_yaml(self, yaml_file):
 
@@ -68,7 +68,7 @@ class YamlObstaclePublisher(Node):
 
         return loaded_points
 
-    # --------------------------
+
 
     def create_cloud_xyz32(self, points):
 
@@ -117,7 +117,6 @@ class YamlObstaclePublisher(Node):
 
         return cloud
 
-    # --------------------------
 
     def publish_points(self):
 
@@ -126,7 +125,6 @@ class YamlObstaclePublisher(Node):
         self.publisher.publish(cloud_msg)
 
 
-# ==============================
 
 def main(args=None):
 
