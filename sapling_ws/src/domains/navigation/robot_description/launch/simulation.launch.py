@@ -85,8 +85,7 @@ def generate_launch_description():
             PythonLaunchDescriptionSource(
                 os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
             ),
-            # Added -g flag to start Gazebo without GUI if you are having X11/Wayland errors, 
-            # or remove -g to see the window.
+
             launch_arguments={'gz_args': '-r empty.sdf'}.items(), 
         ),
 
