@@ -282,7 +282,7 @@ class FilterNode(Node):
 
     def pc_callback(self, pc_msg):
         self.get_logger().info(f"Received PointCloud2 message with {pc_msg.width * pc_msg.height} points")
-        t_start = time.perf_counter()  # Start Total Timer
+        t_start = time.perf_counter() 
         
         self._msg_count += 1
         
@@ -298,7 +298,6 @@ class FilterNode(Node):
         if self._ground_plane is not None:
             self.ground_marker_pub.publish(self._build_ground_plane_marker(pc_msg.header))
 
-        # --- Time PointCloud Parsing ---
         t_parse_start = time.perf_counter()
         points_list = list(pc2.read_points(
             pc_msg,
@@ -314,7 +313,6 @@ class FilterNode(Node):
             nav_msg.data = False
             self.stop_nav.publish(nav_msg)
 
-        # --- Time Filtering/Logic ---
         t_logic_start = time.perf_counter()
         xyz = np.array([[p[0], p[1], p[2]] for p in points_list], dtype=np.float32)
         raw_ids = np.array([p[3] for p in points_list], dtype=np.float32)
@@ -358,7 +356,6 @@ class FilterNode(Node):
         
         t_end = time.perf_counter()
 
-        # --- Summary Print ---
         total = (t_end - t_start) * 1000.0
         parse = (t_parse_end - t_parse_start) * 1000.0
         logic = (t_end - t_logic_start) * 1000.0
