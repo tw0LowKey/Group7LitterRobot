@@ -10,7 +10,6 @@ int main(int argc, char** argv)
 
     auto node = std::make_shared<rclcpp::Node>("place_server_node", node_options);
 
-    // CRITICAL: We pass "arm" here because we are controlling the main arm group
     PlaceControl place_control(node, "arm");
 
     rclcpp::executors::MultiThreadedExecutor executor;

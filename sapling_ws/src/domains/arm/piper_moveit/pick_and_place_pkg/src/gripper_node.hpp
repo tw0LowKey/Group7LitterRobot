@@ -11,7 +11,6 @@ class GripperControl
 public:
     GripperControl(rclcpp::Node::SharedPtr node, const std::string& group_name);
 
-    // 1 (true) = open, 0 (false) = close
     bool set_gripper_state(bool state);
 
 private:

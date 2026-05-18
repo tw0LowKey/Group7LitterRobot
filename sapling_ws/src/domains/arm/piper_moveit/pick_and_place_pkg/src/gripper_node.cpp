@@ -21,16 +21,13 @@ void GripperControl::handle_service_request(
     const std::shared_ptr<piper_msgs::srv::SetGripWidth::Request> request,
     std::shared_ptr<piper_msgs::srv::SetGripWidth::Response> response)
 {
-    // Print what we received (Translating the boolean to text for the console)
     RCLCPP_INFO(node_->get_logger(), "Gripper command received: %s", request->state ? "OPEN (True)" : "CLOSE (False)");
     
-    // Pass the boolean to our execution function
     response->success = set_gripper_state(request->state);
 }
 
 bool GripperControl::set_gripper_state(bool state)
 {
-    // Translate the boolean (1/0) back into the named targets ("open"/"close") MoveIt needs
     std::string target_name = state ? "open" : "close";
     
     move_group_->setNamedTarget(target_name);

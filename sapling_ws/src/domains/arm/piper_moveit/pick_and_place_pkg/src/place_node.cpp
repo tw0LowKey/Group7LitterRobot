@@ -21,7 +21,6 @@ void PlaceControl::handle_service_request(
     const std::shared_ptr<piper_msgs::srv::MoveBehind::Request> request,
     std::shared_ptr<piper_msgs::srv::MoveBehind::Response> response)
 {
-    // We cast request to void to tell the compiler to ignore it, since it's empty
     (void)request; 
     
     RCLCPP_INFO(node_->get_logger(), "Return home command received.");
