@@ -41,8 +41,7 @@ class GPSLeaderBehaviorNode(Node):
 
     EARTH_RADIUS = 6371000.0
 
-    # Sanity-check: any waypoint farther than this from the datum is
-    # almost certainly a frame-conversion bug (ECEF/UTM leaking in).
+
     MAX_WAYPOINT_DISTANCE_M = 10000.0
 
     def __init__(self):
@@ -68,7 +67,7 @@ class GPSLeaderBehaviorNode(Node):
         self.declare_parameter("area_coords_service", "/comms/area_coords")
         self.declare_parameter("area_poll_period", 2.0)
 
-        # Datum — MUST match navsat_transform's datum parameter exactly.
+        
         self.declare_parameter("datum_lat", 53.47249444)
         self.declare_parameter("datum_lon", -2.23482724)
 
@@ -88,11 +87,7 @@ class GPSLeaderBehaviorNode(Node):
         self.datum_lat = self.get_parameter("datum_lat").value
         self.datum_lon = self.get_parameter("datum_lon").value
 
-        # ================================================================
-        # Internal state
-        # ================================================================
 
-        # Each waypoint: (lat, lon, x, y, qz, qw) — orientation pre-computed.
         self.waypoints = []
 
         self.state = self.STATE_WAITING_MISSION
@@ -205,24 +200,18 @@ class GPSLeaderBehaviorNode(Node):
             f"Datum (map origin):       lat={self.datum_lat:.8f}, lon={self.datum_lon:.8f}"
         )
 
-        # Self-test the conversion at startup so any wiring bug is caught
-        # before we ever send a goal. Datum->datum must give (0, 0).
+        
         test_x, test_y = self.gps_to_map_xy(self.datum_lat, self.datum_lon)
         self.get_logger().info(
             f"Conversion self-test:     datum->XY = ({test_x:.4f}, {test_y:.4f}) "
             f"[expected (0.0000, 0.0000)]"
         )
-        # if abs(test_x) > 0.01 or abs(test_y) > 0.01:
-        #     self.get_logger().error(
-        #         "Conversion self-test FAILED — gps_to_map_xy is broken!"
-        #     )
+
 
         self.get_logger().info(f"State:                    {self.state}")
         self.get_logger().info("Polling executor for area coordinates...")
 
-    # ================================================================
-    # Maths helpers
-    # ================================================================
+
 
     @staticmethod
     def quaternion_to_yaw(x, y, z, w):
@@ -343,12 +332,7 @@ class GPSLeaderBehaviorNode(Node):
 
         return waypoints
 
-    # ================================================================
-    # Pre-compute XY + orientation per waypoint.
-    # Matches waypoint_generator_node logic — orientation is set once
-    # per waypoint, using look-ahead at row transitions so the
-    # controller doesn't spin in place.
-    # ================================================================
+
 
     def build_waypoints_with_orientation(self, gps_waypoints):
         if len(gps_waypoints) == 0:
@@ -356,20 +340,7 @@ class GPSLeaderBehaviorNode(Node):
 
         xy_list = [self.gps_to_map_xy(lat, lon) for (lat, lon) in gps_waypoints]
 
-        # Guard against any waypoint that ended up absurdly far from the
-        # datum. With a correct local-ENU conversion this can never happen
-        # for a real field; if it does, refuse to load the mission so we
-        # don't send Nav2 a goal it cannot plan to.
-        # for i, (x, y) in enumerate(xy_list):
-        #     dist = math.hypot(x, y)
-        #     if dist > self.MAX_WAYPOINT_DISTANCE_M:
-        #         self.get_logger().error(
-        #             f"Waypoint {i + 1} is {dist:.0f} m from datum "
-        #             f"(XY = {x:.2f}, {y:.2f}). This is almost certainly a "
-        #             f"frame-conversion bug (UTM/ECEF leaking in). "
-        #             f"Refusing to load mission."
-        #         )
-        #         return []
+
 
         out = []
         n = len(gps_waypoints)
@@ -383,8 +354,6 @@ class GPSLeaderBehaviorNode(Node):
                 dx = next_x - x
                 dy = next_y - y
 
-                # If next step is mostly north/south (row transition),
-                # look ahead to the WP after to get the next row's direction
                 if abs(dy) > abs(dx) and i + 2 < n:
                     ahead_x, ahead_y = xy_list[i + 2]
                     heading = math.atan2(ahead_y - next_y, ahead_x - next_x)
@@ -395,7 +364,7 @@ class GPSLeaderBehaviorNode(Node):
                 qw = math.cos(heading / 2.0)
                 out.append((lat, lon, x, y, qz, qw))
             else:
-                # Final waypoint — reuse previous heading
+
                 if len(out) > 0:
                     prev_qz = out[-1][4]
                     prev_qw = out[-1][5]
@@ -591,9 +560,6 @@ class GPSLeaderBehaviorNode(Node):
                 self.state = self.STATE_NAVIGATING
                 self.get_logger().info("Resuming navigation.")
 
-    # ================================================================
-    # Goal sending — uses pre-computed XY + orientation
-    # ================================================================
 
     def send_next_waypoint(self):
         with self.lock:
@@ -610,18 +576,7 @@ class GPSLeaderBehaviorNode(Node):
 
         lat, lon, wp_x, wp_y, qz, qw = wp
 
-        # Final guard before handing a goal to Nav2 — if anything is
-        # absurdly out of range we abort the mission rather than spam
-        # the planner with off-costmap goals.
-        # if math.hypot(wp_x, wp_y) > self.MAX_WAYPOINT_DISTANCE_M:
-        #     self.get_logger().error(
-        #         f"Refusing to send WP {index + 1}: XY ({wp_x:.2f}, {wp_y:.2f}) "
-        #         f"is impossibly far from datum. Mission aborted."
-        #     )
-        #     with self.lock:
-        #         self.is_navigating = False
-        #         self.state = self.STATE_IDLE
-        #     return
+
 
         if not self.nav_client.wait_for_server(timeout_sec=5.0):
             self.get_logger().warn("Nav2 action server not available.")
