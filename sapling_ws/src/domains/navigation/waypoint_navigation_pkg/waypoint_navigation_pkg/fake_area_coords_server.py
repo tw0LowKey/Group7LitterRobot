@@ -21,16 +21,7 @@ class FakeAreaCoordsServer(Node):
     def area_coords_callback(self, request, response):
         response.success = True
 
-        # Reference/start point from your launch:
-        # origin_latitude  = 53.4668
-        # origin_longitude = -2.2339
-        #
-        # Fake area:
-        # 2 m forward/north
-        # 0.85 m left/west
-        #
-        # top-left = north-west corner
-        # bottom-right = start/origin corner
+
 
         response.top_left_latitude = 53.46681800
         response.top_left_longitude = -2.23393000
