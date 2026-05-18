@@ -91,7 +91,7 @@ def launch_setup(context, *args, **kwargs):
 
     ydlidar_launch = GroupAction(
         actions=[
-            # This environment variable only exists for the scope of this GroupAction
+          
             SetEnvironmentVariable('RCUTILS_LOGGING_MIN_SEVERITY', 'WARN'),
 
             IncludeLaunchDescription(
@@ -202,13 +202,11 @@ def launch_setup(context, *args, **kwargs):
         ),
     )
 
+
+
+
+
     # ============================================================
-    # RVIZ
-    # ============================================================
-
-
-
-        # ============================================================
     # INDOOR FAKE-GPS NAV2 PIPELINE
     # ============================================================
 
