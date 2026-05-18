@@ -12,7 +12,7 @@ def generate_launch_description():
     return LaunchDescription(
         [
             DeclareLaunchArgument(name="slam", default_value="true", description="Launch SLAM or launch localization and navigation", choices=["True", "False", "true", "false"],),
-            # Notice the default is now false for the real robot
+            
             DeclareLaunchArgument(name="simulation", default_value="false", description="Launch simulation with gazebo or launch real robot navigation", choices=["True", "False", "true", "false"],),
             DeclareLaunchArgument(name="localization", default_value="amcl", description="Launch localization with AMCL algorithm or SLAM toolbox for localization only", choices=["amcl", "slam_toolbox"],),
             OpaqueFunction(function=launch_setup),
@@ -24,12 +24,12 @@ def launch_setup(context, *args, **kwargs):
 
     nav2_launch_file = os.path.join(get_package_share_directory("rm_localization"), "launch", "bringup_launch.py")
     
-    # CHANGED: Pointing to the real robot params file we just made
+
     nav2_params_file = os.path.join(get_package_share_directory("rm_navigation"), "config", "nav2_real_params.yaml")
     
     map_yaml_file = os.path.join(get_package_share_directory("rm_navigation"), "maps", "warehouse/map_slam_v2.yaml")
     
-    # CHANGED: "use_sim_time" is now tied to the 'simulation' argument, not hardcoded to "true"
+
     nav2_slam_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(nav2_launch_file), 
         launch_arguments={
@@ -42,7 +42,7 @@ def launch_setup(context, *args, **kwargs):
         condition=IfCondition(PythonExpression(["'" , LaunchConfiguration("slam"), "' == 'true'"]))
     )
     
-    # CHANGED: "use_sim_time" is now tied to the 'simulation' argument
+
     nav2_localization_navigation_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(nav2_launch_file), 
         launch_arguments={
@@ -55,7 +55,7 @@ def launch_setup(context, *args, **kwargs):
         condition=IfCondition(PythonExpression(["'", LaunchConfiguration("slam") , "' == 'false'"]))
     )
     
-    # DELETED: static_tf (world -> map). SLAM must be the only thing publishing to the map frame!
+
 
     rviz_default_config_file = os.path.join(get_package_share_directory("rm_navigation"), "rviz", "nav2.rviz")
     rviz_node = Node(
@@ -66,5 +66,5 @@ def launch_setup(context, *args, **kwargs):
         arguments=["-d", rviz_default_config_file],
     )
     
-    # CHANGED: Removed static_tf from the return list
+
     return [nav2_slam_launch, nav2_localization_navigation_launch, rviz_node]
