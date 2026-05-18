@@ -128,9 +128,7 @@ class WaypointGeneratorNode(Node):
                 f"Reference point set: lat={self.ref_lat:.8f}, lon={self.ref_lon:.8f}"
             )
 
-    # ============================================================
-    # Maths helpers
-    # ============================================================
+
 
     def gps_to_xy(self, lat, lon):
         x = (
@@ -232,7 +230,6 @@ class WaypointGeneratorNode(Node):
             response.num_waypoints = 0
             return response
 
-        # Convert to PoseArray and publish
         pose_array = PoseArray()
         pose_array.header.frame_id = self.goal_frame
         pose_array.header.stamp = self.get_clock().now().to_msg()
@@ -248,8 +245,7 @@ class WaypointGeneratorNode(Node):
                 dx = next_x - x
                 dy = next_y - y
 
-                # If next waypoint is mostly north/south (row transition),
-                # look ahead to the waypoint after to get the row direction
+  
                 if abs(dy) > abs(dx) and i + 2 < len(gps_waypoints):
                     ahead_x, ahead_y = self.gps_to_xy(
                         gps_waypoints[i + 2][0], gps_waypoints[i + 2][1]
