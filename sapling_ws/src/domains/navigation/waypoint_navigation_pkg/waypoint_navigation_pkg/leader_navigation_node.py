@@ -185,7 +185,6 @@ class LeaderNavigationNode(Node):
             self.get_logger().warn("Received empty PoseArray — ignoring.")
             return
 
-        # Convert Pose list to PoseStamped list
         pose_stamped_list = []
         for pose in msg.poses:
             ps = PoseStamped()
@@ -223,7 +222,7 @@ class LeaderNavigationNode(Node):
 
         remaining = self.all_waypoints[start_index:]
 
-        # Refresh timestamps
+ 
         now = self.get_clock().now().to_msg()
         for ps in remaining:
              ps.header.stamp.sec = 0
@@ -270,7 +269,7 @@ class LeaderNavigationNode(Node):
         self.result_future.add_done_callback(self.follow_result_callback)
 
     def follow_feedback_callback(self, feedback_msg):
-        # feedback.current_waypoint is relative to the batch
+   
         relative_index = feedback_msg.feedback.current_waypoint
         absolute_index = self.active_batch_start_index + relative_index
 
@@ -292,8 +291,6 @@ class LeaderNavigationNode(Node):
             self.goal_handle = None
             self.result_future = None
 
-        # If we cancelled for pause, don't process the result here
-        # — resume_nav_callback will handle restarting
         if self.cancel_in_progress:
             self.get_logger().info("FollowWaypoints cancelled for pause.")
             with self.lock:
@@ -312,7 +309,7 @@ class LeaderNavigationNode(Node):
                 f"FollowWaypoints aborted at WP {self.current_waypoint_index + 1}. "
                 f"Skipping to next."
             )
-            # Skip the failed waypoint and continue
+
             with self.lock:
                 self.current_waypoint_index += 1
                 if self.current_waypoint_index >= len(self.all_waypoints):
@@ -325,9 +322,7 @@ class LeaderNavigationNode(Node):
             with self.lock:
                 self.state = self.STATE_IDLE
 
-    # ============================================================
-    # Pause / Resume
-    # ============================================================
+
 
     def pause_nav_callback(self, msg: Bool):
         if not msg.data:
@@ -366,10 +361,6 @@ class LeaderNavigationNode(Node):
         )
 
         self.start_batch_from_index(self.current_waypoint_index)
-
-    # ============================================================
-    # Sweep done
-    # ============================================================
 
     def publish_sweep_done(self):
         with self.lock:
