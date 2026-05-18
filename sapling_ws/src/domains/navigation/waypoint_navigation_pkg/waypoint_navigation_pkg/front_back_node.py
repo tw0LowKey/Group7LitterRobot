@@ -42,8 +42,7 @@ class FrontBackNode(Node):
         self.latest_odom = None
         self.sequence_active = False
         self.delay_timer = None
-        self.forward_distance = 4.0  # 400 cm
-
+        self.forward_distance = 4.0  
         self.get_logger().info(
             'Node started. Use /start_front_back to wait 30 s and move 4.0 m forward.'
         )
