@@ -18,29 +18,7 @@ from sapling_interfaces.msg import LeaderPose, FollowerStatus
 
 
 class GPSFollowerBehaviorNode(Node):
-    """
-    GPS follower behaviour node with litter pickup mode.
 
-    Uses two position sources:
-        - GPS: for inter-robot distance calculations (parking gap, trail
-          distance, resume). Both robots go through gps_to_xy with the
-          same reference point — same coordinate frame.
-        - Odom: for Nav2 goals. Nav2 operates in the odom/map frame.
-
-    When computing parking targets, the node:
-        1. Calculates the target in GPS-XY space (relative to leader GPS)
-        2. Converts to odom frame using the follower's GPS-odom offset
-        3. Sends the odom-frame target to Nav2
-
-    Subscribes:
-        /follower/odom                  — follower odom position + orientation
-        /follower/navsat (or /gps/fix)  — follower GPS for distance calculations
-        /comms/leader_to_follower_tx    — leader pose (GPS + orientation + call_bin)
-
-    Publishes:
-        /comms/follower_to_leader_tx    — follower status (every 0.5s)
-        /bin_ready                      — Bool, True when bin is in position
-    """
 
     STATE_FOLLOWING = "FOLLOWING"
     STATE_PARKING_APPROACH = "PARKING_APPROACH"
@@ -78,7 +56,6 @@ class GPSFollowerBehaviorNode(Node):
         self.declare_parameter("ref_lon", 0.0)
         self.declare_parameter("auto_ref", True)
 
-        # Read parameters
         self.breadcrumb_distance = self.get_parameter("breadcrumb_distance").value
         self.min_follow_distance = self.get_parameter("min_follow_distance").value
         self.approach_distance = self.get_parameter("approach_distance").value
@@ -110,10 +87,10 @@ class GPSFollowerBehaviorNode(Node):
         self.leader_position = None
         self.leader_yaw = None
 
-        # Follower GPS position (GPS-XY frame) — for distance calculations
+
         self.follower_gps_position = None
 
-        # Follower odom position (odom/map frame) — for Nav2 goals
+
         self.follower_odom_position = None
         self.follower_yaw = None
 
@@ -225,9 +202,7 @@ class GPSFollowerBehaviorNode(Node):
         self.get_logger().info(f"Resume distance:       {self.resume_distance}m")
         self.get_logger().info(f"State:                 {self.state}")
 
-    # ================================================================
-    # Maths helpers
-    # ================================================================
+
 
     @staticmethod
     def quaternion_to_yaw(x, y, z, w):
@@ -301,7 +276,6 @@ class GPSFollowerBehaviorNode(Node):
             return
         self.last_leader_seq = msg.seq
 
-        # Reference point from first leader message
         if self.auto_ref and not self.ref_set:
             self.ref_lat = msg.latitude
             self.ref_lon = msg.longitude
@@ -314,21 +288,19 @@ class GPSFollowerBehaviorNode(Node):
         if not self.ref_set:
             return
 
-        # Update leader position in GPS-XY frame
         x, y = self.gps_to_xy(msg.latitude, msg.longitude)
         self.leader_position = (x, y)
 
-        # Update leader yaw
         self.leader_yaw = self.quaternion_to_yaw(
             0.0, 0.0, msg.orientation_z, msg.orientation_w
         )
 
-        # Reset when litter is cleared (pickup complete)
+
         if not msg.call_bin:
             self.set_bin_ready(False)
             self.parked_for_current_call = False
 
-        # Handle call_bin while FOLLOWING -> start parking
+
         if msg.call_bin and self.state == self.STATE_FOLLOWING:
             self.get_logger().info("Call bin received — switching to PARKING mode.")
             with self.lock:
@@ -340,15 +312,15 @@ class GPSFollowerBehaviorNode(Node):
             self.set_bin_ready(False)
             return
 
-        # Handle call_bin while already WAITING
+
         if msg.call_bin and self.state == self.STATE_WAITING:
             if self.parked_for_current_call:
-                # Same call — already parked, stay put
+             
                 if not self.bin_is_ready:
                     self.set_bin_ready(True)
                 return
             else:
-                # New call — need to re-park behind leader
+          
                 self.get_logger().info("New call_bin — re-parking behind leader.")
                 with self.lock:
                     self.state = self.STATE_PARKING_APPROACH
@@ -356,14 +328,14 @@ class GPSFollowerBehaviorNode(Node):
                 self.set_bin_ready(False)
                 return
 
-        # Handle call_bin while mid-parking (PARKING_APPROACH or PARKING_FINAL)
+
         if msg.call_bin and self.state in (
             self.STATE_PARKING_APPROACH, self.STATE_PARKING_FINAL
         ):
-            # Already parking — let it finish
+    
             return
 
-        # Drop breadcrumbs (only in FOLLOWING state)
+        # Drop breadcrumbs 
         if self.state != self.STATE_FOLLOWING:
             return
         if self.last_breadcrumb_position is None:
@@ -468,17 +440,16 @@ class GPSFollowerBehaviorNode(Node):
             + self.follower_half_length
         )
 
-        # Leader position in odom frame
         leader_odom_x, leader_odom_y = self.gps_xy_to_odom(
             self.leader_position[0], self.leader_position[1]
         )
 
-        # Position directly behind the leader based on leader's heading
+
         behind_angle = self.leader_yaw + math.pi
         target_x = leader_odom_x + total_offset * math.cos(behind_angle)
         target_y = leader_odom_y + total_offset * math.sin(behind_angle)
 
-        # Check if already close enough to skip to phase 2
+      
         dx = target_x - self.follower_odom_position[0]
         dy = target_y - self.follower_odom_position[1]
         dist = math.sqrt(dx * dx + dy * dy)
@@ -522,17 +493,15 @@ class GPSFollowerBehaviorNode(Node):
             + self.follower_half_length
         )
 
-        # Leader position in odom frame
         leader_odom_x, leader_odom_y = self.gps_xy_to_odom(
             self.leader_position[0], self.leader_position[1]
         )
 
-        # Position directly behind the leader based on leader's heading
+
         behind_angle = self.leader_yaw + math.pi
         target_x = leader_odom_x + total_offset * math.cos(behind_angle)
         target_y = leader_odom_y + total_offset * math.sin(behind_angle)
 
-        # Orientation: face the leader
         angle_to_leader = math.atan2(
             leader_odom_y - target_y,
             leader_odom_x - target_x
@@ -548,7 +517,7 @@ class GPSFollowerBehaviorNode(Node):
         self.send_park_goal(target_x, target_y, q)
 
     def tick_waiting(self):
-        # Use GPS positions for resume distance (same frame)
+
         if self.leader_position is None or self.follower_gps_position is None:
             return
 
@@ -598,10 +567,10 @@ class GPSFollowerBehaviorNode(Node):
                 self.is_navigating = False
             return
 
-        # Breadcrumbs are already in odom frame
+
         target_odom_x, target_odom_y = target[0], target[1]
 
-        # Calculate heading from follower to breadcrumb
+
         if self.follower_odom_position is not None:
             dx = target_odom_x - self.follower_odom_position[0]
             dy = target_odom_y - self.follower_odom_position[1]
