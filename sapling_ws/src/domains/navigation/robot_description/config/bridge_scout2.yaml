@@ -42,7 +42,7 @@
   direction: GZ_TO_ROS
 
 # ---------------------------------------------------------
-# Joint States (Optional: if you add a joint state publisher to Gazebo)
+# Joint States 
 # ---------------------------------------------------------
 - ros_topic_name: "/joint_states"
   gz_topic_name: "/world/empty/model/scout_2/joint_state"
@@ -51,7 +51,7 @@
   direction: GZ_TO_ROS
 
 # ---------------------------------------------------------
-# Lidar (Matches your pointcloud_to_laserscan node)
+# Lidar 
 # ---------------------------------------------------------
 # 3D Lidar Pointcloud
 - ros_topic_name: "/points"
