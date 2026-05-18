@@ -17,31 +17,7 @@ from sapling_interfaces.msg import LeaderPose, FollowerStatus
 
 
 class FollowerCoordinationNode(Node):
-    """
-    Bridges between the litter handler node and the follower robot
-    via LeaderPose / FollowerStatus messages.
 
-    Subscribes:
-        /odom                         — leader orientation
-        /gps/fix                      — leader GPS lat/lon for broadcast
-        /call_bin                     — from litter handler (at litter, need bin)
-        /comms/follower_to_leader_tx  — follower status
-
-    Publishes:
-        /comms/leader_to_follower_tx  — leader pose + call_bin flag (every 0.5s)
-        /start_navigation             — signal to litter handler (pickup done)
-        /follower_status              — local echo of follower status
-
-    Flow:
-        1. Litter handler publishes /call_bin when at litter
-        2. This node sets call_bin flag in LeaderPose broadcast
-        3. Follower sees flag, parks behind leader
-        4. Follower publishes parked status
-        5. This node waits for fresh parked=True AFTER call_bin was set
-        6. Starts pickup timer
-        7. Timer fires → clears flag → publishes /start_navigation
-        8. Litter handler checks queue and either continues or resumes waypoints
-    """
 
     def __init__(self):
         super().__init__("follower_coordination_node")
@@ -86,8 +62,6 @@ class FollowerCoordinationNode(Node):
         self.leader_seq = 0
         self.pickup_timer = None
 
-        # Track whether follower has parked AFTER the current call_bin
-        # Prevents reacting to stale parked=True from a previous call
         self.call_bin_seq = 0
         self.last_follower_parked_false_seen = True
 
@@ -195,9 +169,6 @@ class FollowerCoordinationNode(Node):
         self.get_logger().info(f"Pickup wait time:       {self.pickup_wait_time}s")
         self.get_logger().info(f"Broadcast rate:         every 0.5s")
 
-    # ============================================================
-    # Broadcast leader pose (every 0.5s)
-    # ============================================================
 
     def broadcast_leader_pose(self):
         if self.leader_lat is None or self.leader_lon is None:
@@ -245,11 +216,8 @@ class FollowerCoordinationNode(Node):
                 self.call_bin_flag = True
                 self.call_bin_seq += 1
 
-                # Reset: need to see parked=False then parked=True
-                # to confirm follower has freshly parked for this call
                 self.last_follower_parked_false_seen = False
 
-                # Cancel any existing pickup timer from a previous call
                 if self.pickup_timer is not None:
                     self.pickup_timer.cancel()
                     self.destroy_timer(self.pickup_timer)
@@ -285,20 +253,14 @@ class FollowerCoordinationNode(Node):
     # ============================================================
 
     def follower_status_callback(self, msg: FollowerStatus):
-        # Echo to local topic for other nodes
+
         self.follower_status_echo_pub.publish(msg)
 
         with self.lock:
-            # Track parked transitions: need to see parked=False first
-            # before accepting parked=True as a fresh park
+         
             if not msg.parked:
                 self.last_follower_parked_false_seen = True
 
-            # Only start pickup timer if:
-            # 1. call_bin is active
-            # 2. follower reports parked
-            # 3. we saw parked=False after the call_bin was set (fresh park)
-            # 4. no pickup timer already running
             if (msg.parked
                     and self.call_bin_flag
                     and self.last_follower_parked_false_seen
@@ -331,7 +293,6 @@ class FollowerCoordinationNode(Node):
 
         self.get_logger().info("Call bin cleared — follower will resume following.")
 
-        # Signal litter handler that pickup is done
         resume_msg = Bool()
         resume_msg.data = True
         self.start_nav_pub.publish(resume_msg)
