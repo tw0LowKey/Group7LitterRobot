@@ -9,15 +9,13 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
-    # --- Paths ---
+
     pkg_robot_description = get_package_share_directory("robot_description")
     pkg_ros_gz_sim = get_package_share_directory("ros_gz_sim")
 
-    # --- Common Launch Arguments ---
     arg_odometry_source = DeclareLaunchArgument("odometry_source", default_value="ground_truth")
     arg_lidar_type = DeclareLaunchArgument("lidar_type", default_value="2d")
 
-    # --- 1. Gazebo Simulator (Start only once) ---
     gz_sim = IncludeLaunchDescription(
     PythonLaunchDescriptionSource(
         os.path.join(pkg_ros_gz_sim, "launch", "gz_sim.launch.py")
@@ -25,7 +23,7 @@ def generate_launch_description():
     launch_arguments={'gz_args': '-r ' + os.path.join(pkg_robot_description, 'worlds', 'empty_gps.sdf')}.items(),
 )
 
-    # --- 2. LEADER ROBOT (Robot 1 - Default Namespace) ---
+
     leader_description_file = os.path.join(pkg_robot_description, "urdf", "leader_robot.urdf.xacro")
     leader_description_content = Command([
         FindExecutable(name="xacro"), " ", leader_description_file,
@@ -61,8 +59,6 @@ def generate_launch_description():
         output="screen",
     )
 
-    # --- 3. FOLLOWER ROBOT (Robot 2 - Follower Namespace) ---
-    #     enable_sensors:=false — disables GPU sensors to avoid Fortress crash
     follower_description_file = os.path.join(pkg_robot_description, "urdf", "follower_robot.urdf.xacro")
     follower_description_content = Command([
         FindExecutable(name="xacro"), " ", follower_description_file,
