@@ -17,7 +17,6 @@ def generate_launch_description():
     arg_odometry_source = DeclareLaunchArgument("odometry_source", default_value="ground_truth")
     arg_lidar_type = DeclareLaunchArgument("lidar_type", default_value="2d")
 
-    # --- 1. Gazebo Simulator (Start only once) ---
     gz_sim = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(pkg_ros_gz_sim, "launch", "gz_sim.launch.py")
@@ -25,7 +24,7 @@ def generate_launch_description():
         launch_arguments={'gz_args': '-r empty.sdf'}.items(),
     )
 
-    # --- 2. LEADER ROBOT (Robot 1 - Default Namespace) ---
+
     leader_description_file = os.path.join(pkg_robot_description, "urdf", "robot.urdf.xacro")
     leader_description_content = Command([
         FindExecutable(name="xacro"), " ", leader_description_file,
@@ -61,7 +60,7 @@ def generate_launch_description():
         output="screen",
     )
 
-    # --- 3. FOLLOWER ROBOT (Robot 2 - Follower Namespace) ---
+
     follower_description_file = os.path.join(pkg_robot_description, "urdf", "follower_robot.urdf.xacro")
     follower_description_content = Command([
         FindExecutable(name="xacro"), " ", follower_description_file,
@@ -99,7 +98,7 @@ def generate_launch_description():
         output="screen",
     )
 
-    # --- 4. Pointcloud Processing (Lidar 3D handling) ---
+
     leader_pcl = Node(
         package='pointcloud_to_laserscan',
         executable='pointcloud_to_laserscan_node',
