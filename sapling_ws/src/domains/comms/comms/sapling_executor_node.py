@@ -1,7 +1,9 @@
 import rclpy
+import socket
 import struct
 from comms.sapling_shared import encodePacket
 from geometry_msgs.msg import Twist
+from ipaddress import ip_address
 from json import loads
 from os import environ
 from rclpy.node import Node
@@ -18,7 +20,7 @@ class ExecutorNode(Node):
 
 		self.SAPLING_ROLE = environ.get("SAPLING_ROLE", "")
 		self.protocol = None
-		self.batteryPercentage = 0.0
+		self.batteryPercentage = 100.0
 		self.lat = 0.0
 		self.lng = 0.0
 		self.areaCoords = None
@@ -93,6 +95,7 @@ class ExecutorNode(Node):
 
 		# Timers
 		self.heartbeatTimer = self.create_timer(5.0, self.heartbeatTimerCallback)
+		self.sendIpAddressTimer = self.create_timer(5.0, self.sendIpAddressTimerCallback)
 
 		self.get_logger().info("Sapling Executor Node Started - Waiting for Commands")
 
@@ -115,8 +118,6 @@ class ExecutorNode(Node):
 			# Handle known commands
 			if cmdName == "areaCoords":
 				self.executeAreaCoords(payload)
-			elif cmdName == "setCameraFeedStatus":
-				self.setCameraFeedStatus(payload)
 			elif cmdName == "movement":
 				self.executeMovement(payload)
 			elif cmdName == "resumeAuto":
@@ -148,7 +149,9 @@ class ExecutorNode(Node):
 		batteryVoltage = msg.battery_voltage
 
 		batteryPercentage = ((batteryVoltage - MIN_VOLTAGE) / (MAX_VOLTAGE - MIN_VOLTAGE)) * 100
-		self.batteryPercentage = max(0.0, min(100.0, batteryPercentage))
+		batteryPercentage = min(batteryPercentage, self.batteryPercentage) # Maintain a stable voltage
+		self.batteryPercentage = int(max(0.0, min(100.0, batteryPercentage)))
+
 		# self.get_logger().info(f"battery: {self.batteryPercentage}")
 
 	def gpsSubscriberCallback(self, msg):
@@ -282,8 +285,32 @@ class ExecutorNode(Node):
 
 		return response
 
-	def setCameraFeedStatus(self, payload):
-		self.get_logger().debug("EXECUTING: Setting Camera Feed")
+	def sendIpAddressTimerCallback(self):
+		if self.protocol is None:
+			return
+
+		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+		try:
+			s.connect(("8.8.8.8", 80)) # 8.8.8.8 is a public Google DNS server
+			privateIp = s.getsockname()[0]
+		except Exception:
+			privateIp = None
+		finally:
+			s.close()
+
+		ipAddress = int(ip_address(privateIp))
+
+		encodedPacket = encodePacket(
+			self.protocol,
+			"sendCameraIpAddress",
+			ipAddress
+		)
+
+		if encodedPacket is not None:
+			msg = LoraTransmission()
+			msg.data = encodedPacket
+			self.loraTxPublisher.publish(msg)
 
 	def executeResumeAuto(self, payload):
 		self.get_logger().debug("EXECUTING: Resume Autonomous Navigation")
