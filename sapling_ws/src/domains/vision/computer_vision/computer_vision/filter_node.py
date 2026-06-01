@@ -336,7 +336,7 @@ class FilterNode(Node):
 
             dist = np.linalg.norm(centroid - self._base_pos_in_camera)
 
-            if True: # THIS MUST BE CHANGED FOR GRASP TESTING, WILL ONLY WORK IF NAV GIVES GO AHEAD
+            if dist < REACHABILITY_RADIUS: # THIS MUST BE CHANGED FOR GRASP TESTING, WILL ONLY WORK IF NAV GIVES GO AHEAD
                 if selected_points is None:
                     selected_points = candidate_pts
                     selected_id = uid
