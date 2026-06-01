@@ -50,9 +50,7 @@ class GroundPlaneNode(Node):
         self.pc_sub = self.create_subscription(PointCloud2, '/camera/depth/points', self.pc_callback, 10)
         self.timer = self.create_timer(1.0, self.publish_plane)
 
-    # --------------------------
     # RANSAC plane fit
-    # --------------------------
     def _fit_plane_ransac(self, points):
         best_inliers = None
         best_count = 0
@@ -94,9 +92,7 @@ class GroundPlaneNode(Node):
         d = -np.dot(normal, centroid)
         return normal, d, best_inliers
 
-    # --------------------------
     # Point cloud callback
-    # --------------------------
     def pc_callback(self, pc_msg):
         if self._calibrated and len(self._candidate_planes) == 0:
             return
@@ -135,9 +131,7 @@ class GroundPlaneNode(Node):
             tilt_deg = float(np.degrees(np.arccos(np.clip(np.dot(avg_coeffs[:3], cam_up),-1.0,1.0))))
             self.get_logger().info(f"Camera tilt from horizon: {tilt_deg:.2f} degrees")
 
-    # --------------------------
     # Publish plane
-    # --------------------------
     def publish_plane(self):
         if self._plane_coeffs is None:
             return

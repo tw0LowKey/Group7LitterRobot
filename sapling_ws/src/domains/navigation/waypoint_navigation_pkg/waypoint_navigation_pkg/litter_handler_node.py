@@ -203,13 +203,12 @@ class LitterHandlerNode(Node):
             f"{msg.pose.position.y:.2f}). Queue size: {queue_size}"
         )
 
-        # If idle, pause leader and wait for it to fully stop
         if self.state == self.STATE_IDLE:
             self.pause_leader_navigation()
             with self.lock:
                 self.state = self.STATE_PAUSING
 
-            # Wait for leader to cancel its Nav2 goal before we send ours
+  
             self.pause_timer = self.create_timer(
                 self.pause_settle_time,
                 self.pause_settle_callback,
@@ -227,9 +226,7 @@ class LitterHandlerNode(Node):
         with self.lock:
             self.state = self.STATE_NAVIGATING
 
-    # ============================================================
-    # Start navigation callback — pickup complete from coordination node
-    # ============================================================
+
 
     def start_nav_callback(self, msg: Bool):
         if msg.data and self.state == self.STATE_WAITING_PICKUP:
@@ -249,9 +246,6 @@ class LitterHandlerNode(Node):
                     )
                     self.resume_leader_navigation()
 
-    # ============================================================
-    # Pause / resume leader navigation
-    # ============================================================
 
     def pause_leader_navigation(self):
         msg = Bool()

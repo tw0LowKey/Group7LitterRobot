@@ -29,8 +29,8 @@ class WaypointNavigationNode(Node):
 
     def load_waypoints(self):
         try:
-            # --- CRITICAL CHECK: Make sure this name matches your actual package name ---
-            # If your package is "rm_localization", change it below!
+            
+         
             package_name = 'waypoint_navigation_pkg' 
             try:
                 package_path = get_package_share_directory(package_name)
@@ -38,9 +38,9 @@ class WaypointNavigationNode(Node):
                 self.get_logger().error(f"Could not find package '{package_name}'. Please update the code with your actual package name.")
                 return []
                 
-            waypoints_file = os.path.join(package_path, 'config', 'waypoints.yaml') # Check if it's in a 'config' folder or root
+            waypoints_file = os.path.join(package_path, 'config', 'waypoints.yaml') 
             
-            # Fallback for testing if file path is simple
+           
             if not os.path.exists(waypoints_file):
                 waypoints_file = os.path.join(package_path, 'waypoints.yaml')
 
@@ -62,8 +62,7 @@ class WaypointNavigationNode(Node):
             self.current_waypoint_index = 0
             self.get_logger().info('Starting navigation through waypoints...')
             
-            # NOTE: The service will "hang" here until all navigation is done. 
-            # This is expected in this simple script design.
+         
             await self.navigate_to_next_waypoint()
             
             response.success = True
@@ -84,7 +83,7 @@ class WaypointNavigationNode(Node):
 
         goal_msg = NavigateToPose.Goal()
         
-        # --- FIX 1: Frame ID MUST be 'odom' for Blind Navigation ---
+
         goal_msg.pose.header.frame_id = 'odom' 
         goal_msg.pose.header.stamp = self.get_clock().now().to_msg()
         
@@ -109,11 +108,11 @@ class WaypointNavigationNode(Node):
         self.get_logger().info('Goal accepted, moving...')
         get_result_future = await send_goal_future.get_result_async()
 
-        # --- FIX 2: Correctly checking the result status ---
+
         if get_result_future.status == GoalStatus.STATUS_SUCCEEDED:
             self.get_logger().info(f'Reached waypoint {waypoint["name"]}')
             self.current_waypoint_index += 1
-            # Recursive call to next point
+
             await self.navigate_to_next_waypoint()
         else:
             self.get_logger().error(f'Navigation failed with status: {get_result_future.status}')
@@ -122,7 +121,7 @@ class WaypointNavigationNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = WaypointNavigationNode()
-    # MultiThreadedExecutor is safer for reentrant callbacks
+
     from rclpy.executors import MultiThreadedExecutor
     executor = MultiThreadedExecutor()
     rclpy.spin(node, executor=executor)

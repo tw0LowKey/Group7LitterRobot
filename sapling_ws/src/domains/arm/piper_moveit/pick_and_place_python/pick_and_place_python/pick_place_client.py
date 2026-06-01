@@ -21,10 +21,13 @@ class ServerClientNode(Node):
     def __init__(self):
         super().__init__('server_client_node')
 
+        # Whether to apply the camera-to-base coordinate transform
         self.transform_flag = True
 
+        # Allow service callbacks to run concurrently without blocking each other
         self.cb_group = ReentrantCallbackGroup()
 
+        # Create service for grasp algorithm
         self.server = self.create_service(
             PickPlaceRequest,
             'pick_place_request',
@@ -32,6 +35,7 @@ class ServerClientNode(Node):
             callback_group=self.cb_group
         )
 
+        # Clients for C++ nodes
         self.move_client = self.create_client(
             MoveToPose, 'move_to_pose',
             callback_group=self.cb_group
@@ -49,6 +53,7 @@ class ServerClientNode(Node):
             callback_group=self.cb_group
         )
 
+        # Subscribe to follow bot status
         self.subscription = self.create_subscription(
             FollowerStatus,                     
             '/comms/follower_to_leader',          
@@ -56,12 +61,13 @@ class ServerClientNode(Node):
             10
         )
 
+        # Assume bin is not ready
         self.bin_status = False
-
 
         self.place_pose = Pose()
 
         if self.transform_flag:
+            # Place pose to the left of the robot (not currently used)
             self.place_pose.position.x = 0.0
             self.place_pose.position.y = -0.4
             self.place_pose.position.z = -0.05
@@ -70,16 +76,8 @@ class ServerClientNode(Node):
             self.place_pose.orientation.z = 0.0
             self.place_pose.orientation.w = 0.0
 
-            # self.place_pose.position.x = -0.3
-            # self.place_pose.position.y = 0.0
-            # self.place_pose.position.z = 0.3
-            # self.place_pose.orientation.x = 0.0
-            # self.place_pose.orientation.y = 1.0
-            # self.place_pose.orientation.z = 0.0
-            # self.place_pose.orientation.w = 0.0
-
         else:
-            ##USE THIS TO PLACE IN POS 2##
+            # place pose infront of the robot (not currently used)
             self.place_pose.position.x = 0.4
             self.place_pose.position.y = -0.0
             self.place_pose.position.z = -0.08
@@ -88,17 +86,20 @@ class ServerClientNode(Node):
             self.place_pose.orientation.z = 0.0
             self.place_pose.orientation.w = 0.0
 
+        # Load camera transform
         self.camera_to_base_transform = self.get_camera_transform()
 
         self.get_logger().info('ServerClientNode ready.')
 
     def get_camera_transform(self) -> TransformStamped:
+        # Create the transform
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
         t.header.frame_id = 'base_link'
         t.child_frame_id = 'camera_link_qais_smells'
 
         if self.transform_flag:
+            # Transform definition
             t.transform.translation.x = 0.135
             t.transform.translation.y = 0.14
             t.transform.translation.z = 0.605
@@ -108,7 +109,7 @@ class ServerClientNode(Node):
             t.transform.rotation.w = 0.191
 
         else:
-            ##USE THIS FOR TESTING SET MULTI PICK CODE##
+            # Identity transform for testing requests in arm frame
             t.transform.translation.x = 0.0
             t.transform.translation.y = 0.0
             t.transform.translation.z = 0.0
@@ -120,32 +121,13 @@ class ServerClientNode(Node):
         return t
     
     def update_bin_status(self, msg) -> None:
+        # Updates bin status flag
         self.bin_status = msg.bin_ready
         return
-    
-    def get_pose_rotation(self) -> TransformStamped:
-        t = TransformStamped()
-        t.header.stamp = self.get_clock().now().to_msg()
-        t.header.frame_id = 'camera_link_qais_smells'
-        t.child_frame_id = 'pose_rotation'
-        t.transform.translation.x = 0.0
-        t.transform.translation.y = 0.0
-        t.transform.translation.z = 0.0
-        t.transform.rotation.x = 0.0
-        t.transform.rotation.y = 0.0
 
-        if self.transform_flag:
-            t.transform.rotation.z = -0.7071
-            t.transform.rotation.w = 0.7071
-
-        else:
-            ##USE THIS FOR TESTING SET MULTI PICK CODE##
-            t.transform.rotation.z = -0.0
-            t.transform.rotation.w = 0.0
-
-        return t
 
     def _wait_for_future(self, future, timeout_sec=10.0) -> bool:
+        # Busy-wait on a ROS future without blocking the executor thread
         start = time.time()
         while not future.done():
             if time.time() - start > timeout_sec:
@@ -160,6 +142,8 @@ class ServerClientNode(Node):
             f'Dispatching to worker thread.'
         )
 
+        # Run the sequence in a separate thread so the executor stays free to handle
+        # other callbacks (like gripper or home service responses) while we wait
         event = threading.Event()
 
         def run():
@@ -170,20 +154,21 @@ class ServerClientNode(Node):
         event.wait()
         return response
 
+    #Main state machine
     def _execute_sequence(self, request) -> bool:
+        # Wait for arm services to be ready
         self.get_logger().info('Waiting for arm services to be fully ready...')
         time.sleep(2.0)
 
-        # --- Transform all poses into base_link frame ---
+        # Convert every incoming pose from camera frame into base_link so the arm can use them
         transformed_poses_list = []
+
+        #Trasform poses from camera frame to arm frame
         for target_pose_stamped in request.poses:
             try:
                 transformed_pose = tf2_geometry_msgs.do_transform_pose(
                     target_pose_stamped.pose, self.camera_to_base_transform
                 )
-                # rotated_pose = tf2_geometry_msgs.do_transform_pose(
-                #     transformed_pose, self.get_pose_rotation()
-                # )
                 transformed_poses_list.append(transformed_pose)
                 self.get_logger().info(
                     f'Transformed: x={transformed_pose.position.x:.3f} '
@@ -197,13 +182,11 @@ class ServerClientNode(Node):
             self.get_logger().error('No valid poses after transformation. Aborting.')
             return False
 
-        # --- Loop: open gripper and attempt to reach each pose ---
-        # Only the gripper open + move_to_pose is inside the loop.
-        # Everything else (close gripper, place, return home) only
-        # runs once a reachable pose is found.
+        # Start with the gripper open
         self.get_logger().info('Opening gripper before search.')
         self.set_grip("open")
 
+        # Check poses one by one
         reachable_pose = None
         for index, test_pose in enumerate(transformed_poses_list):
             self.get_logger().info(
@@ -216,7 +199,7 @@ class ServerClientNode(Node):
             else:
                 self.get_logger().warn(f'Pose {index + 1} unreachable. Trying next...')
 
-        # --- If no pose was reachable, return home and report failure ---
+        # If every pose failed return home
         if reachable_pose is None:
             self.get_logger().error('All poses failed. Returning home.')
             while not self.request_home():
@@ -224,10 +207,11 @@ class ServerClientNode(Node):
             self.set_grip("close")
             return False
 
-        # --- A reachable pose was found — complete the pick/place sequence ---
+        # Close gripper
         self.get_logger().info('Closing gripper to grasp object.')
         self.set_grip("close")
 
+        # Return home before moving to place to avoid weird trajectories
         self.get_logger().info('Returning to home before place.')
         while not self.request_home():
             self.get_logger().error('Home failed, retrying...')
@@ -238,21 +222,21 @@ class ServerClientNode(Node):
             f'z={self.place_pose.position.z:.3f}'
         )
         
+        # Move to the drop-off position behind the robot
         self.get_logger().info('Moving to place pose.')
-        # if not self.send_pose_request(self.place_pose):
         if not self.request_place_behind():
-            # self.get_logger().error('Place move failed. Returning home.')
-            # while not self.request_home():
-            #     self.get_logger().error('Home failed, retrying...')
             self.set_grip("close")
             return False
 
+        # Wait for bin
         while not self.bin_status:
             self.get_logger().info('Waiting for bin.')
 
+        # Drop object
         self.get_logger().info('Place move succeeded. Opening gripper to release.')
         self.set_grip("open")
 
+        # Head back home and close the gripper
         self.get_logger().info('Returning home after place.')
         while not self.request_home():
             self.get_logger().error('Home failed, retrying...')

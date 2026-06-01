@@ -120,7 +120,7 @@ class LawnmowerInterruptNode(Node):
         )
 
     # ------------------------------------------------------------
-    # Odom / GPS printing only
+    # Odom / GPS logging
     # ------------------------------------------------------------
 
     def odom_callback(self, msg):

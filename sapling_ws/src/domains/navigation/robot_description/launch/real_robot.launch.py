@@ -8,7 +8,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description(): 
-    # 1. Robot Description (Notice: load_gazebo and simulation are now FALSE)
+   
     scout_description_file = os.path.join(get_package_share_directory("robot_description"), "urdf", "robot.urdf.xacro")
     scout_description_content = Command([
         FindExecutable(name="xacro"), " ", scout_description_file, 
@@ -18,7 +18,7 @@ def generate_launch_description():
     ])
     scout_description = {"robot_description": ParameterValue(scout_description_content, value_type=str)}
 
-    # 2. Robot State Publisher (Notice: use_sim_time is now FALSE)
+   
     robot_state_publisher_node = Node(
         name="robot_state_publisher", 
         package="robot_state_publisher", 
@@ -27,7 +27,7 @@ def generate_launch_description():
         parameters=[{"use_sim_time": False}, scout_description],
     )
 
-    # 5. Pointcloud to Laserscan (If you are using a real 3D Lidar like Velodyne/Ouster)
+    
     pointcloud_to_laserscan_node = Node(
         package='pointcloud_to_laserscan', 
         executable='pointcloud_to_laserscan_node', 
@@ -46,14 +46,10 @@ def generate_launch_description():
         condition=IfCondition(PythonExpression(["'", LaunchConfiguration("lidar_type"), "'", " == '3d'"]))
     )   
 
-    # ========================================================================
-    # NOTE: You will also need to add the launch node for your specific 
-    # REAL Lidar hardware here (e.g., sllidar_ros2, rplidar_ros, velodyne, etc.)
-    # Make sure its output topic is remapped to "/scan" or "/points".
-    # ========================================================================
+
 
     return LaunchDescription([
-        # For the real robot, we rely on the wheel encoders over CAN
+
         DeclareLaunchArgument(name="odometry_source", default_value="encoders"),
         DeclareLaunchArgument(name="lidar_type", default_value="2d"),
 

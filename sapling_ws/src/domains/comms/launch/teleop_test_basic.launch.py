@@ -14,5 +14,11 @@ def generate_launch_description():
 			executable="sapling_executor_node",
 			name="sapling_executor_node",
 			output="screen"
+		),
+		Node(
+			package="web_video_server",
+			executable="web_video_server",
+			name="web_video_server",
+			output="screen"
 		)
 	])

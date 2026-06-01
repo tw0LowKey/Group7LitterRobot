@@ -13,8 +13,7 @@ ekf_filter_node_odom:
     base_link_frame: base_link
     world_frame: odom
 
-    # Wheel odometry from Scout base
-    # This EKF mainly creates smooth odom -> base_link
+
     odom0: /odom
 
     odom0_config: [false, false, false,
@@ -43,8 +42,7 @@ ekf_filter_node_map:
     base_link_frame: base_link
     world_frame: map
 
-    # Smooth local odom from odom EKF
-    # Use velocities only, not x/y position, to avoid fighting GPS position
+
     odom0: /odometry/local
     odom0_config: [false, false, false,
                    false, false, false,
@@ -57,8 +55,7 @@ ekf_filter_node_map:
     odom0_differential: false
     odom0_relative: false
 
-    # GPS correction from navsat_transform
-    # Use x/y position only
+
     odom1: /odometry/gps
     odom1_config: [true,  true,  false,
                    false, false, false,
@@ -87,8 +84,7 @@ navsat_transform:
     broadcast_cartesian_transform: false
     publish_filtered_gps: false
 
-    # Important because Scout Mini has no IMU
-    # navsat_transform will use odom yaw instead of IMU yaw
+
     use_odometry_yaw: true
 
     wait_for_datum: true

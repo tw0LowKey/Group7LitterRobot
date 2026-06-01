@@ -16,13 +16,12 @@ class FakeGpsFromOdom(Node):
         self.declare_parameter("odom_topic", "/odom")
         self.declare_parameter("gps_topic", "/gps/fix")
 
-        # Starting GPS point. You can change this to any outdoor location.
-        # Start fake GPS from top-left point of your area
+
         self.declare_parameter("origin_latitude", 53.47244480)
         self.declare_parameter("origin_longitude", -2.23477520)
         self.declare_parameter("origin_altitude", 50.0)
 
-        # Optional GPS noise in metres. Keep 0.0 first while testing.
+   
         self.declare_parameter("noise_std_m", 0.0)
 
         odom_topic = self.get_parameter("odom_topic").value
@@ -53,7 +52,7 @@ class FakeGpsFromOdom(Node):
         y = msg.pose.pose.position.y
 
         # Convert local metres to latitude/longitude.
-        # Approximation is fine for small simulation areas.
+ 
         earth_radius = 6378137.0
 
         delta_lat = (y / earth_radius) * (180.0 / math.pi)
@@ -69,7 +68,7 @@ class FakeGpsFromOdom(Node):
         gps_msg.longitude = self.origin_lon + delta_lon
         gps_msg.altitude = self.origin_alt
 
-        # Covariance in m^2. Low value = confident GPS.
+
         gps_msg.position_covariance = [
             0.25, 0.0, 0.0,
             0.0, 0.25, 0.0,

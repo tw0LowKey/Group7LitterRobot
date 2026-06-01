@@ -6,8 +6,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from geometry_msgs.msg import PoseStamped
 from piper_msgs.srv import PickPlaceRequest
 
-# Useless comment
-
+# NODE USED FOR TESTING ONLY NEED TO SET TRANSFORM FLAG TO FALSE
 
 class ServerClientNode(Node):
     def __init__(self):

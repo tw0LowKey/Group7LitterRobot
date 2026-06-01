@@ -10,7 +10,6 @@ int main(int argc, char** argv)
 
     auto node = std::make_shared<rclcpp::Node>("gripper_server_node", node_options);
 
-    // CRITICAL: We pass "gripper" here instead of "arm"
     GripperControl gripper_control(node, "gripper");
 
     rclcpp::executors::MultiThreadedExecutor executor;

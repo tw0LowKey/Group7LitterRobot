@@ -51,9 +51,7 @@ bool PickAndPlace::move_to_pose(const geometry_msgs::msg::Pose& target_pose)
     pre_pose.position.y -= offset * approach_dir.y();
     pre_pose.position.z -= offset * approach_dir.z();
 
-    // -------------------------------
-    // PHASE 1: Move to pre-approach pose
-    // -------------------------------
+    //Pre approach pose
     move_group_->setPoseTarget(pre_pose);
     rclcpp::sleep_for(std::chrono::milliseconds(200));
 
@@ -69,9 +67,7 @@ bool PickAndPlace::move_to_pose(const geometry_msgs::msg::Pose& target_pose)
     RCLCPP_INFO(node_->get_logger(), "Phase 1 plan succeeded. Executing...");
     move_group_->execute(plan1);
 
-    // -------------------------------
-    // PHASE 2: Final approach to target pose
-    // -------------------------------
+    // Final pose
     move_group_->clearPathConstraints();
     move_group_->clearPoseTargets();
     move_group_->setStartStateToCurrentState();

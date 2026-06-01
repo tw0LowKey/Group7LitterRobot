@@ -85,16 +85,41 @@ class ReachM2Node(Node):
 			msg.longitude = float(parts[3])
 			msg.altitude = float(parts[4])
 
-			# Map Emlid Quality to ROS NavSatStatus
-			# Quality 1: Fixed, 2: Float, 4: DGPS, 5: Single
+			# Map Emlid Quality to ROS NavSatStatus - Quality 1: Fixed, 2: Float, 4: DGPS, 5: Single
 			quality = parts[5]
 			msg.status.status = self.qualityMap.get(quality, NavSatStatus.STATUS_NO_FIX)
 			self.get_logger().debug(f"Quality of the GPS signal: {quality} [{msg.status.status}]")
 
+			# Read the standard deviations and signed covariance terms
+			sdn  = float(parts[7])	# North standard deviation
+			sde  = float(parts[8])	# East standard deviation
+			sdu  = float(parts[9])	# Up standard deviation
+			sdne = float(parts[10])	# North-East covariance term
+			sdeu = float(parts[11])	# East-Up covariance term
+			sdun = float(parts[12])	# Up-North covariance term
+
+			# Convert the standard deviations and signed terms to covariance values
+			cee = sde ** 2
+			cnn = sdn ** 2
+			cuu = sdu ** 2
+			cne = sdne * abs(sdne)
+			ceu = sdeu * abs(sdeu)
+			cnu = sdun * abs(sdun)
+
+			# Store the covariance values as a matrix in ENU order (East, North, Up)
+			msg.position_covariance = [
+				cee, cne, ceu,
+				cne, cnn, cnu,
+				ceu, cnu, cuu
+			]
+
+			# Flag the covariance as known since we have full covariance data
+			msg.position_covariance_type = NavSatFix.COVARIANCE_TYPE_KNOWN
+
 			return msg
 
 		except (ValueError, IndexError):
-			self.get_logger().debug(f"Received partial or malformed data: {line}")
+			self.get_logger().debug(f"Received partial or malformed data: {parts}")
 
 			return None
 

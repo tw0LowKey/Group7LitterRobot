@@ -58,16 +58,7 @@ class ServerClientNode(Node):
             self.place_pose.orientation.z = 0.0
             self.place_pose.orientation.w = 0.0
 
-            # self.place_pose.position.x = -0.3
-            # self.place_pose.position.y = 0.0
-            # self.place_pose.position.z = 0.3
-            # self.place_pose.orientation.x = 0.0
-            # self.place_pose.orientation.y = 1.0
-            # self.place_pose.orientation.z = 0.0
-            # self.place_pose.orientation.w = 0.0
-
         else:
-            ##USE THIS TO PLACE IN POS 2##
             self.place_pose.position.x = 0.4
             self.place_pose.position.y = -0.0
             self.place_pose.position.z = -0.08
@@ -96,7 +87,6 @@ class ServerClientNode(Node):
             t.transform.rotation.w = 0.191
 
         else:
-            ##USE THIS FOR TESTING SET MULTI PICK CODE##
             t.transform.translation.x = 0.0
             t.transform.translation.y = 0.0
             t.transform.translation.z = 0.0
@@ -123,7 +113,6 @@ class ServerClientNode(Node):
             t.transform.rotation.w = 0.7071
 
         else:
-            ##USE THIS FOR TESTING SET MULTI PICK CODE##
             t.transform.rotation.z = -0.0
             t.transform.rotation.w = 0.0
 
@@ -158,16 +147,12 @@ class ServerClientNode(Node):
         self.get_logger().info('Waiting for arm services to be fully ready...')
         time.sleep(2.0)
 
-        # --- Transform all poses into base_link frame ---
         transformed_poses_list = []
         for target_pose_stamped in request.poses:
             try:
                 transformed_pose = tf2_geometry_msgs.do_transform_pose(
                     target_pose_stamped.pose, self.camera_to_base_transform
                 )
-                # rotated_pose = tf2_geometry_msgs.do_transform_pose(
-                #     transformed_pose, self.get_pose_rotation()
-                # )
                 transformed_poses_list.append(transformed_pose)
                 self.get_logger().info(
                     f'Transformed: x={transformed_pose.position.x:.3f} '
@@ -181,10 +166,6 @@ class ServerClientNode(Node):
             self.get_logger().error('No valid poses after transformation. Aborting.')
             return False
 
-        # --- Loop: open gripper and attempt to reach each pose ---
-        # Only the gripper open + move_to_pose is inside the loop.
-        # Everything else (close gripper, place, return home) only
-        # runs once a reachable pose is found.
         self.get_logger().info('Opening gripper before search.')
         self.set_grip("open")
 
@@ -200,7 +181,6 @@ class ServerClientNode(Node):
             else:
                 self.get_logger().warn(f'Pose {index + 1} unreachable. Trying next...')
 
-        # --- If no pose was reachable, return home and report failure ---
         if reachable_pose is None:
             self.get_logger().error('All poses failed. Returning home.')
             while not self.request_home():
@@ -208,7 +188,6 @@ class ServerClientNode(Node):
             self.set_grip("close")
             return False
 
-        # --- A reachable pose was found — complete the pick/place sequence ---
         self.get_logger().info('Closing gripper to grasp object.')
         self.set_grip("close")
 
@@ -224,7 +203,6 @@ class ServerClientNode(Node):
 
         self.get_logger().info('Moving to place pose.')
         if not self.send_pose_request(self.place_pose):
-        # if not self.request_place_behind():
             self.get_logger().error('Place move failed. Returning home.')
             while not self.request_home():
                 self.get_logger().error('Home failed, retrying...')
