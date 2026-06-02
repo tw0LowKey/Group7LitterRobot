@@ -13,7 +13,7 @@ from piper_msgs.srv import PickPlaceRequest
 from ament_index_python.packages import get_package_share_directory
 from rclpy.executors import ExternalShutdownException
 
-# ── Gripper parameters ───────────────────────────────
+# Gripper parameters
 GRIPPER_WIDTH_MIN = 0.001
 GRIPPER_WIDTH_MAX = 0.07
 GRIPPER_FINGER_LENGTH = 0.074
@@ -28,17 +28,25 @@ GRIPPER_PALM_WIDTH_Y = 0.075
 GRIPPER_SHAFT_RADIUS = 0.04
 GRASP_CONTACT_DEPTH = 0.01
 
-PENETRATION_FRACS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]  # fraction of GRIPPER_FINGER_LENGTH; deeper = higher score
+# Array of possible grasp depths
+PENETRATION_FRACS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
 
+# Defining height of the grass and floor relative to the scout's wheels
 GROUND_PLANE_OFFSET = -0.005
 GRASS_PLANE_OFFSET = -0.03
+
+# Number of anchors to sample
 N_ANCHORS = 400
+# Number of points to compute normal vector
 NORMAL_K = 50
+# Approximate arm reach to filter candidates
 REACHABILITY_RADIUS = 0.4
 
+# Camera to arm base link transform
 _CAMERA_TRANSLATION = np.array([0.13, 0.14, 0.605])
 _CAMERA_ROTATION    = np.array([0.0, 0.479, 0.0, 0.878])  # [x, y, z, w]
 
+# Scoring weights
 W_BODY        = 0.19
 W_SYM         = 0.14
 W_UP          = 0.24
@@ -47,14 +55,15 @@ W_DEPTH       = 0.24
 
 W_GRASS       = 0.90
 
+# Number of grasps to send to the pick and place client
 TOP_K = 15
 PROCESS_EVERY_N = 1
 
-
+# Converts local frame to world frame
 def _local_to_world_pos(local_offset: np.ndarray, grasp_pos: np.ndarray, grasp_rot: np.ndarray) -> np.ndarray:
     return grasp_pos + grasp_rot @ local_offset
 
-
+#
 def _make_cube_marker(header, ns, marker_id, world_pos, quat, scale_xyz, rgba):
     from visualization_msgs.msg import Marker
     m = Marker()
@@ -79,7 +88,7 @@ def _make_cube_marker(header, ns, marker_id, world_pos, quat, scale_xyz, rgba):
     m.color.a = float(rgba[3])
     return m
 
-
+# Grasp candidate generator class
 class GraspNode(Node):
     def __init__(self):
         super().__init__('grasp_node')
@@ -95,6 +104,7 @@ class GraspNode(Node):
             f"{self._base_pos_in_camera[2]:.3f}]"
         )
 
+        # Defining ground plane (approximate location of ground in camera frame)
         self._ground_plane = None
         self._up = np.array([0.0, 0.0, 1.0])
         plane_path = os.path.join(get_package_share_directory('computer_vision'), 'ground_plane.npy')
@@ -115,6 +125,8 @@ class GraspNode(Node):
                 "using world Z as up vector."
             )
 
+
+        # Defining grass plane (approximate location of grass in camera frame)
         self._grass_plane = None
         plane_path = os.path.join(get_package_share_directory('computer_vision'), 'ground_plane.npy')
         if os.path.exists(plane_path):
@@ -130,19 +142,27 @@ class GraspNode(Node):
                 "No grass plane file found — grass collision disabled, "
             )
 
+        # Subscriber to point cloud masks
         self.pc_sub = self.create_subscription(
             PointCloud2, '/selected_mask', self.pc_callback, 1
         )
+
+        # Subscriber to litter centroids
         self.centroids_sub = self.create_subscription(
             PointCloud2, '/cloud/centroids', self.centroids_callback, 1
         )
+
+        # Grasp publishers
         self.grasp_pub  = self.create_publisher(PoseStamped, '/grasp_pose', 1)
         self.marker_pub = self.create_publisher(MarkerArray, '/grasp_markers', 10)
 
         self._startup_count = 0
         self._startup_timer = self.create_timer(0.5, self._startup_publish)
 
+        # Client to pick and place service
         self.pick_client   = self.create_client(PickPlaceRequest, 'pick_place_request')
+
+        # Stores state of the arm
         self.robot_is_busy = False
 
         self.get_logger().info("GraspNode started")
@@ -151,6 +171,7 @@ class GraspNode(Node):
         self._baseline_count = 0
         self._attempts = 0
 
+    # Updates the list of litter centroids in reachable radius based on vision
     def centroids_callback(self, msg):
         pts = list(pc2.read_points(msg, field_names=("x", "y", "z"), skip_nans=True))
         self._centroid_list = [
@@ -158,12 +179,15 @@ class GraspNode(Node):
             if np.linalg.norm(np.array([p[0], p[1], p[2]])) <= REACHABILITY_RADIUS
         ]
 
+    #
     def _startup_publish(self):
         self._startup_count += 1
         if self._startup_count > 10:
             self._startup_timer.cancel()
             return
+        
 
+    # Returns reason for grasps being rejected for debugging
     def _feasibility_reason(self, points, grasp_pos, grasp_rot):
         pts_local = (points - grasp_pos) @ grasp_rot
         x, y, z = pts_local[:, 0], pts_local[:, 1], pts_local[:, 2]
@@ -220,6 +244,7 @@ class GraspNode(Node):
 
         return None
 
+    # Scores grasp candidates based on scoring weights
     def score_grasp(self, points, grasp_pos, grasp_rot, penetration_frac):
         pts_local = (points - grasp_pos) @ grasp_rot
         x, y, z = pts_local[:, 0], pts_local[:, 1], pts_local[:, 2]
@@ -288,7 +313,8 @@ class GraspNode(Node):
                 depth_score = (penetration_frac) / depth_range
 
         return ((W_BODY * body_score + W_SYM * sym_score + W_UP * friction_score + W_DEPTH * depth_score + W_ENC * enclosure_score)*grass_collision)
-
+    
+    # Estimates surface normal of the litter object at an anchor point
     def _estimate_normal(self, anchor: np.ndarray, points: np.ndarray) -> np.ndarray:
         dists = np.linalg.norm(points - anchor, axis=1)
         k = min(NORMAL_K, points.shape[0])
@@ -303,6 +329,7 @@ class GraspNode(Node):
 
         return normal / np.linalg.norm(normal)
 
+    # Generates grasp candidates along the surface normal at various rolls and depths
     def generate_candidates(self, points, n_anchors=N_ANCHORS, rolls_per_point=10):
         candidates = []
         if points.shape[0] == 0:
@@ -342,6 +369,7 @@ class GraspNode(Node):
 
         return candidates
 
+    # Creates visual representations of candidate grasps for rviz debugging
     def _build_gripper_markers(self, header, idx, pos, rot, quat):
         from visualization_msgs.msg import Marker
         markers = []
@@ -400,7 +428,8 @@ class GraspNode(Node):
         markers.append(shaft_m)
 
         return markers
-
+    
+    #
     def pc_callback(self, pc_msg):
         callback_start = time.time()
         self.get_logger().info(
@@ -519,6 +548,7 @@ class GraspNode(Node):
             f"Published {len(top_candidates)} poses and markers"
         )
 
+    #
     def grasp_response_callback(self, future):
         self.get_logger().info("DEBUG: grasp_response_callback entered.")
         current_count = len(self._centroid_list)

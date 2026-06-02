@@ -245,6 +245,7 @@ class ServerClientNode(Node):
         self.get_logger().info('Full pick-and-place sequence complete.')
         return True
 
+    # Sends request to C++ node for arm to move to a specific pose
     def send_pose_request(self, pose: Pose) -> bool:
         if not self.move_client.wait_for_service(timeout_sec=10.0):
             self.get_logger().error('move_to_pose not available.')
@@ -274,6 +275,7 @@ class ServerClientNode(Node):
         self.get_logger().error(f'move_to_pose failed: {future.exception()}')
         return False
     
+    # Sends request to C++ node to move to home position
     def request_home(self) -> bool:
         if not self.home_client.wait_for_service(timeout_sec=10.0):
             self.get_logger().error('move_to_home not available.')
@@ -287,6 +289,7 @@ class ServerClientNode(Node):
         self.get_logger().error(f'move_to_home failed: {future.exception()}')
         return False
     
+    # Sends request to C++ node to move to drop behind position
     def request_place_behind(self) -> bool:
         if not self.behind_client.wait_for_service(timeout_sec=10.0):
             self.get_logger().error('arm_place_behind not available.')
@@ -299,7 +302,8 @@ class ServerClientNode(Node):
             return future.result().success
         self.get_logger().error(f'place_behind failed: {future.exception()}')
         return False
-
+    
+    # Sends request to C++ node to open/close gripper
     def set_grip(self, state: str) -> bool:
         if not self.grip_client.wait_for_service(timeout_sec=10.0):
             self.get_logger().error('set_grip_width not available.')
