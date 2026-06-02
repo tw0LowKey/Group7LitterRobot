@@ -36,6 +36,12 @@ setup(
             'leader_navigation_node = waypoint_navigation_pkg.leader_navigation_node:main',
             'litter_handler_node = waypoint_navigation_pkg.litter_handler_node:main',
             'follower_coordination_node = waypoint_navigation_pkg.follower_coordination_node:main',
+            'leader_navigation_node_new = waypoint_navigation_pkg.leader_navigation_node_new:main',
+            'litter_handler_node_new = waypoint_navigation_pkg.litter_handler_node_new:main',
+            'new_litter_monitor_node_new = waypoint_navigation_pkg.new_litter_monitor_new:main',
+            'straight_line_waypoint_generator_node = waypoint_navigation_pkg.straight_line_waypoint_generator:main',
+            'pointcloud_to_detected_litter_node = waypoint_navigation_pkg.pointcloud_to_detected_litter_node:main',
+            'single_sweep_litter_node = waypoint_navigation_pkg.single_sweep_litter_node:main'
         ],
     },
 )

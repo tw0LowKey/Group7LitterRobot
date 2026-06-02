@@ -265,7 +265,7 @@ def launch_setup(context, *args, **kwargs):
 
     new_litter_monitor = Node(
         package="waypoint_navigation_pkg",
-        executable="new_litter_monitor_new",
+        executable="new_litter_monitor_node_new",
         name="new_litter_monitor_new",
         output="screen",
     )

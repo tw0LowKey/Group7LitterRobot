@@ -40,7 +40,7 @@
     <xacro:property name="base_y_size" value="0.45"/>
     <xacro:property name="base_z_size" value="0.22"/>
 
-    <xacro:arg name="lidar_type" default="3d"/>
+    <xacro:arg name="lidar_type" default="2d"/>
     <xacro:property name="lidar_type" value="$(arg lidar_type)"/>
 
     <xacro:if value="${lidar_type == '2d'}">
