@@ -31,19 +31,21 @@ GRASP_CONTACT_DEPTH = 0.01
 PENETRATION_FRACS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]  # fraction of GRIPPER_FINGER_LENGTH; deeper = higher score
 
 GROUND_PLANE_OFFSET = -0.005
-GRASS_PLANE_OFFSET = -0.01
+GRASS_PLANE_OFFSET = -0.03
 N_ANCHORS = 400
 NORMAL_K = 50
 REACHABILITY_RADIUS = 0.4
 
-_CAMERA_TRANSLATION = np.array([0.135, 0.14, 0.605])
+_CAMERA_TRANSLATION = np.array([0.13, 0.14, 0.605])
 _CAMERA_ROTATION    = np.array([0.0, 0.479, 0.0, 0.878])  # [x, y, z, w]
 
-W_BODY        = 0.28
-W_SYM         = 0.26
-W_UP          = 0.26
-W_DEPTH       = 0.2
-W_GRASS       = 0.8
+W_BODY        = 0.19
+W_SYM         = 0.14
+W_UP          = 0.24
+W_ENC         = 0.19
+W_DEPTH       = 0.24
+
+W_GRASS       = 0.90
 
 TOP_K = 15
 PROCESS_EVERY_N = 1
@@ -229,12 +231,21 @@ class GraspNode(Node):
         enclosed = pts_local[in_volume]
         n_enclosed = enclosed.shape[0]
 
+        total_points = pts_local[in_env].shape[0]
+
+        # Scores by ratio of points in grasp
+        enclosure_score = n_enclosed / total_points
+
+        # Get approx object width instead of full gripper width
+        x_extent = pts_local[in_volume, 0]
+        effective_half_width = (x_extent.max() - x_extent.min()) / 2.0
+
         in_contact_y = np.abs(enclosed[:, 1]) <= GRIPPER_WIDTH_Y / 2.0
         in_contact_z = (enclosed[:, 2] >= 0.0) & (enclosed[:, 2] <= GRIPPER_FINGER_LENGTH)
         in_contact_yz = in_contact_y & in_contact_z
 
-        left_contact = (enclosed[:, 0] >= half_w - GRASP_CONTACT_DEPTH) & (enclosed[:, 0] <= half_w)
-        right_contact = (enclosed[:, 0] <= -half_w + GRASP_CONTACT_DEPTH) & (enclosed[:, 0] >= -half_w)
+        left_contact = (enclosed[:, 0] >= effective_half_width - GRASP_CONTACT_DEPTH) & (enclosed[:, 0] <= effective_half_width)
+        right_contact = (enclosed[:, 0] <= -effective_half_width + GRASP_CONTACT_DEPTH) & (enclosed[:, 0] >= -effective_half_width)
 
         n_left = float(np.sum(left_contact & in_contact_yz))
         n_right = float(np.sum(right_contact & in_contact_yz))
@@ -276,7 +287,7 @@ class GraspNode(Node):
                 depth_range = PENETRATION_FRACS[-1] - PENETRATION_FRACS[0]
                 depth_score = (penetration_frac) / depth_range
 
-        return ((W_BODY * body_score + W_SYM * sym_score + W_UP * friction_score + W_DEPTH * depth_score)*grass_collision)
+        return ((W_BODY * body_score + W_SYM * sym_score + W_UP * friction_score + W_DEPTH * depth_score + W_ENC * enclosure_score)*grass_collision)
 
     def _estimate_normal(self, anchor: np.ndarray, points: np.ndarray) -> np.ndarray:
         dists = np.linalg.norm(points - anchor, axis=1)

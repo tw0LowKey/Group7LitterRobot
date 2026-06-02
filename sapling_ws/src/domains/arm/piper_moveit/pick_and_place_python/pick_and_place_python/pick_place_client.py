@@ -100,7 +100,7 @@ class ServerClientNode(Node):
 
         if self.transform_flag:
             # Transform definition
-            t.transform.translation.x = 0.135
+            t.transform.translation.x = 0.13
             t.transform.translation.y = 0.14
             t.transform.translation.z = 0.605
             t.transform.rotation.x = -0.682
