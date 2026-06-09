@@ -20,7 +20,7 @@ class ExecutorNode(Node):
 
 		self.SAPLING_ROLE = environ.get("SAPLING_ROLE", "")
 		self.protocol = None
-		self.batteryPercentage = 100.0
+		self.batteryPercentage = 0
 		self.lat = 0.0
 		self.lng = 0.0
 		self.areaCoords = None
