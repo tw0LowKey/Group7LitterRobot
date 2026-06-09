@@ -89,6 +89,7 @@ class ExecutorNode(Node):
 
 		# Services
 		self.areaCoordsService = self.create_service(AreaCoords, "/comms/area_coords", self.areaCoordsServiceCallback)
+		self.addLitterMarkerService = self.create_service(Trigger, "/comms/add_litter_marker", self.addLitterMarkerServiceCallback)
 
 		# Clients
 		self.returnToStartClient = self.create_client(Trigger, "return_to_start")
@@ -332,6 +333,26 @@ class ExecutorNode(Node):
 
 		param = Parameter("lora_destination", Parameter.Type.INTEGER, payload["binbotNodeId"])
 		self.set_parameters([param])
+
+	def addLitterMarkerServiceCallback(self, request, response):
+		self.get_logger().debug(f"EXECUTING: Adding Litter Marker at Lat: {request.top_left_latitude}, Lng: {request.top_left_longitude}")
+
+		if self.protocol is None:
+			return
+
+		encodedPacket = encodePacket(
+			self.protocol,
+			"addLitterMarker"
+		)
+
+		if encodedPacket is not None:
+			msg = LoraTransmission()
+			msg.data = encodedPacket
+			self.loraTxPublisher.publish(msg)
+
+			response.success = True
+
+			return response
 
 def main(args=None):
 	rclpy.init(args=args)
