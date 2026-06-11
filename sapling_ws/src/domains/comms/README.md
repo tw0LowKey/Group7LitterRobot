@@ -94,7 +94,7 @@ ros2 launch comms teleop_test_basic.launch.py
 
 To start the stack with video streaming:
 ```bash
-export SAPLING_ID=R-007  # Has to comply with with R-### where ### is a 3 digit number
+export SAPLING_ID=R-067  # Has to comply with with R-### where ### is a 3 digit number
 export SAPLING_ROLE=pickbot
 ros2 launch comms teleop_test_video.launch.py
 ```
