@@ -92,6 +92,7 @@ class ExecutorNode(Node):
 		self.addLitterMarkerService = self.create_service(Trigger, "/comms/add_litter_marker", self.addLitterMarkerServiceCallback)
 
 		# Clients
+		self.pulseBeeperClient = self.create_client(Trigger, "pulse_beeper")
 		self.returnToStartClient = self.create_client(Trigger, "return_to_start")
 
 		# Timers
@@ -128,7 +129,7 @@ class ExecutorNode(Node):
 			elif cmdName == "setArmStatus":
 				self.executeToggleArm(payload)
 			elif cmdName == "setBeeperStatus":
-				self.executeSoundBeeper(payload)
+				self.executePulseBeeper(payload)
 			elif cmdName == "returnToStart":
 				self.executeReturnToStart(payload)
 			elif cmdName == "sendLeaderToFollower":
@@ -347,10 +348,14 @@ class ExecutorNode(Node):
 
 		self.get_logger().debug("EXECUTING: Toggle Manipulator Arm")
 
-	def executeSoundBeeper(self, payload):
+	def executePulseBeeper(self, payload):
 		""" Callback triggered when a message is published to the /comms/lora_rx topic with the command 'setBeeperStatus' - expects a payload in the format {"beeperOn": bool} """
 
-		self.get_logger().debug("EXECUTING: Sound On-Board Beeper")
+		self.get_logger().debug("EXECUTING: Pulse On-Board Beeper")
+
+		req = Trigger.Request()
+
+		self.pulseBeeperClient.call_async(req)
 
 	def executeReturnToStart(self, payload):
 		""" Callback triggered when a message is published to the /comms/lora_rx topic with the command 'returnToStart' - expects a payload in the format {} """
