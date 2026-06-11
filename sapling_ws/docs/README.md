@@ -4,4 +4,4 @@ The following folder is seperated into an introductory hardware setup file (Asse
 
 The folders for each subsystem contain informaton on the packages needing to be installed separately to run each subsystem (Dependencies.md), and information for startup of each subsystem (Startup.md). Information on how individual files function can be inferred from code comments and the provided copy of the final report. 
 
-**Initial hardware setup and initial software setup must be completed first**. Subsystems can theoretically be implemented in any order, so long as they do  not depend on another subsystem being implemented first. 
+**Initial software setup is recommended to be completed first, followed by the initial hardware setup** as placing the Jetson Orin Nano onto the PickBot means it cannot be easily accessed. Other than this, subsystems can theoretically be implemented in any order, so long as they do  not depend on another subsystem being implemented first. 
