@@ -136,6 +136,8 @@ class CommsNode(Node):
 			exit()
 
 	def loraTxCallback(self, msg: LoraTransmission) -> None:
+		""" Callback triggered when a message is published to the /comms/lora_tx topic """
+
 		if self.loraRadio is not None:
 			data = msg.data.encode("utf-8")
 
@@ -193,6 +195,7 @@ class CommsNode(Node):
 
 def main(args=None) -> None:
 	rclpy.init(args=args)
+
 	robotId = environ.get("SAPLING_ID")
 	if robotId is None:
 		print("SAPLING_ID has not been set - please set the environment variable")
@@ -209,10 +212,6 @@ def main(args=None) -> None:
 		else:
 			commsNode.get_logger().error("Provisioning failed to yield a LoRa Node ID - Exiting")
 	except KeyboardInterrupt:
-		# if commsNode.server is not None:
-		# 	if commsNode.server.is_advertising:
-		# 		# await commsNode.server.stop()
-		# 		commsNode.get_logger().info("BLE server shutting down safely")
 		pass
 	finally:
 		commsNode.destroy_node()

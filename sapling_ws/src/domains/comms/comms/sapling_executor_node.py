@@ -101,6 +101,8 @@ class ExecutorNode(Node):
 		self.get_logger().info("Sapling Executor Node Started - Waiting for Commands")
 
 	def protocolSubscriberCallback(self, msg):
+		""" Callback triggered when the communication protocol is published to the /comms/comms_protocol topic """
+
 		try:
 			self.protocol = loads(msg.data)
 			self.get_logger().info("Protocol updated")
@@ -144,6 +146,8 @@ class ExecutorNode(Node):
 			self.get_logger().error(f"Error processing command: {e}")
 
 	def scoutStatusSubscriberCallback(self, msg):
+		""" Subscriber callback to process incoming ScoutStatus messages, used here to extract battery voltage and calculate battery percentage """
+
 		MAX_VOLTAGE = 29.2
 		MIN_VOLTAGE = 22.0
 
@@ -156,10 +160,14 @@ class ExecutorNode(Node):
 		# self.get_logger().info(f"battery: {self.batteryPercentage}")
 
 	def gpsSubscriberCallback(self, msg):
+		""" Subscriber callback to process incoming GPS messages, used here to extract latitude and longitude """
+
 		self.lat = msg.lat
 		self.lng = msg.lng
 
 	def sendLeaderToFollowerTxSubscriberCallback(self, msg: LeaderPose):
+		""" Callback triggered when a message is published to the /comms/leader_to_follower_tx topic """
+
 		if self.protocol is None:
 			return
 
@@ -181,6 +189,8 @@ class ExecutorNode(Node):
 			self.loraTxPublisher.publish(msg)
 
 	def sendLeaderToFollowerRx(self, payload):
+		""" Callback triggered when a message is published to the /comms/leader_to_follower_rx topic """
+
 		msg = LeaderPose()
 
 		msg.seq = payload.get("seq", -1)
@@ -193,6 +203,8 @@ class ExecutorNode(Node):
 		self.sendLeaderToFollowerRxPublisher.publish(msg)
 
 	def sendFollowerToLeaderTxSubscriberCallback(self, msg: FollowerStatus):
+		""" Callback triggered when a message is published to the /comms/follower_to_leader_tx topic """
+
 		if self.protocol is None:
 			return
 
@@ -213,6 +225,8 @@ class ExecutorNode(Node):
 			self.loraTxPublisher.publish(msg)
 
 	def sendFollowerToLeaderRx(self, payload):
+		""" Callback triggered when a message is published to the /comms/leader_to_follow_rx topic """
+
 		msg = FollowerStatus()
 
 		msg.seq = payload.get("seq", -1)
@@ -224,6 +238,8 @@ class ExecutorNode(Node):
 		self.sendFollowerToLeaderRxPublisher.publish(msg)
 
 	def heartbeatTimerCallback(self):
+		""" Timer callback to publish a heartbeat message at regular intervals, containing the battery percentage and GPS coordinates """
+
 		if self.protocol is None:
 			return
 
@@ -241,6 +257,8 @@ class ExecutorNode(Node):
 			self.loraTxPublisher.publish(msg)
 
 	def executeMovement(self, payload):
+		""" Callback triggered when a message is published to the /comms/lora_rx topic with the command 'movement' - expects a payload in the format {"direction": "U|D|L|R"} """
+
 		self.get_logger().debug(f"EXECUTING: Movement: {payload}")
 
 		linearSpeed = 0.5 # NOTE: Make this a parameter
@@ -266,11 +284,15 @@ class ExecutorNode(Node):
 		self.movementPublisher.publish(msg)
 
 	def executeAreaCoords(self, payload):
+		""" Callback triggered when a message is published to the /comms/lora_rx topic with the command 'areaCoords' - expects a payload in the format {"topLeftLatitude": float, "topLeftLongitude": float, "bottomRightLatitude": float, "bottomRightLongitude": float} """
+
 		self.get_logger().debug(f"EXECUTING: Publishing Area Coords: {payload}")
 
 		self.areaCoords = payload
 
 	def areaCoordsServiceCallback(self, request, response):
+		""" Service callback to return the coordinates of the operational area """
+
 		if self.areaCoords is not None:
 			response.success = True
 			response.top_left_latitude = self.areaCoords["topLeftLatitude"]
@@ -287,6 +309,8 @@ class ExecutorNode(Node):
 		return response
 
 	def sendIpAddressTimerCallback(self):
+		""" Timer callback to send the robot's IP address over LoRa at regular intervals, so the UI can connect to the correct video stream from the robot's onboard camera """
+
 		if self.protocol is None:
 			return
 
@@ -314,27 +338,39 @@ class ExecutorNode(Node):
 			self.loraTxPublisher.publish(msg)
 
 	def executeResumeAuto(self, payload):
+		""" Callback triggered when a message is published to the /comms/lora_rx topic with the command 'resumeAuto' - expects a payload in the format {} """
+
 		self.get_logger().debug("EXECUTING: Resume Autonomous Navigation")
 
 	def executeToggleArm(self, payload):
+		""" Callback triggered when a message is published to the /comms/lora_rx topic with the command 'setArmStatus' - expects a payload in the format {"armExtended": bool} """
+
 		self.get_logger().debug("EXECUTING: Toggle Manipulator Arm")
 
 	def executeSoundBeeper(self, payload):
+		""" Callback triggered when a message is published to the /comms/lora_rx topic with the command 'setBeeperStatus' - expects a payload in the format {"beeperOn": bool} """
+
 		self.get_logger().debug("EXECUTING: Sound On-Board Beeper")
 
 	def executeReturnToStart(self, payload):
+		""" Callback triggered when a message is published to the /comms/lora_rx topic with the command 'returnToStart' - expects a payload in the format {} """
+
 		self.get_logger().debug("EXECUTING: Return to Start Service")
 
 		req = Trigger.Request()
 		self.returnToStartClient.call_async(req)
 
 	def executeAssignBinbot(self, payload):
+		""" Callback triggered when a message is published to the /comms/lora_rx topic with the command 'assignBinbot' - expects a payload in the format {"binbotNodeId": int} """
+
 		self.get_logger().debug(f"EXECUTING: Assigning new binbot to self with node ID {payload}")
 
 		param = Parameter("lora_destination", Parameter.Type.INTEGER, payload["binbotNodeId"])
 		self.set_parameters([param])
 
 	def addLitterMarkerServiceCallback(self, request, response):
+		""" Service callback to add a litter marker at the robot's current GPS coordinates """
+
 		self.get_logger().debug(f"EXECUTING: Adding Litter Marker at Lat: {request.top_left_latitude}, Lng: {request.top_left_longitude}")
 
 		if self.protocol is None:
@@ -356,14 +392,14 @@ class ExecutorNode(Node):
 
 def main(args=None):
 	rclpy.init(args=args)
-	executor = ExecutorNode()
+	executorNode = ExecutorNode()
 
 	try:
-		rclpy.spin(executor)
+		rclpy.spin(executorNode)
 	except KeyboardInterrupt:
 		pass
 	finally:
-		executor.destroy_node()
+		executorNode.destroy_node()
 		if rclpy.ok():
 			rclpy.shutdown()
 

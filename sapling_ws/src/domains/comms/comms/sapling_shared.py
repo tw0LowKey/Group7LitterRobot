@@ -21,6 +21,8 @@ def encodePacket(protocol, cmdName, *args) -> Optional[dict]:
 	return None
 
 def decodePacket(packet: bytearray, protocol: dict) -> dict:
+	""" Unpacks a binary packet using the provided protocol and returns the command name and payload as a dictionary """
+
 	# Get the binary data of the packet and the associated command ID, name and info
 	packet = bytes.fromhex(packet.decode("utf-8"))
 	cmdId = packet[0]
@@ -36,7 +38,7 @@ def decodePacket(packet: bytearray, protocol: dict) -> dict:
 		if key != "cmdId":
 			val = unpackedPacket[i]
 
-			if isinstance(val, bytes): # NOTE: See if this can be removed
+			if isinstance(val, bytes):
 				val = val.decode("ascii")
 
 			payload[key] = val

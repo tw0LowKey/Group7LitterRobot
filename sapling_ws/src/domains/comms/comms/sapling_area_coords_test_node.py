@@ -32,6 +32,8 @@ class AreaCoordsNode(Node):
 		self.get_logger().info(f"Bottom Right: ({self.areaCoords['bottomRightLatitude']}, {self.areaCoords['bottomRightLongitude']})")
 
 	def areaCoordsServiceCallback(self, request, response):
+		""" Service callback to return the coordinates of the area """
+
 		response.success = True
 		response.top_left_latitude = self.areaCoords["topLeftLatitude"]
 		response.top_left_longitude = self.areaCoords["topLeftLongitude"]

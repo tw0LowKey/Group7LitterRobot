@@ -3,12 +3,13 @@
 <package format="3">
   <name>comms</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="Thierry_popat@hotmail.com">group7</maintainer>
+  <description>Allows for the communication between the robots and the UI, and inter-robot communication</description>
+  <maintainer email="">group7</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
   <depend>sapling_interfaces</depend>
+  <depend>cv_bridge</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

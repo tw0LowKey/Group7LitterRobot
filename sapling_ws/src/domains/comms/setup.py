@@ -17,7 +17,7 @@ setup(
     install_requires=['setuptools', 'sapling_interfaces'],
     zip_safe=True,
     maintainer='group7',
-    maintainer_email='Thierry_popat@hotmail.com',
+    maintainer_email='',
     description='TODO: Package description',
     license='TODO: License declaration',
     extras_require={
