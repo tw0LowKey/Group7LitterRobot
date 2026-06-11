@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  build_ws:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/ros2_ws/src/scout_nav2
+      - ros2_ws_vol:/ros2_ws
+    command: >
+      bash -c "source /opt/ros/humble/setup.bash &&
+              cd /ros2_ws &&
+              rosdep install --from-paths src --ignore-src -r -y &&
+              colcon build --cmake-clean-cache"
+
+  navigation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/ros2_ws/src/scout_nav2
+      - ros2_ws_vol:/ros2_ws
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - IGN_PARTITION=default
+      - IGN_IP=host.docker.internal
+      - ROS_DOMAIN_ID=0
+      - GAZEBO_MASTER_URI=http://host.docker.internal:11345
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    network_mode: host
+    privileged: true
+    tty: true
+    command: >
+      bash -c "source /opt/ros/humble/setup.bash &&
+              source /ros2_ws/install/setup.bash &&
+              ros2 launch rm_navigation rm_navigation.launch.py"
+
+  waypoint_publisher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/ros2_ws/src/scout_nav2
+      - ros2_ws_vol:/ros2_ws
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - DISPLAY=${DISPLAY}
+      - QT_X11_NO_MITSHM=1
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - IGN_PARTITION=default
+      - IGN_IP=host.docker.internal
+      - ROS_DOMAIN_ID=0
+      - GAZEBO_MASTER_URI=http://host.docker.internal:11345
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    network_mode: host
+    privileged: true
+    tty: true
+    depends_on:
+      navigation:
+        condition: service_started
+    command: >
+      bash -c "source /opt/ros/humble/setup.bash &&
+              source /ros2_ws/install/setup.bash &&
+              ros2 run waypoint_navigation_pkg waypoint_navigation_node"
+
+  waypoint-service-caller:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/ros2_ws/src/scout_nav2
+      - ros2_ws_vol:/ros2_ws
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    environment:
+      - IGN_PARTITION=default
+      - IGN_IP=host.docker.internal
+      - ROS_DOMAIN_ID=0
+      - GAZEBO_MASTER_URI=http://host.docker.internal:11345
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    network_mode: host
+    privileged: true
+    tty: true
+    depends_on:
+      navigation:
+        condition: service_started
+    command: >
+      bash -c "source /opt/ros/humble/setup.bash &&
+              source /ros2_ws/install/setup.bash &&
+              ros2 service call /start_navigation std_srvs/srv/Trigger"
+
+volumes:
+  ros2_ws_vol:

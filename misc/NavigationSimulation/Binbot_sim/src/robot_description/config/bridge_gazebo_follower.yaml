@@ -1,0 +1,71 @@
+---
+# ----------------------------------------
+# Velocity Command (ROS 2 -> Gazebo)
+# ----------------------------------------
+- ros_topic_name: "/follower/cmd_vel"
+  gz_topic_name: "/follower/cmd_vel"
+  ros_type_name: "geometry_msgs/msg/Twist"
+  gz_type_name: "ignition.msgs.Twist"
+  direction: ROS_TO_GZ
+
+# ----------------------------------------
+# Odometry (Gazebo -> ROS 2)
+# ----------------------------------------
+- ros_topic_name: "/follower/odom"
+  gz_topic_name: "/follower/odom"
+  ros_type_name: "nav_msgs/msg/Odometry"
+  gz_type_name: "ignition.msgs.Odometry"
+  direction: GZ_TO_ROS
+
+# ----------------------------------------
+# Transforms (Gazebo -> ROS 2)
+# Publishes to /tf — frame names are unique so no clash with leader
+# gz_topic_name must match xacro <tf_topic>/follower/tf</tf_topic>
+# ----------------------------------------
+- ros_topic_name: "/follower/tf"
+  gz_topic_name: "/follower/tf"
+  ros_type_name: "tf2_msgs/msg/TFMessage"
+  gz_type_name: "ignition.msgs.Pose_V"
+  direction: GZ_TO_ROS
+
+# ----------------------------------------
+# IMU Sensor (Gazebo -> ROS 2)
+# ----------------------------------------
+- ros_topic_name: "/follower/imu"
+  gz_topic_name: "/follower/imu"
+  ros_type_name: "sensor_msgs/msg/Imu"
+  gz_type_name: "ignition.msgs.IMU"
+  direction: GZ_TO_ROS
+
+# ----------------------------------------
+# 2D Lidar / Scan (Gazebo -> ROS 2)
+# ----------------------------------------
+- ros_topic_name: "/follower/scan"
+  gz_topic_name: "/follower/scan"
+  ros_type_name: "sensor_msgs/msg/LaserScan"
+  gz_type_name: "ignition.msgs.LaserScan"
+  direction: GZ_TO_ROS
+
+# ----------------------------------------
+# 3D Lidar / Pointcloud (Gazebo -> ROS 2)
+# ----------------------------------------
+- ros_topic_name: "/follower/pointcloud"
+  gz_topic_name: "/follower/pointcloud"
+  ros_type_name: "sensor_msgs/msg/PointCloud2"
+  gz_type_name: "ignition.msgs.PointCloudPacked"
+  direction: GZ_TO_ROS
+
+# ----------------------------------------
+# Joint States (Gazebo -> ROS 2)
+# ----------------------------------------
+- ros_topic_name: "/follower/joint_states"
+  gz_topic_name: "/world/empty/model/follower/joint_state"
+  ros_type_name: "sensor_msgs/msg/JointState"
+  gz_type_name: "ignition.msgs.Model"
+  direction: GZ_TO_ROS
+
+- ros_topic_name: "/follower/navsat"
+  gz_topic_name: "/follower/navsat"
+  ros_type_name: "sensor_msgs/msg/NavSatFix"
+  gz_type_name: "ignition.msgs.NavSat"
+  direction: GZ_TO_ROS
