@@ -12,7 +12,7 @@ source install/setup.bash
 ros2 launch computer_vision vision_start.launch.py
 ```
 
-Ctrl+C may then be pressed to shutdown the subsystem. 
+`Ctrl+C` may then be pressed to shutdown the subsystem. 
 
 It should be ensured no unnecessary programs are open when attempting to run the Litter Detection Subsystem, as ample RAM is required to run the 2GB rgb_depth_node. Should the node crash, indicated via `[ERROR] [rgb_depth_node-2]: process has died` and a memory allocation error, shut down the subsystem and run it again with more memory available. 
 
