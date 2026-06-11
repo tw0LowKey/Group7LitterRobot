@@ -6,9 +6,11 @@ Connection to the Jetson can be confirmed via running **lsusb** in the terminal,
 
 Once connection is confirmed, the Litter Detection Subsystem can simply be started via running:
 
+```
 cd ~/Group7LitterRobot/sapling_ws
 source install/setup.bash
 ros2 launch computer_vision vision_start.launch.py
+```
 
 Ctrl+C may then be pressed to shutdown the subsystem. 
 
@@ -16,6 +18,8 @@ It should be ensured no unnecessary programs are open when attempting to run the
 
 Should the ground plane for grasping need to be recalculated, delete the old grasp plane node to allow regeneration, and do:
 
+```
 ros2 run computer_vision ground_plane_node
+```
 
-Which should save a new .npy ground plane file. Ensure the PickBot is positioned on flat ground, with the camera angled at solely flat ground, otherwise the result will be incorrect.
+Which should save a new .npy ground plane file. Ensure the PickBot is positioned on flat ground, with the camera angled at solely flat ground, otherwise the result will be incorrect. See the final report reissue for further detail on the ground plane node. 
