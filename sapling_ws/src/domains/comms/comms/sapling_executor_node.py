@@ -12,7 +12,7 @@ from sapling_interfaces.msg import FollowerStatus, LeaderPose, LoraTransmission
 from sapling_interfaces.srv import AreaCoords
 from scout_msgs.msg import ScoutStatus
 from std_msgs.msg import String
-from std_srvs.srv import Trigger
+from std_srvs.srv import SetBool, Trigger
 
 class ExecutorNode(Node):
 	def __init__(self):
@@ -94,6 +94,7 @@ class ExecutorNode(Node):
 		# Clients
 		self.pulseBeeperClient = self.create_client(Trigger, "pulse_beeper")
 		self.returnToStartClient = self.create_client(Trigger, "return_to_start")
+		self.toggleEmergencyStopClient = self.create_client(SetBool, "/comms/virtual_emergency_stop")
 
 		# Timers
 		self.heartbeatTimer = self.create_timer(5.0, self.heartbeatTimerCallback)
@@ -138,6 +139,8 @@ class ExecutorNode(Node):
 				self.sendFollowerToLeaderRx(payload)
 			elif cmdName == "assignBinbot":
 				self.executeAssignBinbot(payload)
+			elif cmdName == "toggleVirtualEmergencyStop":
+				self.executeToggleVirtualEmergencyStop(payload)
 			elif cmdName == "unknown":
 				self.get_logger().error(f"Received unknown command: {cmdName}")
 			else:
@@ -392,8 +395,19 @@ class ExecutorNode(Node):
 			self.loraTxPublisher.publish(msg)
 
 			response.success = True
+		else:
+			response.success = False
 
-			return response
+		return response
+
+	def executeToggleVirtualEmergencyStop(self, payload):
+		""" Callback triggered when a message is published to the /comms/lora_rx topic with the command 'toggleVirtualEmergencyStop' - expects a payload in the format {"virtualEmergencyStop": bool} """
+
+		self.get_logger().debug("EXECUTING: Toggle Virtual Emergency Stop")
+
+		req = SetBool.Request()
+		req.data = self.virtualEmergencyStop
+		self.toggleEmergencyStopClient.call_async(req)
 
 def main(args=None):
 	rclpy.init(args=args)
