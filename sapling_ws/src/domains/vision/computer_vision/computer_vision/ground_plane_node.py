@@ -1,3 +1,4 @@
+# Node to estimate the plane of the ground, where the ground lies tangent to the wheels of the PickBot from depth point cloud using RANSAC, saving for use in grasp feasibility checking.
 import os
 import numpy as np
 import rclpy
@@ -8,13 +9,13 @@ from geometry_msgs.msg import PointStamped
 import sensor_msgs_py.point_cloud2 as pc2
 from ament_index_python.packages import get_package_share_directory
 
-# THIS HAS BEEN UPDATED, BUT NOT RUN TO TEST DUE TO PRE-EXISTENCE OF A GOOD GROUND PLANE, RUN FOR TESTING IF NEEDED.
-
 PLANE_SAVE_PATH = os.path.normpath(os.path.join(
     os.path.dirname(os.path.abspath(__file__)),
     '..', '..', '..', '..', '..', '..',
     'src', 'domains', 'vision', 'computer_vision', 'computer_vision', 'ground_plane.npy'
 ))
+
+# RANSAC parameters
 
 RANSAC_ITERATIONS = 100
 RANSAC_INLIER_THRESHOLD = 0.01
@@ -50,7 +51,6 @@ class GroundPlaneNode(Node):
         self.pc_sub = self.create_subscription(PointCloud2, '/camera/depth/points', self.pc_callback, 10)
         self.timer = self.create_timer(1.0, self.publish_plane)
 
-    # RANSAC plane fit
     def _fit_plane_ransac(self, points):
         best_inliers = None
         best_count = 0
@@ -92,15 +92,16 @@ class GroundPlaneNode(Node):
         d = -np.dot(normal, centroid)
         return normal, d, best_inliers
 
-    # Point cloud callback
     def pc_callback(self, pc_msg):
         if self._calibrated and len(self._candidate_planes) == 0:
             return
 
+        # Convert PointCloud2 to numpy array
         points_list = list(pc2.read_points(pc_msg, field_names=("x","y","z"), skip_nans=True))
         if len(points_list) < MIN_POINTS:
             return
 
+        # Filter points to focus on likely ground candidates based on Y coordinate
         points = np.array([[p[0],p[1],p[2]] for p in points_list], dtype=np.float64)
         y_threshold = np.percentile(points[:, 1], (1.0 - GROUND_Y_FRACTION) * 100)
         ground_candidates = points[points[:, 1] >= y_threshold]
@@ -111,10 +112,12 @@ class GroundPlaneNode(Node):
         if result is None:
             return
 
+        # Store candidate plane for averaging
         normal, d, _ = result
         self._candidate_planes.append(np.array([normal[0], normal[1], normal[2], d]))
         self.get_logger().info(f"Collected plane sample {len(self._candidate_planes)}/{FRAMES_TO_AVERAGE}")
 
+        # Average for stable estimate and save plane 
         if len(self._candidate_planes) >= FRAMES_TO_AVERAGE:
             avg_coeffs = np.mean(self._candidate_planes, axis=0)
             avg_coeffs[:3] /= np.linalg.norm(avg_coeffs[:3])
@@ -131,11 +134,12 @@ class GroundPlaneNode(Node):
             tilt_deg = float(np.degrees(np.arccos(np.clip(np.dot(avg_coeffs[:3], cam_up),-1.0,1.0))))
             self.get_logger().info(f"Camera tilt from horizon: {tilt_deg:.2f} degrees")
 
-    # Publish plane
+    # Publish plane coefficients as Float64MultiArray and normal/origin as PointStamped for visualization/debugging
     def publish_plane(self):
         if self._plane_coeffs is None:
             return
 
+        # 
         msg = Float64MultiArray()
         msg.layout.dim.append(MultiArrayDimension(label='plane_coefficients', size=4, stride=4))
         msg.data = self._plane_coeffs.tolist()

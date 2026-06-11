@@ -1,3 +1,4 @@
+# Node to determine grasps from selected litter point cloud, publishes grasp poses and visualization markers
 import os
 import time
 import numpy as np
@@ -12,28 +13,32 @@ from visualization_msgs.msg import MarkerArray
 from piper_msgs.srv import PickPlaceRequest
 from ament_index_python.packages import get_package_share_directory
 from rclpy.executors import ExternalShutdownException
+from rclpy.qos import QoSProfile, DurabilityPolicy
 
-# Gripper parameters
-GRIPPER_WIDTH_MIN = 0.001
+# QoS profile for latched topics (e.g., start_grasp)
+latch_qos = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
+
+# Gripper parameters (m)
+GRIPPER_WIDTH_MIN = 0.001 # Width refers to the maximum extent of the closing (X) axis (i.e. distance between fingers)
 GRIPPER_WIDTH_MAX = 0.07
-GRIPPER_FINGER_LENGTH = 0.074
-GRIPPER_FINGER_THICK = 0.01
-GRIPPER_PALM_THICK = 0.024
-GRIPPER_WIDTH_Y = 0.04
-GRIPPER_BODY_DEPTH = 0.145
-GRIPPER_PALM_EXTRA_X = 0.025
+GRIPPER_FINGER_LENGTH = 0.074 # Length refers to the extent of the fingers along the approach (Z) axis (i.e. length of fingers)
+GRIPPER_FINGER_THICK = 0.01 # Thickness refers to the extent of the fingers along the closing (X) axis
+GRIPPER_PALM_THICK = 0.024 # Thickness of the palm along the approach (Z) axis
+GRIPPER_WIDTH_Y = 0.04 # Width of the gripper along the orthogonal (Y) (orthogonal to approach and closing axis) axis
+GRIPPER_BODY_DEPTH = 0.145 # Depth of the gripper body (palm + shaft) along the approach (Z) axis
+GRIPPER_PALM_EXTRA_X = 0.025 # Extra width of the palm along the closing (X) axis past the fingers at maximum extent
 
 GRIPPER_SHAFT_DEPTH = GRIPPER_BODY_DEPTH - GRIPPER_PALM_THICK
 GRIPPER_PALM_WIDTH_Y = 0.075
 GRIPPER_SHAFT_RADIUS = 0.04
-GRASP_CONTACT_DEPTH = 0.01
+GRASP_CONTACT_DEPTH = 0.01 # Depth within each finger that counts points "in contact" with the gripper finger
 
 # Array of possible grasp depths
-PENETRATION_FRACS = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6]
+PENETRATION_FRACS = [0.4, 0.5, 0.6]
 
-# Defining height of the grass and floor relative to the scout's wheels
+# Defining height offset of the grass and floor relative to the scout's wheels
 GROUND_PLANE_OFFSET = -0.005
-GRASS_PLANE_OFFSET = -0.03
+GRASS_PLANE_OFFSET = -0.025
 
 # Number of anchors to sample
 N_ANCHORS = 400
@@ -42,18 +47,14 @@ NORMAL_K = 50
 # Approximate arm reach to filter candidates
 REACHABILITY_RADIUS = 0.4
 
-# Camera to arm base link transform
-_CAMERA_TRANSLATION = np.array([0.13, 0.14, 0.605])
-_CAMERA_ROTATION    = np.array([0.0, 0.479, 0.0, 0.878])  # [x, y, z, w]
-
 # Scoring weights
-W_BODY        = 0.19
-W_SYM         = 0.14
-W_UP          = 0.24
+W_BODY        = 0.14
+W_SYM         = 0.9
+W_UP          = 0.29
 W_ENC         = 0.19
-W_DEPTH       = 0.24
+W_DEPTH       = 0.29
 
-W_GRASS       = 0.90
+W_GRASS       = 0.97
 
 # Number of grasps to send to the pick and place client
 TOP_K = 15
@@ -63,7 +64,7 @@ PROCESS_EVERY_N = 1
 def _local_to_world_pos(local_offset: np.ndarray, grasp_pos: np.ndarray, grasp_rot: np.ndarray) -> np.ndarray:
     return grasp_pos + grasp_rot @ local_offset
 
-#
+# Helper function to create a cube marker for visualizing the gripper in rviz
 def _make_cube_marker(header, ns, marker_id, world_pos, quat, scale_xyz, rgba):
     from visualization_msgs.msg import Marker
     m = Marker()
@@ -94,15 +95,6 @@ class GraspNode(Node):
         super().__init__('grasp_node')
 
         self._msg_count = 0
-
-        _pitch_rot = R.from_euler('x', -57.0, degrees=True).as_matrix()
-        self._base_pos_in_camera = _pitch_rot @ _CAMERA_TRANSLATION
-        self.get_logger().info(
-            f"Base link in camera frame: "
-            f"[{self._base_pos_in_camera[0]:.3f}, "
-            f"{self._base_pos_in_camera[1]:.3f}, "
-            f"{self._base_pos_in_camera[2]:.3f}]"
-        )
 
         # Defining ground plane (approximate location of ground in camera frame)
         self._ground_plane = None
@@ -152,12 +144,11 @@ class GraspNode(Node):
             PointCloud2, '/cloud/centroids', self.centroids_callback, 1
         )
 
+        self.start_grasp_pub = self.create_publisher(Bool, '/start_grasp', latch_qos)
+
         # Grasp publishers
         self.grasp_pub  = self.create_publisher(PoseStamped, '/grasp_pose', 1)
         self.marker_pub = self.create_publisher(MarkerArray, '/grasp_markers', 10)
-
-        self._startup_count = 0
-        self._startup_timer = self.create_timer(0.5, self._startup_publish)
 
         # Client to pick and place service
         self.pick_client   = self.create_client(PickPlaceRequest, 'pick_place_request')
@@ -178,14 +169,6 @@ class GraspNode(Node):
             p for p in pts
             if np.linalg.norm(np.array([p[0], p[1], p[2]])) <= REACHABILITY_RADIUS
         ]
-
-    #
-    def _startup_publish(self):
-        self._startup_count += 1
-        if self._startup_count > 10:
-            self._startup_timer.cancel()
-            return
-        
 
     # Returns reason for grasps being rejected for debugging
     def _feasibility_reason(self, points, grasp_pos, grasp_rot):
@@ -429,7 +412,7 @@ class GraspNode(Node):
 
         return markers
     
-    #
+    # Main callback 
     def pc_callback(self, pc_msg):
         callback_start = time.time()
         self.get_logger().info(
@@ -446,6 +429,7 @@ class GraspNode(Node):
             )
             return
 
+        # Point cloud
         points_list = list(pc2.read_points(pc_msg, field_names=("x", "y", "z", "instance_id"), skip_nans=True))
         if not points_list:
             return
@@ -456,7 +440,7 @@ class GraspNode(Node):
         if unique_ids.size == 0:
             return
 
-        points = all_points[:, :3]
+        points = all_points[:, :3] # Strip instance_id from points
 
         gen_start = time.time()
         candidates = self.generate_candidates(points)
@@ -471,6 +455,7 @@ class GraspNode(Node):
         }
         scored_candidates = []
 
+        # Score grasp candidates and filter infeasible grasps, selecting TOP_K grasp candidates
         self.get_logger().info(f"Generated {len(candidates)} candidates, scoring and filtering...")
         for grasp_pos, grasp_rot, penetration_frac in candidates:
             reason = self._feasibility_reason(points, grasp_pos, grasp_rot)
@@ -493,11 +478,13 @@ class GraspNode(Node):
         scored_candidates.sort(key=lambda x: x[0], reverse=True)
         top_candidates = scored_candidates[:TOP_K]
 
+        # Publish gripper visualization markers
+
         marker_array = MarkerArray()
         pose_array_to_send = []
 
         for idx, (score, pos, rot) in enumerate(top_candidates):
-            rot_swapped = rot @ R.from_euler('z', 100, degrees=True).as_matrix()
+            rot_swapped = rot @ R.from_euler('z', 100, degrees=True).as_matrix() # Rotation correction, could be integrated into transform in pick_and_place_python
             quat = R.from_matrix(rot_swapped).as_quat()
             quat_marker = R.from_matrix(rot).as_quat()
 
@@ -518,6 +505,7 @@ class GraspNode(Node):
 
         self.marker_pub.publish(marker_array)
 
+        # Publish chosen grasp poses when pick and place client available, prevent grasps while arm moving
         if pose_array_to_send:
             self._baseline_count = len(self._centroid_list)
             self.get_logger().info(
@@ -548,7 +536,7 @@ class GraspNode(Node):
             f"Published {len(top_candidates)} poses and markers"
         )
 
-    #
+    # Response on pick and place completion, tracking grasp failures. (FAILURES NOT TESTED AND MAY BE IMPLEMENTED INCORRECTLY)
     def grasp_response_callback(self, future):
         self.get_logger().info("DEBUG: grasp_response_callback entered.")
         current_count = len(self._centroid_list)
@@ -568,12 +556,13 @@ class GraspNode(Node):
                 self._attempts += 1
 
             self.get_logger().info(f"Grasp attempts: {self._attempts}")
+            self.start_grasp_pub.publish(Bool(data=False))
 
         except Exception as e:
             self.get_logger().error(f"Service call to Master Node failed: {e}")
         finally:
             self.get_logger().info("Unlocking vision system for next scan.")
-            self.robot_is_busy = False
+            self.robot_is_busy = False 
 
 
 def main(args=None):

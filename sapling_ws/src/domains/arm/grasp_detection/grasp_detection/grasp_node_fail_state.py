@@ -1,3 +1,4 @@
+# DEPRECATED: This node was not fully implemented, but represents the possible code for the fail state of the grasp.
 import os
 import time
 import numpy as np

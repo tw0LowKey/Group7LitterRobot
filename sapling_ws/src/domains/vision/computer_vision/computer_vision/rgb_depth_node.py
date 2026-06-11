@@ -1,3 +1,6 @@
+# Node which takes Orbbec Femto Mega camera data and runs it through the YOLO segmentation model,
+# producing both 2D contour overlays and 3D point clouds of detected instances.
+# These contours are combined with depth data to create point clouds of litter with associated instances IDs. 
 import os
 import time
 import cv2
@@ -26,7 +29,7 @@ CONTOUR_PALETTE = [
     (255, 165,   0), (128,   0, 255),
 ]
 
-
+# Helper function to build the raw point cloud with RGBA colors and instance IDs
 def build_raw_cloud_msg(header, points, instance_ids, colors_rgba):
     cloud_dtype = np.dtype([
         ('x', np.float32), ('y', np.float32), ('z', np.float32),
@@ -53,7 +56,7 @@ def build_raw_cloud_msg(header, points, instance_ids, colors_rgba):
     ]
     return pc2.create_cloud(header, fields, cloud_array)
 
-
+# Helper function to build the cleaned point cloud with instance IDs (no colors)
 def build_clean_cloud_msg(header, points, instance_ids):
     cloud_dtype = np.dtype([
         ('x', np.float32), ('y', np.float32), ('z', np.float32),
@@ -73,7 +76,7 @@ def build_clean_cloud_msg(header, points, instance_ids):
     ]
     return pc2.create_cloud(header, fields, cloud_array)
 
-
+# Helper function to clean point cloud using Open3D's statistical outlier removal and voxel downsampling
 def clean_point_cloud_o3d(points_xyz, nb_neighbors=10, std_ratio=2.0, voxel_size=0.005, min_points=1000):
     if points_xyz.shape[0] == 0:
         return points_xyz
@@ -97,13 +100,16 @@ class RGBDepthNode(Node):
     def __init__(self):
         super().__init__('rgb_depth_node')
         self.bridge = CvBridge()
-        self.enable_3d = True  # Toggle to True to re-enable 3D pipeline
+        self.enable_3d = True  # Toggle to False to disable 3D processing, allows to see solely 2D YOLO performance in system monitor
 
+        # Create model
         model_path = os.path.join(
             get_package_share_directory('computer_vision'),
             'models', 'Model_1_engine_2.engine'
         )
         self.model = YOLO(model_path, task='segment')
+
+        # Subscribers and publishers
 
         self.rgb_sub   = Subscriber(self, Image,      '/camera/color/image_raw')
         self.depth_sub = Subscriber(self, Image,      '/camera/depth/image_raw')
@@ -111,7 +117,7 @@ class RGBDepthNode(Node):
 
         self.sync = ApproximateTimeSynchronizer(
             [self.rgb_sub, self.depth_sub, self.info_sub], queue_size=3, slop=0.2
-        )
+        ) # Time sync between RGB, depth, and camera info 
         self.sync.registerCallback(self.synced_callback)
 
         self.pc_pub_raw       = self.create_publisher(PointCloud2, '/cloud/masks_raw',       10)
@@ -123,16 +129,20 @@ class RGBDepthNode(Node):
         self._score_stats = {}  # track_id -> {'sum': float, 'count': int}
 
     def synced_callback(self, rgb_msg, depth_msg, info_msg):
-        self.get_logger().info("Entered RGB Callback")
+        # self.get_logger().info("Entered RGB Callback")
+
+        # Convert Orbbec images to OpenCV format
         rgb   = self.bridge.imgmsg_to_cv2(rgb_msg,   'bgr8')
         depth = self.bridge.imgmsg_to_cv2(depth_msg, 'passthrough')
         if depth_msg.encoding == '16UC1':
             depth = depth / 1000.0
 
+        # Camera intrinsics
         fx, fy = info_msg.k[0], info_msg.k[4]
         cx, cy = info_msg.k[2], info_msg.k[5]
         rgb_for_color = cv2.cvtColor(rgb, cv2.COLOR_BGR2RGB)
 
+        # Run YOLO segmentation and tracking
         results    = self.model.track(rgb, conf=0.5, verbose=False, imgsz=1280,
                                       retina_masks=True, batch=1, persist=True)
         masks_full = results[0].masks.data.cpu().numpy().astype(bool) if results[0].masks else []
@@ -147,8 +157,9 @@ class RGBDepthNode(Node):
         raw_pts_l, raw_ids_l, raw_cols_l = [], [], []
         clean_pts_l, clean_ids_l         = [], []
 
-        self.get_logger().info("Mask Loop")
+        # self.get_logger().info("Mask Loop")
 
+        # Process each detected instance: draw contours, create point clouds, and track score stats
         for mask, track_id, score in zip(masks_full, ids, scores):
             i = int(track_id)
 
@@ -229,7 +240,7 @@ class RGBDepthNode(Node):
         mask_msg.header = rgb_msg.header
         self.contour_mask_pub.publish(mask_msg)
 
-        # --- Timing log ---
+        # Timing log
         torch.cuda.empty_cache()
         current_time = time.time()
         if self.last_callback_time is not None:
@@ -238,7 +249,7 @@ class RGBDepthNode(Node):
         else:
             self.get_logger().info(f"First callback | 3D: {'on' if self.enable_3d else 'off'}")
         self.last_callback_time = current_time
-        self.get_logger().info("Mask End")
+        # self.get_logger().info("Mask End")
 
 def main(args=None):
     rclpy.init(args=args)

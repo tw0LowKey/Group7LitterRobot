@@ -1,8 +1,7 @@
 HOW TO RUN PICK AND PLACE PACKAGE
 
 --ACTIVATE CAN--
-cd ~/Group7LitterRobot/sapling_ws/src/domains/arm/scripts 
-bash can_activate.sh can_arm 1000000 1-2.1:1.0
+canup
 
 --LAUNCH VISION--
 cd ~/Group7LitterRobot/sapling_ws
@@ -28,3 +27,16 @@ ros2 run add_zones_pkg add_zones_node
 --ALLOW DROP--
 ros2 topic pub --once /comms/follower_to_leader sapling_interfaces/msg/FollowerStatus "{seq: 0, parked: false, park_x: 0.0, park_y: 0.0, bin_ready: true}"
 
+-- NAV --
+ros2 topic pub --once /start_grasp std_msgs/msg/Bool "{data: true}"
+
+
+ros2 topic pub --once /drive_front_3m std_msgs/msg/Bool '{data: true}'
+
+
+from rclpy.qos import QoSProfile, DurabilityPolicy
+
+latch_qos = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
+
+( IN NODE CLASS START)
+self.start_grasp_pub = self.create_publisher(Bool, '/start_grasp', latch_qos)

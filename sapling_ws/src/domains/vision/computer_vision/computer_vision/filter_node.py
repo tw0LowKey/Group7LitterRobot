@@ -1,3 +1,5 @@
+# Node which subscribes to litter point cloud and filters out instances not in reach, randomly selecting a cloud for picking. 
+# Latches grasp start via /start_grasp to be controlled from nav, and publishes several debugging topics.
 import os
 import numpy as np
 import rclpy
@@ -11,14 +13,18 @@ from visualization_msgs.msg import Marker, MarkerArray
 from ament_index_python.packages import get_package_share_directory
 import sensor_msgs_py.point_cloud2 as pc2
 from rclpy.executors import ExternalShutdownException
+from rclpy.qos import QoSProfile, DurabilityPolicy
+
+# QoS profile for latched topics (e.g., start_grasp)
+latch_qos = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL)
 
 REACHABILITY_RADIUS = 0.6
 GROUND_PLANE_OFFSET = 0.01
-_CAMERA_TRANSLATION = np.array([0.135, 0.14, 0.605])
+_CAMERA_TRANSLATION = np.array([0.135, 0.14, 0.605]) # Measured transformation between camera and arm base link in camera frame, used for base link debug marker and reachability sphere. Note that the actual base link position may vary slightly due to inaccuracies in the transform and movement of the scout, but this provides a reasonable estimate for filtering and visualization.
 
 PROCESS_EVERY_N = 3
 
-
+# Helper function to build a PointCloud2 message for selected points with instance IDs
 def build_selected_cloud_msg(header, points, instance_ids):
     cloud_dtype = np.dtype([
         ('x', np.float32),
@@ -42,7 +48,7 @@ def build_selected_cloud_msg(header, points, instance_ids):
 
     return pc2.create_cloud(header, fields, cloud_array)
 
-
+# Helper function to build a PointCloud2 message for centroids with instance IDs
 def build_centroid_cloud_msg(header, centroids, instance_ids):
     fields = [
         PointField(name='x', offset=0, datatype=PointField.FLOAT32, count=1),
@@ -70,6 +76,8 @@ class FilterNode(Node):
 
         self._msg_count = 0
 
+        self.start_grasp = False
+
         _pitch_rot = R.from_euler('x', -57.0, degrees=True).as_matrix()
         self._base_pos_in_camera = _pitch_rot @ _CAMERA_TRANSLATION
 
@@ -88,6 +96,7 @@ class FilterNode(Node):
             'ground_plane.npy'
         )
 
+        # Load ground plane if available, and compute up vector for visualization and filtering
         if os.path.exists(plane_path):
             self._ground_plane = np.load(plane_path)
             self._ground_plane[3] += GROUND_PLANE_OFFSET
@@ -100,6 +109,8 @@ class FilterNode(Node):
                 f"Loaded ground plane: {self._ground_plane}"
             )
 
+        # Subscriptions and publishers
+
         self.pc_sub = self.create_subscription(
             PointCloud2,
             '/cloud/masks_clean',
@@ -107,28 +118,24 @@ class FilterNode(Node):
             1
         )
 
-        self.start_grasp_flag = self.create_subscription(
-            Bool,
-            '/start_grasp',
-            self.start_grasp_callback,
-            1
-        )
+        self.start_grasp_flag = self.start_grasp_flag = self.create_subscription(Bool, '/start_grasp', self.start_grasp_callback, latch_qos)
 
         self.selected_mask_pub = self.create_publisher(PointCloud2, '/selected_mask', 1)
         self.centroids_pub = self.create_publisher(PointCloud2, '/cloud/centroids', 10)
         self.sphere_marker_pub = self.create_publisher(Marker, '/reachability_sphere', 10)
         self.base_link_markers_pub = self.create_publisher(MarkerArray, '/base_link_debug', 10)
         self.ground_marker_pub = self.create_publisher(Marker, '/ground_marker', 10)
-        self.stop_nav = self.create_publisher(Bool, '/vision/resume_navigation', 1)
 
         self._startup_count = 0
         self._startup_timer = self.create_timer(0.5, self._startup_publish)
 
         self.get_logger().info("FilterNode started")
 
+    # Store Bool grasp representing when to start grasp
     def start_grasp_callback(self, msg):
         self.start_grasp = msg.data
 
+    # Publish static debugging markers 
     def _startup_publish(self):
         self._startup_count += 1
 
@@ -144,6 +151,7 @@ class FilterNode(Node):
         if self._ground_plane is not None:
             self.ground_marker_pub.publish(self._build_ground_plane_marker(header))
 
+    # Header for static debug markers
     def _make_static_header(self):
         from std_msgs.msg import Header
 
@@ -285,9 +293,6 @@ class FilterNode(Node):
         t_start = time.perf_counter() 
         
         self._msg_count += 1
-        
-        nav_msg = Bool()
-        nav_msg.data = True
 
         if self._msg_count % PROCESS_EVERY_N != 0:
             return
@@ -298,6 +303,7 @@ class FilterNode(Node):
         if self._ground_plane is not None:
             self.ground_marker_pub.publish(self._build_ground_plane_marker(pc_msg.header))
 
+        # Parse rgb node point cloud 
         t_parse_start = time.perf_counter()
         points_list = list(pc2.read_points(
             pc_msg,
@@ -306,24 +312,20 @@ class FilterNode(Node):
         ))
         t_parse_end = time.perf_counter()
 
-        if not points_list:
-            self.stop_nav.publish(nav_msg)
-            return
-        else:
-            nav_msg.data = False
-            self.stop_nav.publish(nav_msg)
-
         t_logic_start = time.perf_counter()
         xyz = np.array([[p[0], p[1], p[2]] for p in points_list], dtype=np.float32)
         raw_ids = np.array([p[3] for p in points_list], dtype=np.float32)
-        instance_ids = np.round(raw_ids).astype(np.int32)
+        instance_ids = np.round(raw_ids).astype(np.int32) # 
 
-        unique_ids = np.unique(instance_ids)
+        unique_ids = np.unique(instance_ids) # IDs not necessarily sequential or starting at 0, so find unique set 
+        np.random.shuffle(unique_ids)  # randomise selection order
 
         selected_points = None
         selected_id = None
         outside_centroids = []
         outside_ids = []
+
+        # For each litter instance, select random instance within reachability radius for grasping, also publishing centroids.
 
         for uid in unique_ids:
             candidate_pts = xyz[instance_ids == uid]
@@ -334,7 +336,7 @@ class FilterNode(Node):
 
             dist = np.linalg.norm(centroid - self._base_pos_in_camera)
 
-            if dist < REACHABILITY_RADIUS: # THIS MUST BE CHANGED FOR GRASP TESTING, WILL ONLY WORK IF NAV GIVES GO AHEAD
+            if dist < REACHABILITY_RADIUS and self.start_grasp:
                 if selected_points is None:
                     selected_points = candidate_pts
                     selected_id = uid

@@ -75,7 +75,7 @@ class ServerClientNode(Node):
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
         t.header.frame_id = 'base_link'
-        t.child_frame_id = 'camera_link_qais_smells'
+        t.child_frame_id = 'camera_link_2'
 
         if self.transform_flag:
             t.transform.translation.x = 0.14
@@ -100,7 +100,7 @@ class ServerClientNode(Node):
     def get_pose_rotation(self) -> TransformStamped:
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
-        t.header.frame_id = 'camera_link_qais_smells'
+        t.header.frame_id = 'camera_link_2'
         t.child_frame_id = 'pose_rotation'
         t.transform.translation.x = 0.0
         t.transform.translation.y = 0.0

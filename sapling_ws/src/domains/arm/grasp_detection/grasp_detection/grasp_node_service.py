@@ -1,3 +1,5 @@
+# DEPRECATED: This node is no longer used in the current system architecture, but is left here for reference and potential future use.
+
 import os
 import time
 import numpy as np

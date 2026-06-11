@@ -62,7 +62,7 @@ class ServerClientNode(Node):
         )
 
         # Assume bin is not ready
-        self.bin_status = False
+        self.bin_status = True
 
         self.place_pose = Pose()
 
@@ -96,12 +96,12 @@ class ServerClientNode(Node):
         t = TransformStamped()
         t.header.stamp = self.get_clock().now().to_msg()
         t.header.frame_id = 'base_link'
-        t.child_frame_id = 'camera_link_qais_smells'
+        t.child_frame_id = 'camera_link_2'
 
         if self.transform_flag:
             # Transform definition
             t.transform.translation.x = 0.13
-            t.transform.translation.y = 0.14
+            t.transform.translation.y = 0.15
             t.transform.translation.z = 0.605
             t.transform.rotation.x = -0.682
             t.transform.rotation.y = 0.682
