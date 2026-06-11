@@ -93,6 +93,7 @@ def wait_for_nav2():
     )
 
 
+
 def launch_setup(context, *args, **kwargs):
 
     slam_arg = LaunchConfiguration("slam")
@@ -103,6 +104,11 @@ def launch_setup(context, *args, **kwargs):
     scout_base_pkg = get_package_share_directory("scout_base")
     robot_desc_pkg = get_package_share_directory("robot_description")
     rm_nav_pkg = get_package_share_directory("rm_navigation")
+    rviz_default_config_file = os.path.join(
+        rm_nav_pkg,
+        "rviz",
+        "nav2.rviz"
+    )
     rm_loc_pkg = get_package_share_directory("rm_localization")
     # rm_loc_pkg = get_package_share_directory("rm_localization")
 
@@ -170,6 +176,7 @@ def launch_setup(context, *args, **kwargs):
         name="front_back_node",
         output="screen",
     )
+    
     cv_nav_node = Node(
         package="waypoint_navigation_pkg",
         executable="pointcloud_to_detected_litter_node",
@@ -178,9 +185,17 @@ def launch_setup(context, *args, **kwargs):
     )
     litter_nav_node = Node(
         package="waypoint_navigation_pkg",
-        executable="single_sweep_litter_node",
+        executable="sweep_trigger",
         name="litter_nav_node",
         output="screen",
+    )
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="screen",
+        arguments=["-d", rviz_default_config_file],
+        parameters=[{"use_sim_time": False}],
     )
 
     wait_scan = wait_for_topic("/scan")
@@ -239,6 +254,12 @@ def launch_setup(context, *args, **kwargs):
             OnProcessExit(
                 target_action=wait_nav2_ready,
                 on_exit=[litter_nav_node],
+            )
+        ),
+        RegisterEventHandler(
+            OnProcessExit(
+                target_action=wait_nav2_ready,
+                on_exit=[rviz_node],
             )
         ),
     ]

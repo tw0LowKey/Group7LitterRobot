@@ -1,6 +1,8 @@
 The following assumes a JetPack version of 6.2.1 and Python version 3.10.12, CUDA 12.6
 
-(ORBBEC INSTALL)
+First the Orbbec camera must be correctly installed via:
+https://github.com/orbbec/OrbbecSDK_ROS2
+and https://doc.orbbec.com/documentation/Orbbec%20Femto%20Mega%20Documentation
 
 Second, ultralytics must be installed via:
 

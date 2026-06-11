@@ -14,9 +14,9 @@ class YamlObstaclePublisher(Node):
     def __init__(self):
         super().__init__('yaml_obstacle_publisher')
 
-        
 
-        self.yaml_file = "/home/ashutosh/scout_ws_2mini/src/rm_navigation/config/fixed_obstacles.yaml"
+
+        self.yaml_file = "/home/ashutosh/scout_ws_2mini/src/rm_navigation/config/fixed_obstacles.yaml" # change to file name being used
         self.topic_name = "/obstacle_points"
         self.frame_id = "odom"
         self.publish_rate = 2.0

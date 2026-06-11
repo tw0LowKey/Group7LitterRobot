@@ -27,8 +27,9 @@ class SingleSweepLitterNode(Node):
         - Generates straight-line waypoints internally.
         - Navigates through those waypoints using /navigate_to_pose.
         - Listens to /vision/detected_litter.
-        - Waits startup_detection_grace_seconds before starting navigation,
+        - Waits startup_detection_grace_seconds first,
           so the CV node has time to start and publish detections.
+        - After the countdown, waits for manual_start_topic=True before starting navigation.
         - Accepts litter only if it is within litter_accept_radius of the Scout.
         - If accepted litter appears during waypoint navigation, waypoint navigation is interrupted.
         - Navigates to the litter approach pose.
@@ -63,6 +64,7 @@ class SingleSweepLitterNode(Node):
     """
 
     STATE_WAITING_ODOM = "WAITING_ODOM"
+    STATE_WAITING_START_TRIGGER = "WAITING_START_TRIGGER"
     STATE_WAYPOINT_NAV = "WAYPOINT_NAV"
     STATE_LITTER_NAV = "LITTER_NAV"
     STATE_ROTATE_TO_LITTER = "ROTATE_TO_LITTER"
@@ -118,6 +120,11 @@ class SingleSweepLitterNode(Node):
         # Gives the CV node time to start before this node sends any Nav2 goals.
         self.declare_parameter("startup_detection_grace_seconds", 30.0)
 
+        # Manual start trigger after startup countdown.
+        # Default is /drive_front_3m so this command starts the sweep:
+        # ros2 topic pub --once /drive_front_3m std_msgs/msg/Bool "{data: true}"
+        self.declare_parameter("manual_start_topic", "/drive_front_3m")
+
         # Litter behaviour
         self.declare_parameter("litter_accept_radius", 2.0)
         self.declare_parameter("approach_offset", 0.4)
@@ -151,6 +158,8 @@ class SingleSweepLitterNode(Node):
         self.startup_detection_grace_seconds = float(
             self.get_parameter("startup_detection_grace_seconds").value
         )
+        self.manual_start_topic = self.get_parameter("manual_start_topic").value
+        self.start_trigger_received = False
         self.litter_accept_radius = float(
             self.get_parameter("litter_accept_radius").value
         )
@@ -268,6 +277,14 @@ class SingleSweepLitterNode(Node):
             callback_group=self.cb_group,
         )
 
+        self.manual_start_sub = self.create_subscription(
+            Bool,
+            self.manual_start_topic,
+            self.manual_start_callback,
+            10,
+            callback_group=self.cb_group,
+        )
+
         # ============================================================
         # Nav2 action client
         # ============================================================
@@ -301,6 +318,7 @@ class SingleSweepLitterNode(Node):
         self.get_logger().info(f"Start grasp topic:   {self.start_grasp_topic}")
         self.get_logger().info(f"Call bin topic:      {self.call_bin_topic}")
         self.get_logger().info(f"Queue size topic:    {self.queue_size_topic}")
+        self.get_logger().info(f"Manual start topic:  {self.manual_start_topic}")
         self.get_logger().info(f"Goal frame:          {self.goal_frame}")
         self.get_logger().info(f"Num waypoints:       {self.num_waypoints}")
         self.get_logger().info(f"Spacing:             {self.spacing:.2f} m")
@@ -336,6 +354,10 @@ class SingleSweepLitterNode(Node):
             )
 
         self.get_logger().info("Waiting for /odom...")
+        self.get_logger().info(
+            f"After countdown, start with: ros2 topic pub --once "
+            f"{self.manual_start_topic} std_msgs/msg/Bool '{{data: true}}'"
+        )
 
     # ============================================================
     # Waypoint generation
@@ -368,6 +390,28 @@ class SingleSweepLitterNode(Node):
     # ============================================================
     # Callbacks
     # ============================================================
+
+    def manual_start_callback(self, msg: Bool):
+        """
+        Manual start gate.
+
+        The node still performs the startup countdown first. After that,
+        navigation only begins when this topic receives True.
+        """
+
+        if not msg.data:
+            return
+
+        with self.lock:
+            self.start_trigger_received = True
+
+            if self.state == self.STATE_WAITING_START_TRIGGER:
+                self.get_logger().warn(
+                    "Manual start trigger received. Starting waypoint/litter navigation."
+                )
+                self.state = self.STATE_WAYPOINT_NAV
+
+        self.publish_start_grasp(False)
 
     def odom_callback(self, msg: Odometry):
         self.current_pose = msg.pose.pose
@@ -739,10 +783,26 @@ class SingleSweepLitterNode(Node):
                 return
 
             self.get_logger().info(
-                "Startup grace complete. Starting waypoint/litter navigation."
+                "Startup grace complete. Waiting for manual start trigger."
+            )
+            self.state = self.STATE_WAITING_START_TRIGGER
+            # Ensure latched topic starts as False/idle.
+            self.publish_start_grasp(False)
+            return
+
+        if self.state == self.STATE_WAITING_START_TRIGGER:
+            if not self.start_trigger_received:
+                self.get_logger().info(
+                    f"Waiting for manual start. Run: ros2 topic pub --once "
+                    f"{self.manual_start_topic} std_msgs/msg/Bool '{{data: true}}'"
+                )
+                self.publish_start_grasp(False)
+                return
+
+            self.get_logger().warn(
+                "Manual start trigger already received. Starting waypoint/litter navigation."
             )
             self.state = self.STATE_WAYPOINT_NAV
-            # Ensure latched topic starts as False/idle.
             self.publish_start_grasp(False)
 
         if self.goal_active:

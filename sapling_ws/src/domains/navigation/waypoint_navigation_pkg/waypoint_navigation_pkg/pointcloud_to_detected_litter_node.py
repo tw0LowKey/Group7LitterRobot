@@ -16,21 +16,28 @@ import tf2_geometry_msgs  # registers PointStamped TF support
 
 class PointCloudToDetectedLitterNode(Node):
     """
-    Converts /cloud/centroids into /vision/detected_litter.
+    Converts /cloud/centroids into detected litter topics.
 
-    For the all-in-one navigation node, this publishes litter poses in odom frame.
+    Publishes:
+        /vision/detected_litter       in odom frame
+        /vision/detected_litter_base  in base_link frame
+
+    /vision/detected_litter:
+        Used by the navigation node to send Nav2 goals.
+
+    /vision/detected_litter_base:
+        Used by the navigation node to check whether litter is directly
+        in front of the Scout and close enough for pickup/retry.
 
     Subscribes:
         /cloud/centroids
 
-    Publishes:
-        /vision/detected_litter
-
     TF required:
         odom -> base_link
-        base_link -> camera_link
 
-    This node manually broadcasts base_link -> camera_link using the hardcoded transform.
+    This node manually broadcasts:
+        base_link -> camera_link
+    using the hardcoded camera transform.
     """
 
     def __init__(self):
@@ -41,12 +48,17 @@ class PointCloudToDetectedLitterNode(Node):
         # ============================================================
 
         self.declare_parameter("cloud_topic", "/cloud/centroids")
+
+        # Odom-frame litter topic for navigation.
         self.declare_parameter("litter_topic", "/vision/detected_litter")
 
-        # Option A: use odom everywhere
+        # Base-link-frame litter topic for front/close checks.
+        self.declare_parameter("litter_base_topic", "/vision/detected_litter_base")
+
+        # Option A: use odom everywhere for Nav2 goal positions.
         self.declare_parameter("target_frame", "odom")
 
-        # Match your robot odom child frame
+        # Match your robot odom child frame.
         self.declare_parameter("base_frame", "base_link")
         self.declare_parameter("camera_frame", "camera_link")
 
@@ -56,10 +68,13 @@ class PointCloudToDetectedLitterNode(Node):
 
         self.cloud_topic = self.get_parameter("cloud_topic").value
         self.litter_topic = self.get_parameter("litter_topic").value
+        self.litter_base_topic = self.get_parameter("litter_base_topic").value
         self.target_frame = self.get_parameter("target_frame").value
         self.base_frame = self.get_parameter("base_frame").value
         self.camera_frame = self.get_parameter("camera_frame").value
-        self.max_publish_radius = float(self.get_parameter("max_publish_radius").value)
+        self.max_publish_radius = float(
+            self.get_parameter("max_publish_radius").value
+        )
 
         # ============================================================
         # TF setup
@@ -73,7 +88,7 @@ class PointCloudToDetectedLitterNode(Node):
         self.create_timer(0.1, self.publish_camera_tf)
 
         # ============================================================
-        # Subscriber / Publisher
+        # Subscriber / Publishers
         # ============================================================
 
         self.pc_sub = self.create_subscription(
@@ -83,19 +98,28 @@ class PointCloudToDetectedLitterNode(Node):
             10,
         )
 
+        # Odom-frame publisher for Nav2/navigation.
         self.litter_pub = self.create_publisher(
             PoseStamped,
             self.litter_topic,
             10,
         )
 
+        # Base-link-frame publisher for front/close checks.
+        self.litter_base_pub = self.create_publisher(
+            PoseStamped,
+            self.litter_base_topic,
+            10,
+        )
+
         self.get_logger().info("=== PointCloud to Detected Litter Node Started ===")
-        self.get_logger().info(f"Cloud topic:    {self.cloud_topic}")
-        self.get_logger().info(f"Litter topic:   {self.litter_topic}")
-        self.get_logger().info(f"Target frame:   {self.target_frame}")
-        self.get_logger().info(f"Base frame:     {self.base_frame}")
-        self.get_logger().info(f"Camera frame:   {self.camera_frame}")
-        self.get_logger().info(f"Max radius:     {self.max_publish_radius:.2f} m")
+        self.get_logger().info(f"Cloud topic:       {self.cloud_topic}")
+        self.get_logger().info(f"Litter odom topic: {self.litter_topic}")
+        self.get_logger().info(f"Litter base topic: {self.litter_base_topic}")
+        self.get_logger().info(f"Target frame:      {self.target_frame}")
+        self.get_logger().info(f"Base frame:        {self.base_frame}")
+        self.get_logger().info(f"Camera frame:      {self.camera_frame}")
+        self.get_logger().info(f"Max radius:        {self.max_publish_radius:.2f} m")
 
     # ============================================================
     # Camera transform
@@ -149,6 +173,7 @@ class PointCloudToDetectedLitterNode(Node):
             return
 
         published_count = 0
+        published_base_count = 0
 
         for i in range(num_centroids):
             offset = i * msg.point_step
@@ -161,7 +186,7 @@ class PointCloudToDetectedLitterNode(Node):
                 self.get_logger().warn(f"Failed to unpack centroid {i}: {e}")
                 continue
 
-            # Raw centroid in camera frame
+            # Raw centroid in camera frame.
             cam_point = PointStamped()
             cam_point.header.frame_id = (
                 msg.header.frame_id if msg.header.frame_id else self.camera_frame
@@ -171,7 +196,9 @@ class PointCloudToDetectedLitterNode(Node):
             cam_point.point.y = float(y)
             cam_point.point.z = float(z)
 
+            # ------------------------------------------------------------
             # Step 1: camera_link -> base_link using hardcoded transform
+            # ------------------------------------------------------------
             try:
                 point_base = tf2_geometry_msgs.do_transform_point(
                     cam_point,
@@ -196,7 +223,28 @@ class PointCloudToDetectedLitterNode(Node):
                 )
                 continue
 
+            # ------------------------------------------------------------
+            # Publish 1: litter relative to Scout/base_link
+            # ------------------------------------------------------------
+            # This topic is useful for simple pickup/front checks:
+            #   x > 0 means in front of robot
+            #   y tells left/right offset
+            #   distance = sqrt(x^2 + y^2)
+            litter_pose_base = PoseStamped()
+            litter_pose_base.header.frame_id = self.base_frame
+            litter_pose_base.header.stamp = self.get_clock().now().to_msg()
+
+            litter_pose_base.pose.position.x = point_base.point.x
+            litter_pose_base.pose.position.y = point_base.point.y
+            litter_pose_base.pose.position.z = 0.0
+            litter_pose_base.pose.orientation.w = 1.0
+
+            self.litter_base_pub.publish(litter_pose_base)
+            published_base_count += 1
+
+            # ------------------------------------------------------------
             # Step 2: base_link -> odom using TF
+            # ------------------------------------------------------------
             try:
                 point_odom = self.tf_buffer.transform(
                     point_base,
@@ -209,6 +257,9 @@ class PointCloudToDetectedLitterNode(Node):
                 )
                 continue
 
+            # ------------------------------------------------------------
+            # Publish 2: litter in odom frame for Nav2/navigation
+            # ------------------------------------------------------------
             litter_pose = PoseStamped()
             litter_pose.header.frame_id = self.target_frame
             litter_pose.header.stamp = point_odom.header.stamp
@@ -222,16 +273,19 @@ class PointCloudToDetectedLitterNode(Node):
             published_count += 1
 
             self.get_logger().info(
-                f"Published litter {i} in {self.target_frame}: "
-                f"x={litter_pose.pose.position.x:.3f}, "
-                f"y={litter_pose.pose.position.y:.3f}, "
+                f"Published litter {i}: "
+                f"base=({litter_pose_base.pose.position.x:.3f}, "
+                f"{litter_pose_base.pose.position.y:.3f}), "
+                f"odom=({litter_pose.pose.position.x:.3f}, "
+                f"{litter_pose.pose.position.y:.3f}), "
                 f"base_dist={distance_2d:.3f} m"
             )
 
-        if published_count > 0:
+        if published_base_count > 0 or published_count > 0:
             self.get_logger().info(
-                f"Published {published_count}/{num_centroids} centroids to "
-                f"{self.litter_topic}"
+                f"Published base={published_base_count}/{num_centroids}, "
+                f"odom={published_count}/{num_centroids} centroids to "
+                f"{self.litter_base_topic} and {self.litter_topic}"
             )
 
 

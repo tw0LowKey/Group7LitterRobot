@@ -65,8 +65,8 @@ controller_server:
         goal_checker:
             stateful: True
             plugin: "nav2_controller::SimpleGoalChecker"
-            xy_goal_tolerance: 0.5
-            yaw_goal_tolerance: 2.0
+            xy_goal_tolerance: 0.1
+            yaw_goal_tolerance: 0.785
         FollowPath:
             plugin: "nav2_rotation_shim_controller::RotationShimController"
             primary_controller: "nav2_mppi_controller::MPPIController"
@@ -135,11 +135,11 @@ controller_server:
             ObstaclesCritic:
                 enabled: true
                 cost_power: 1
-                repulsion_weight: 1.5
-                critical_weight: 20.0
+                repulsion_weight: 3.0
+                critical_weight: 30.0
                 consider_footprint: true
                 collision_cost: 1000.0
-                collision_margin_distance: 0.2
+                collision_margin_distance: 0.35
                 near_goal_distance: 0.5
             PathAlignCritic:
                 enabled: true
@@ -191,8 +191,8 @@ local_costmap:
 
             inflation_layer:
                 plugin: "nav2_costmap_2d::InflationLayer"
-                cost_scaling_factor: 15.0
-                inflation_radius: 0.55
+                cost_scaling_factor: 8.0
+                inflation_radius: 0.75
 
             obstacle_layer:
                 plugin: "nav2_costmap_2d::ObstacleLayer"
@@ -271,8 +271,8 @@ global_costmap:
 
             inflation_layer:
                 plugin: "nav2_costmap_2d::InflationLayer"
-                cost_scaling_factor: 3.0
-                inflation_radius: 0.55
+                cost_scaling_factor: 5.0
+                inflation_radius: 0.75
 
             always_send_full_costmap: True
 map_server:

@@ -41,7 +41,10 @@ setup(
             'new_litter_monitor_node_new = waypoint_navigation_pkg.new_litter_monitor_new:main',
             'straight_line_waypoint_generator_node = waypoint_navigation_pkg.straight_line_waypoint_generator:main',
             'pointcloud_to_detected_litter_node = waypoint_navigation_pkg.pointcloud_to_detected_litter_node:main',
-            'single_sweep_litter_node = waypoint_navigation_pkg.single_sweep_litter_node:main'
+            'single_sweep_litter_node = waypoint_navigation_pkg.single_sweep_litter_node:main',
+            'sweep_reset = waypoint_navigation_pkg.sweep_reset:main',
+            'sweep_trigger = waypoint_navigation_pkg.sweep_trigger:main'
+            
         ],
     },
 )
