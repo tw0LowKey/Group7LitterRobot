@@ -81,18 +81,20 @@ A utility node used for testing area coordinate services.
   ```bash
   sudo docker run --rm -it --network=host bluenviron/mediamtx:latest
   ```
+- Connect the RFM9x LoRa module and the emergency stop button to the Jetson Orin Nano:
+  ![Jetson Orin Nano Wiring Diagram](wiring_diagram.svg)
 
 ### Running the Nodes
 To start the basic teleop stack:
 ```bash
-export SAPLING_ID=sapling_robot_01  # Has to comply with with R-### where ### is a 3 digit number
+export SAPLING_ID=R-067  # Has to comply with with R-### where ### is a 3 digit number
 export SAPLING_ROLE=pickbot  # or binbot
 ros2 launch comms teleop_test_basic.launch.py
 ```
 
 To start the stack with video streaming:
 ```bash
-export SAPLING_ID=sapling_robot_01  # Has to comply with with R-### where ### is a 3 digit number
+export SAPLING_ID=R-007  # Has to comply with with R-### where ### is a 3 digit number
 export SAPLING_ROLE=pickbot
 ros2 launch comms teleop_test_video.launch.py
 ```
