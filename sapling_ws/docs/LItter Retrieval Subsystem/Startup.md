@@ -31,7 +31,7 @@ The bin_ready flag is used to only allow the litter to be dropped by PickBot in 
 ros2 topic pub --once /comms/follower_to_leader sapling_interfaces/msg/FollowerStatus "{seq: 0, parked: false, park_x: 0.0, park_y: 0.0, bin_ready: true}"
 ```
 
-Similarly, as the navigation subsystem was partially implemented, grasping will only activate once a flag is given from the navigation nodes. This could be disabled via changing "REACHABILITY RADIUS and self.start_grasp" to simply "REACHABILITY RADIUS" in vision/computer_vision/computer_vision/filter_node, however grasping can be manually triggered by setting the flag as follows: 
+Similarly, as the navigation subsystem was partially implemented, grasping will only activate once a flag is given from the navigation nodes. This could be disabled via changing `REACHABILITY RADIUS and self.start_grasp` to simply `REACHABILITY RADIUS` in vision/computer_vision/computer_vision/filter_node, however grasping can be manually triggered instead by setting the flag as follows: 
 ```bash
 ros2 topic pub --once /start_grasp std_msgs/msg/Bool "{data: true}"
 ```
