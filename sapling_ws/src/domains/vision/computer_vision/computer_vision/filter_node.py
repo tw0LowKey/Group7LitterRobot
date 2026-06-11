@@ -336,7 +336,7 @@ class FilterNode(Node):
 
             dist = np.linalg.norm(centroid - self._base_pos_in_camera)
 
-            if dist < REACHABILITY_RADIUS and self.start_grasp:
+            if dist < REACHABILITY_RADIUS and self.start_grasp: # self.start_grasp can be removed to enable continuous grasping without input.
                 if selected_points is None:
                     selected_points = candidate_pts
                     selected_id = uid
