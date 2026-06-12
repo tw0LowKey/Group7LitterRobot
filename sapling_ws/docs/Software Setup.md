@@ -2,7 +2,9 @@
 
 ## Prerequisites
 
-This project is designed to run on a NVIDIA Jetson Orin Nano running **JetPack 6.2**.
+This project is designed to run on a NVIDIA Jetson Orin Nano running [JetPack 6.2](https://developer.nvidia.com/embedded/jetpack-sdk-621) with [ROS 2 Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html) installed.
+
+Jetpack 6.2 is the latest version of Jetpack that is available for the Jetson Orin Nano. Jetpack 6.2 is built around Ubuntu 22.04, meaning that ROS 2 Humble is the most recent version that is supposed by Jetpack 6.2.
 
 ---
 
