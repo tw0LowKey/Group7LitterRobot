@@ -1,6 +1,6 @@
-# Group 7 — Sapling Litter Robot
+# Group 7 — SAPLInG Litter Robot
 
-An autonomous outdoor litter-collection robot built on ROS 2 (Humble). The robot navigates a defined area, detects litter with a depth camera, picks it up with a robotic arm, and coordinates with a base station over LoRa/Bluetooth.
+An autonomous outdoor litter-collection robot built on ROS 2 (Humble). The robot navigates a defined area, detects litter with computer vision and a depth camera, picks it up with a robotic arm, and coordinates with a base station over LoRa/Bluetooth.
 
 ---
 
@@ -103,3 +103,5 @@ ros2 launch sapling <launch_file>.py
 ```
 
 Hardware requirements: Orbbec depth camera, Piper arm with CAN interface, LoRa radio module, Emlid Reach M2 GPS.
+
+Created as a part of the University of Manchester EEE MEng Project for Group 7, 2025/2026.
