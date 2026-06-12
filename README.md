@@ -1,5 +1,6 @@
 # Group 7 — SAPLInG Litter Robot
 
+The **S**ystem for the **A**utonomous **P**icking of **L**itter **In** **G**rasslands.
 An autonomous outdoor litter-collection robot built on ROS 2 (Humble). The robot navigates a defined area, detects litter with computer vision and a depth camera, picks it up with a robotic arm, and coordinates with a base station over LoRa/Bluetooth.
 
 ---
