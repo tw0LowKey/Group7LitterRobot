@@ -16,7 +16,7 @@ Group7LitterRobot/
 │   │   │   ├── comms/           # LoRa + Bluetooth comms with the base station
 │   │   │   ├── navigation/      # Localisation, Nav2, waypoint following, litter handling
 │   │   │   └── vision/          # Orbbec depth camera driver + computer-vision pipeline
-│   │   ├── drivers/             # Low-level hardware drivers (GPS, etc.) — populated by install.sh
+│   │   ├── drivers/             # Third party hardware repos (GPS, etc.) — populated by scripts/install.sh
 │   │   ├── misc/                # Utility nodes (emergency stop)
 │   │   ├── sapling/             # Top-level launch package
 │   │   ├── sapling_description/ # Robot URDF / xacro model
@@ -24,7 +24,6 @@ Group7LitterRobot/
 │   ├── docs/                    # Assembly instructions, BOM, SolidWorks parts
 │   ├── scripts/
 │   │   ├── install.sh           # Clones external driver repos via vcstool
-│   │   └── setup.sh             # Workspace build / environment setup
 │   └── sapling.repos            # vcstool manifest for driver dependencies
 └── misc/                        # Experiments & prototypes (not part of the main build)
     ├── arm/                     # Early arm scripting experiments
@@ -50,12 +49,13 @@ Controls the **Piper robotic arm** over CAN bus.
 | `scripts/` | CAN bus activation helpers (`can_activate.sh`, etc.) |
 
 ### `domains/comms`
-Handles **wireless communication** between the robot and a remote base station.
+Handles **wireless communication** between the robots as well as between the robot and a remote user interface.
 
 | Node | Purpose |
 |---|---|
 | `sapling_comms_node` | LoRa radio TX/RX + Bluetooth GATT server for provisioning |
 | `sapling_executor_node` | Receives commands from base, dispatches to other subsystems |
+| `sapling_video_node` | Serves the video feed to the UI |
 | `sapling_area_coords_test_node` | Dev/test node that serves fake GPS area coordinates |
 
 ### `domains/navigation`
@@ -92,19 +92,34 @@ Custom ROS 2 interface definitions shared across all packages.
 ## Getting Started
 
 ```bash
-# 1. Clone third-party drivers
+# 1. Clone the required third-party repos
 cd sapling_ws
 bash scripts/install.sh
 
 # 2. Build and source
-bash scripts/setup.sh
+colcon build --symlink-install
+source install/setup.bash
 
-# 3. Launch (see sapling/launch/ for specific launch files)
-ros2 launch sapling <launch_file>.py
+# 3. Perform the software installation
+https://github.com/tw0LowKey/Group7LitterRobot/blob/main/sapling_ws/docs/Software%20Setup.md
+
+# 4. Make sure the can ports are up and running
+canup
+
+# 4. Launch files can be found in the launch folder in each domain / domain's packages
+ros2 launch <package> <launch_file>.py
 ```
 
 See sapling_ws/docs for more info on how to install and launch the subsystems
 
-Hardware requirements: Orbbec depth camera, Piper arm with CAN interface, LoRa radio module, Emlid Reach M2 GPS.
+Hardware requirements: Orbbec depth camera, Piper arm with CAN interface, LoRa RFM9x radio module, Emlid Reach M2 GPS.
 
-Created as a part of the University of Manchester EEE MEng Project for Group 7, 2025/2026.
+## Sunlight
+
+A custom, full-stack user interface named `Sunlight` was designed to serve as the central command unit for the SAPLInG system.
+
+It can be found at [tw0LowKey/Sunlight](https://github.com/tw0LowKey/Sunlight).
+
+---
+
+This repository was created as a part of the University of Manchester EEE MEng Group 7 2025-2026 Project.
