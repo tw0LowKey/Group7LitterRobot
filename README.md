@@ -103,6 +103,8 @@ bash scripts/setup.sh
 ros2 launch sapling <launch_file>.py
 ```
 
+See sapling_ws/docs for more info on how to install and launch the subsystems
+
 Hardware requirements: Orbbec depth camera, Piper arm with CAN interface, LoRa radio module, Emlid Reach M2 GPS.
 
 Created as a part of the University of Manchester EEE MEng Project for Group 7, 2025/2026.
